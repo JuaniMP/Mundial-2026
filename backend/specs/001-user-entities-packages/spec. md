@@ -1,0 +1,297 @@
+# Feature Specification: Mundial 2026 Hub Backend
+
+**Feature Branch**: `001-user-entities-packages`
+**Created**: 2026-04-30
+**Status**: Draft
+**Input**: User description: "Backend Java Spring para Mundial 2026 Hub con paquetes ordenados por entidad"
+
+## User Scenarios & Testing
+
+### User Story 1 - Gestión de Usuarios y Roles (Priority: P1)
+
+Un administrador puede crear usuarios con roles específicos y gestionar他们都 autenticación.
+
+**Why this priority**: Sin usuarios no hay sistema.
+**Independent Test**: CRUD completo de usuarios y roles vía API REST.
+
+**Acceptance Scenarios**:
+1. **Given** no existe usuario, **When** admin crea usuario con rol, **Then** usuario persiste con rol asignado
+2. **Given** existe usuario, **When** se consulta usuario por ID, **Then** retorna datos completos con rol
+3. **Given** existe usuario, **When** admin actualiza rol, **Then** rol se actualiza correctamente
+4. **Given** existe usuario, **When** admin elimina usuario, **Then** usuario se desactiva (soft delete)
+
+---
+
+### User Story 2 - Gestión de Infraestructura (Priority: P2)
+
+Un operador puede gestionar sedes y estadios para los partidos del mundial.
+
+**Why this priority**: Sin infraestructura no hay partidos.
+**Independent Test**: CRUD de sedes y estadios vía API REST.
+
+**Acceptance Scenarios**:
+1. **Given** no existe sede, **When** operador crea sede, **Then** sede persiste
+2. **Given** existe sede, **When** operador asocia estadio, **Then** estadio vinculado a sede
+3. **Given** existe estadio, **When** se consulta partidos en estadio, **Then** retorna lista de partidos
+
+---
+
+### User Story 3 - Gestión de Selecciones y Jugadores (Priority: P2)
+
+Un operador puede gestionar selecciones nacionales y sus jugadores.
+
+**Why this priority**: Las selecciones son el core del mundial.
+**Independent Test**: CRUD de selecciones y jugadores.
+
+**Acceptance Scenarios**:
+1. **Given** no existe selección, **When** operador crea selección, **Then** selección persiste
+2. **Given** existe selección, **When** operador asocia jugador, **Then** jugador vinculado a selección
+3. **Given** existe jugador, **When** se actualizan estadísticas, **Then** estadísticas actualizadas
+
+---
+
+### User Story 4 - Gestión de Partidos (Priority: P2)
+
+Un operador puede programar y gestionar partidos entre selecciones.
+
+**Why this priority**: Los partidos son el evento principal.
+**Independent Test**: CRUD de partidos con validación de equipos.
+
+**Acceptance Scenarios**:
+1. **Given** existen selecciones y estadio, **When** operador crea partido, **Then** partido programado
+2. **Given** existe partido, **When** se actualiza marcador, **Then** marcador actualizado
+3. **Given** existe partido, **When** operador cambia estado, **Then** estado actualizado
+
+---
+
+### User Story 5 - Gestión de Entradas (Priority: P3)
+
+Un aficionado puede comprar entradas para partidos.
+
+**Why this priority**: Monetización del sistema.
+**Independent Test**: Compra y consulta de entradas.
+
+**Acceptance Scenarios**:
+1. **Given** existe partido, **When** aficionado compra entrada, **Then** entrada generada con QR
+2. **Given** existe entrada, **When** aficionado consulta entrada, **Then** datos de entrada retornados
+3. **Given** entrada usada, **When** se intenta usar de nuevo, **Then** rechazo por duplicado
+
+---
+
+### User Story 6 - Pollas y Predicciones (Priority: P3)
+
+Un aficionado puede participar en pollas y hacer predicciones de partidos.
+
+**Why this priority**: Engagement de usuarios.
+**Independent Test**: Creación de pollas y predicciones.
+
+**Acceptance Scenarios**:
+1. **Given** usuario existe, **When** crea polla, **Then** polla creada con código único
+2. **Given** polla existe, **When** usuario se une, **Then** participante agregado
+3. **Given** partido pendiente, **When** usuario predice resultado, **Then** predicción almacenada
+
+---
+
+### User Story 7 - Álbum Digital e Intercambios (Priority: P3)
+
+Un aficionado puede administrar su álbum de láminas e intercambiar con otros.
+
+**Why this priority**: Experiencia de coleccionista.
+**Independent Test**: Gestión de álbum e intercambios.
+
+**Acceptance Scenarios**:
+1. **Given** usuario existe, **When** accede a álbum, **Then** álbum creado si no existe
+2. **Given** álbum existe, **When** usuario abre paquete, **Then** láminas agregadas al álbum
+3. **Given** usuario tiene láminas repetidas, **When** solicita intercambio, **Then** intercambio pendiente
+
+---
+
+### User Story 8 - Soporte y Notificaciones (Priority: P4)
+
+Los usuarios pueden reportar incidentes y recibir notificaciones.
+
+**Why this priority**: Operación del sistema.
+**Independent Test**: Reportes y notificaciones.
+
+**Acceptance Scenarios**:
+1. **Given** usuario existe, **When** reporta incidente, **Then** incidente creado
+2. **Given** incidente existe, **When** agente lo procesa, **Then** incidente actualizado
+3. **Given** usuario tiene notificaciones, **When** consulta, **Then** lista de notificaciones
+
+---
+
+### User Story 9 - Compliance y Aliados (Priority: P4)
+
+Administradores pueden gestionar aliados comerciales y reportes de compliance.
+
+**Why this priority**: Regulaciones y partnerships.
+**Independent Test**: Gestión de aliados y reportes.
+
+**Acceptance Scenarios**:
+1. **Given** admin existe, **When** crea aliado, **Then** aliado con token único
+2. **Given** aliado existe, **When** se consultan métricas, **Then** reportes de interacción
+3. **Given** admin necesita auditoría, **When** genera reporte compliance, **Then** reporte generado
+
+---
+
+### Edge Cases
+
+- Email duplicado en registro debe ser rechazado
+- Partido no puede ser entre misma selección (local ≠ visitante)
+- Entrada no puede venderse si partido ya ocurrió
+- Predicción no puede modificarse después de inicio de partido
+- Intercambio requiere que ambas partes tengan las láminas
+- Token de aliado debe ser único y seguro
+
+## Requirements
+
+### Functional Requirements
+
+#### Gestión de Usuarios y Roles (co.edu.unbosque.mundial2026.usuario)
+- **FR-001**: System MUST create usuarios with unique email and rol
+- **FR-002**: System MUST validate email format and password minimum 8 characters
+- **FR-003**: System MUST allow users to authenticate with JWT
+- **FR-004**: System MUST allow CRUD operations on roles
+- **FR-005**: System MUST allow CRUD operations on usuarios
+- **FR-006**: System MUST track last login timestamp
+- **FR-007**: System MUST allow soft delete of users
+
+#### Infraestructura (co.edu.unbosque.mundial2026.infraestructura)
+- **FR-008**: System MUST allow CRUD operations on sedes
+- **FR-009**: System MUST allow CRUD operations on estadios
+- **FR-010**: System MUST validate Estadio belongs to Sede
+- **FR-011**: System MUST allow listing estadios by sede
+
+#### Selecciones y Jugadores (co.edu.unbosque.mundial2026.seleccion)
+- **FR-012**: System MUST allow CRUD operations on selecciones
+- **FR-013**: System MUST allow CRUD operations on jugadores
+- **FR-014**: System MUST validate FIFA code uniqueness
+- **FR-015**: System MUST allow listing jugadores by seleccion
+- **FR-016**: System MUST track player statistics (goals, minutes)
+
+#### Partidos (co.edu.unbosque.mundial2026.partido)
+- **FR-017**: System MUST allow CRUD operations on partidos
+- **FR-018**: System MUST validate local ≠ visitante selections
+- **FR-019**: System MUST allow updating match score
+- **FR-020**: System MUST track match state transitions
+
+#### Entradas (co.edu.unbosque.mundial2026.entrada)
+- **FR-021**: System MUST allow purchasing entradas
+- **FR-022**: System MUST generate unique QR code
+- **FR-023**: System MUST validate ticket is not sold twice
+- **FR-024**: System MUST allow ticket state transitions
+
+#### Pollas (co.edu.unbosque.mundial2026.polla)
+- **FR-025**: System MUST allow CRUD operations on pollas
+- **FR-026**: System MUST allow joining/leaving pollas
+- **FR-027**: System MUST allow CRUD operations on predicciones
+- **FR-028**: System MUST validate prediction before match starts
+- **FR-029**: System MUST calculate points based on prediction accuracy
+
+#### Álbum Digital (co.edu.unbosque.mundial2026.album)
+- **FR-030**: System MUST auto-create album for new user
+- **FR-031**: System MUST allow CRUD operations on laminas
+- **FR-032**: System MUST allow CRUD operations on paquetes
+- **FR-033**: System MUST track album completion percentage
+- **FR-034**: System MUST allow CRUD operations on intercambios
+- **FR-035**: System MUST validate exchange requirements
+
+#### Soporte (co.edu.unbosque.mundial2026.soporte)
+- **FR-036**: System MUST allow creating incidentes
+- **FR-037**: System MUST allow assigning agentes
+- **FR-038**: System MUST track incident status
+- **FR-039**: System MUST allow CRUD operations on logs_transaccionales
+- **FR-040**: System MUST validate integrity hash
+
+#### Notificaciones (co.edu.unbosque.mundial2026.notificacion)
+- **FR-041**: System MUST allow creating notifications
+- **FR-042**: System MUST support multiple channels (EMAIL, PUSH, SMS)
+- **FR-043**: System MUST allow listing user notifications
+
+#### Compliance (co.edu.unbosque.mundial2026.compliance)
+- **FR-044**: System MUST allow CRUD operations on aliados_comerciales
+- **FR-045**: System MUST generate secure access tokens
+- **FR-046**: System MUST track API interaction reports
+- **FR-047**: System MUST allow generating compliance reports
+
+### Key Entities
+
+**Estructura de paquetes por entidad:**
+```
+co.edu.unbosque.mundial2026.{dominio}/
+├── controller/
+│   └── {Entity}Controller.java    # REST endpoints (GET, POST, PUT, DELETE)
+├── entity/
+│   └── {Entity}.java              # JPA Entity con @Table
+├── repository/
+│   └── {Entity}Repository.java   # JPA Repository
+├── request/
+│   └── {Entity}Request.java       # DTO para creación/actualización
+└── service/
+    └── {Entity}Service.java      # Lógica de negocio
+```
+
+#### Dominio: usuario
+- **Rol**: Rol de usuario. Fields: id, nombre. Relations: @ManyToMany with Usuario.
+- **Usuario**: Usuario del sistema. Fields: id, nombre, email, passwordHash, zonaHoraria, seleccionFavorita, fechaRegistro, ultimoLogin. Relations: @ManyToOne with Rol.
+
+#### Dominio: infraestructura
+- **Sede**: Ciudad sede del mundial. Fields: id, ciudad, pais.
+- **Estadio**: Estadio de partidos. Fields: id, nombre, direccion, capacidad. Relations: @ManyToOne with Sede.
+
+#### Dominio: seleccion
+- **Seleccion**: Selección nacional. Fields: id, pais, codigoFifa, confederacion, grupo, historial, banderaUrl.
+- **Jugador**: Jugador de selección. Fields: id, nombreCompleto, posicion, dorsal, fechaNacimiento, nacionalidad, minutosJugados, goles, fotoUrl. Relations: @ManyToOne with Seleccion.
+
+#### Dominio: partido
+- **Partido**: Partido entre selecciones. Fields: id, fechaHora, ronda, estado, marcadorLocal, marcadorVisitante. Relations: @ManyToOne Estadio, @ManyToOne Seleccion (local), @ManyToOne Seleccion (visitante).
+
+#### Dominio: entrada
+- **Entrada**: Entrada para partido. Fields: id, codigoQR, categoria, precio, estado. Relations: @ManyToOne Partido, @ManyToOne Usuario.
+
+#### Dominio: polla
+- **Polla**: Polla de pronóstico. Fields: id, nombre, codigoAcceso, pozoPuntos. Relations: @ManyToOne Usuario (creador).
+- **ParticipantePolla**: Participante en polla. Fields: puntosAcumulados. Relations: @ManyToOne Usuario, @ManyToOne Polla.
+- **Prediccion**: Pronóstico de partido. Fields: id, golesLocal, golesVisitante, puntosObtenidos, fechaPrediccion. Relations: @ManyToOne Usuario, @ManyToOne Polla, @ManyToOne Partido.
+
+#### Dominio: album
+- **Album**: Álbum digital de usuario. Fields: id, porcentajeCompletado, laminasPegadas. Relations: @ManyToOne Usuario.
+- **Lamina**: Láminas coleccionables. Fields: id, rareza. Relations: @ManyToOne Jugador.
+- **LaminaAlbum**: Láminas en álbum. Fields: estaPegada, cantidadRepetidas. Relations: @ManyToOne Album, @ManyToOne Lamina.
+- **Paquete**: Paquete de láminas. Fields: id, estado, fechaObtencion. Relations: @ManyToOne Usuario.
+- **IntercambioLamina**: Intercambio de láminas. Fields: id, estado, fechaSolicitud, fechaResolucion. Relations: @ManyToOne Usuario (solicitante), @ManyToOne Usuario (receptor), @ManyToOne Lamina (ofrecida), @ManyToOne Lamina (solicitada).
+
+#### Dominio: soporte
+- **IncidenteSoporte**: Ticket de soporte. Fields: id, descripcion, estado, prioridad, fechaCreacion. Relations: @ManyToOne Usuario (reportador), @ManyToOne Usuario (agente).
+- **LogTransaccional**: Log de transacciones. Fields: id, accion, timestamp, detalle, hashIntegridad, nivelRiesgo, verificadoCompliance. Relations: @ManyToOne Usuario.
+
+#### Dominio: notificacion
+- **Notificacion**: Notificación a usuario. Fields: id, mensaje, canal, fechaEnvio. Relations: @ManyToOne Usuario (destinatario), @ManyToOne Usuario (emisor).
+
+#### Dominio: compliance
+- **AliadoComercial**: Socio comercial. Fields: id, nombre, tipoServicio, tokenAcceso, estado.
+- **ReporteInteraccionApi**: Reporte de uso de API. Fields: id, endpoint, peticionesExitosas, peticionesFallidas, fechaCorte. Relations: @ManyToOne AliadoComercial.
+- **ReporteCompliance**: Reporte de compliance. Fields: id, tipoReporte, descripcion, rutaArchivo, fechaGeneracion. Relations: @ManyToOne Usuario (generador).
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: Users can register and authenticate in under 3 seconds
+- **SC-002**: CRUD operations respond within 1 second for single entity queries
+- **SC-003**: List operations return paginated results within 2 seconds
+- **SC-004**: All endpoints return proper HTTP status codes
+- **SC-005**: System handles 100 concurrent users during peak
+- **SC-006**: QR codes generated are unique and scannable
+- **SC-007**: Points calculation completes within 5 seconds after match
+
+## Assumptions
+
+- Base package: `co.edu.unbosque.mundial2026`
+- Database: MySQL with JPA/Hibernate
+- Authentication: JWT tokens
+- Password hashing: BCrypt
+- API: RESTful with proper HTTP methods
+- Validation: Bean Validation (JSR-380)
+- Documentation: OpenAPI/Swagger
+- Testing: JUnit 5 with Mockito
