@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: mundial-2026-hub
+  datasource:
+    url: jdbc:mysql://localhost:3306/mundial_2026_hub?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: mundial_user
+    password: mundial_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8082
+
+jwt:
+  secret: mundial2026hub_secret_key_for_jwt_token_generation_minimum_256_bits
+  expiration: 86400000
+
+logging:
+  level:
+    co.edu.unbosque: DEBUG
+    org.springframework.security: DEBUG
