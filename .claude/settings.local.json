@@ -69,7 +69,9 @@
       "Bash(mvn spring-boot:run -Dspring-boot.run.fork=false)",
       "mcp__Claude_in_Chrome__tabs_context_mcp",
       "Bash(chmod +x /tmp/test_integration.sh)",
-      "Bash(bash /tmp/test_integration.sh)"
+      "Bash(bash /tmp/test_integration.sh)",
+      "Bash(curl -v -X POST http://localhost:8082/api/v1/auth/forgot-password -H 'Content-Type: application/json' -d '{\"email\": \"test-api@mundial.com\"}')",
+      "Bash(pkill -f \"npm run dev\")"
     ]
   }
 }
