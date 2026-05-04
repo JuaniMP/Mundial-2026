@@ -13,6 +13,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     @Query("SELECT DISTINCT u FROM Usuario u JOIN FETCH u.rol WHERE u.email = :email")
     Optional<Usuario> findByEmail(String email);
 
+    @Query("SELECT u.rol.nombre FROM Usuario u WHERE u.email = :email")
+    Optional<String> findRoleNameByEmail(String email);
+
     boolean existsByEmail(String email);
     List<Usuario> findByRolId(Integer rolId);
 }
