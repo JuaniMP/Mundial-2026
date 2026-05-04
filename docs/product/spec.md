@@ -3,7 +3,7 @@
 **Feature Branch**: `001-world-cup-react-frontend`
 **Created**: 2026-04-22
 **Status**: Draft
-**Input**: User description: *"Crear prototipo interactivo que tiene este proyecto como nombre entonces usalo y crea el frontend con react la ultima version creando todas las paginas que estan en mi figma usa orden y carpetas separando las cosas segun lo veas nescesario y de la mejor forma para mantener un orden entonces comencemos"*
+**Input**: User description: _"Crear prototipo interactivo que tiene este proyecto como nombre entonces usalo y crea el frontend con react la ultima version creando todas las paginas que estan en mi figma usa orden y carpetas separando las cosas segun lo veas nescesario y de la mejor forma para mantener un orden entonces comencemos"_
 
 ## User Scenarios & Testing
 

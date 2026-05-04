@@ -11,9 +11,9 @@ Reglas:
 
 ## Catálogo
 
-| Runbook | Disparador |
-|---|---|
-| _(pendientes hasta que tengamos prod)_ | — |
+| Runbook                                | Disparador |
+| -------------------------------------- | ---------- |
+| _(pendientes hasta que tengamos prod)_ | —          |
 
 ## Plantilla mínima
 
@@ -25,20 +25,25 @@ Reglas:
 **Pre-requisitos:** acceso a X, rol Y
 
 ## Síntomas
+
 - ...
 
 ## Diagnóstico
+
 1. Verificar X (`comando`).
 2. Si A → ir a paso 5. Si B → ir a paso 7.
 
 ## Mitigación
+
 1. ...
 2. ...
 
 ## Validación
+
 - [ ] X funciona.
 - [ ] Métrica Y < umbral.
 
 ## Post-mortem
+
 - Crear incidente en `docs/incidents/YYYY-MM-DD-<slug>.md`.
 ```

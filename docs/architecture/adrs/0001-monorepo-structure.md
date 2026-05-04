@@ -25,7 +25,7 @@ Equipo pequeño (~3 personas), pipelines de CI todavía simples, no tenemos much
 **Pros:** Independencia total; cada repo con su CI; PRs pequeños y enfocados.
 **Cons:** Cambios cross-cutting (modificar contrato API + consumirlo en web) requieren PRs coordinados en repos distintos; release de tipos compartidos = publicar paquete npm interno.
 
-### Option B — Monorepo con npm workspaces *(Decisión)*
+### Option B — Monorepo con npm workspaces _(Decisión)_
 
 **Pros:** Cambios atómicos (un PR toca web + api + tipos); npm workspaces es nativo, sin tooling extra; `node_modules` único hoisted; sencillo de entender.
 **Cons:** CI corre todo aunque cambies una cosa (mitigable con paths filters); el repo crece pero no es problema en este tamaño.
@@ -44,15 +44,18 @@ Cuando llegamos a 5+ apps o las builds del CI tarden >10 minutos sin cache, eval
 ## Consequences
 
 **Más fácil:**
+
 - Refactors cross-cutting en un PR.
 - Tipos compartidos sin publicar a npm.
 - Onboarding: `git clone && npm install` y listo.
 
 **Más difícil:**
+
 - CI menos selectivo (corre todo). Mitigable con `paths:` filters en workflow.
 - Hay que disciplinarse para no acoplar apps a packages internos sin contratos claros.
 
 **Revisitar:**
+
 - Si llegamos a >5 apps, evaluar Turborepo.
 - Si CI > 10 min sin caché, evaluar caching distribuido.
 

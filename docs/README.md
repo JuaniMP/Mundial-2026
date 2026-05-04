@@ -4,12 +4,12 @@ Esta carpeta es el cerebro del proyecto. Si tienes una pregunta, empieza aquí.
 
 ## Mapa
 
-| Carpeta | Contenido |
-|---|---|
-| [`architecture/`](architecture/) | Visión técnica, ADRs, diagramas C4 |
-| [`design-system/`](design-system/) | DESIGN.md, tokens, guías de componentes |
-| [`product/`](product/) | Specs funcionales, user stories, checklists |
-| [`runbooks/`](runbooks/) | Cómo operar en producción |
+| Carpeta                            | Contenido                                         |
+| ---------------------------------- | ------------------------------------------------- |
+| [`architecture/`](architecture/)   | Visión técnica, ADRs, diagramas C4                |
+| [`design-system/`](design-system/) | DESIGN.md, tokens, guías de componentes           |
+| [`product/`](product/)             | Specs funcionales, user stories, checklists       |
+| [`runbooks/`](runbooks/)           | Cómo operar en producción                         |
 | [`design-source/`](design-source/) | Mockups HTML originales del Stitch (Figma export) |
 
 ## Cómo navegar

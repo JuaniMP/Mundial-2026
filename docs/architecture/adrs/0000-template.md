@@ -16,17 +16,19 @@
 
 ### Option A — [Nombre]
 
-| Dimension | Assessment |
-|---|---|
-| Complexity | Low / Med / High |
-| Cost | … |
-| Scalability | … |
-| Team familiarity | … |
+| Dimension        | Assessment       |
+| ---------------- | ---------------- |
+| Complexity       | Low / Med / High |
+| Cost             | …                |
+| Scalability      | …                |
+| Team familiarity | …                |
 
 **Pros:**
+
 - …
 
 **Cons:**
+
 - …
 
 ### Option B — [Nombre]
@@ -40,12 +42,15 @@
 ## Consequences
 
 **Lo que se vuelve más fácil:**
+
 - …
 
 **Lo que se vuelve más difícil:**
+
 - …
 
 **Lo que habrá que revisitar:**
+
 - …
 
 ## Action Items
