@@ -1,0 +1,472 @@
+<!doctype html>
+
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FIFA World Cup 2026 - Superpolla</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+      rel="stylesheet"
+    />
+    <!-- Material Symbols -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+      rel="stylesheet"
+    />
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Tailwind Config -->
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'primary-fixed-dim': '#84d7ae',
+              'on-secondary-fixed': '#001b3d',
+              'on-primary-container': '#90e4ba',
+              'error-container': '#ffdad6',
+              'tertiary-fixed-dim': '#ffb4a7',
+              'secondary-fixed-dim': '#aec7f6',
+              'surface-container-lowest': '#ffffff',
+              'on-secondary-container': '#3f5881',
+              'on-error-container': '#93000a',
+              'primary-fixed': '#9ff4c9',
+              'surface-container-highest': '#e4e4cc',
+              'on-secondary': '#ffffff',
+              'on-error': '#ffffff',
+              'tertiary-fixed': '#ffdad4',
+              'on-tertiary': '#ffffff',
+              'secondary-fixed': '#d6e3ff',
+              'inverse-primary': '#84d7ae',
+              'outline-variant': '#bec9c1',
+              primary: '#004e34',
+              tertiary: '#8b0700',
+              'surface-bright': '#fbfbe2',
+              'on-tertiary-fixed': '#400100',
+              'surface-container-high': '#eaead1',
+              'secondary-container': '#b6d0ff',
+              'surface-container': '#efefd7',
+              'on-surface-variant': '#3f4943',
+              secondary: '#465f88',
+              'surface-container-low': '#f5f5dc',
+              'surface-dim': '#dbdcc3',
+              surface: '#fbfbe2',
+              'on-tertiary-container': '#ffc5bb',
+              'on-background': '#1b1d0e',
+              'primary-container': '#006847',
+              'on-surface': '#1b1d0e',
+              'on-secondary-fixed-variant': '#2d476f',
+              'surface-variant': '#e4e4cc',
+              error: '#ba1a1a',
+              background: '#fbfbe2',
+              'on-primary': '#ffffff',
+              'tertiary-container': '#b70c00',
+              'on-tertiary-fixed-variant': '#920700',
+              'on-primary-fixed-variant': '#005237',
+              outline: '#6f7a72',
+              'inverse-surface': '#303221',
+              'inverse-on-surface': '#f2f2d9',
+              'surface-tint': '#096c4b',
+              'on-primary-fixed': '#002114',
+            },
+            borderRadius: {
+              DEFAULT: '0.125rem',
+              lg: '0.25rem',
+              xl: '0.5rem',
+              full: '0.75rem',
+            },
+            spacing: {},
+            fontFamily: {
+              headline: ['Plus Jakarta Sans'],
+              body: ['Inter'],
+              label: ['Inter'],
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 24;
+      }
+      .icon-fill {
+        font-variation-settings: 'FILL' 1;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-surface text-on-surface font-body antialiased selection:bg-primary selection:text-on-primary"
+  >
+    <!-- TopNavBar Component -->
+    <header
+      class="bg-[#fbfbe2]/80 dark:bg-stone-950/80 backdrop-blur-xl fixed top-0 w-full z-50 bg-stone-200/10 backdrop-saturate-150 shadow-none"
+    >
+      <div class="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
+        <!-- Brand -->
+        <div
+          class="text-2xl font-black text-[#004e34] dark:text-emerald-500 tracking-tighter uppercase font-headline"
+        >
+          FIFA World Cup 2026
+        </div>
+        <!-- Desktop Navigation (Implicit in TopNavBar cluster concept, hidden on mobile) -->
+        <nav class="hidden md:flex gap-8">
+          <a
+            class="text-[#465f88] dark:text-slate-400 font-medium font-headline tracking-tight text-lg hover:bg-[#465f88]/5 transition-colors duration-300 px-3 py-1 rounded-lg"
+            href="#"
+            >Experience</a
+          >
+          <a
+            class="text-[#465f88] dark:text-slate-400 font-medium font-headline tracking-tight text-lg hover:bg-[#465f88]/5 transition-colors duration-300 px-3 py-1 rounded-lg"
+            href="#"
+            >Stadiums</a
+          >
+          <a
+            class="text-[#004e34] dark:text-emerald-400 font-bold border-b-2 border-[#004e34] font-headline tracking-tight text-lg pb-1"
+            href="#"
+            >Superpolla</a
+          >
+          <a
+            class="text-[#465f88] dark:text-slate-400 font-medium font-headline tracking-tight text-lg hover:bg-[#465f88]/5 transition-colors duration-300 px-3 py-1 rounded-lg"
+            href="#"
+            >Album</a
+          >
+        </nav>
+        <!-- Actions -->
+        <div class="flex items-center gap-4 text-[#004e34] dark:text-emerald-500">
+          <button
+            class="active:scale-95 transition-transform duration-200 hover:bg-[#465f88]/5 p-2 rounded-full"
+          >
+            <span class="material-symbols-outlined text-2xl">notifications</span>
+          </button>
+          <button
+            class="active:scale-95 transition-transform duration-200 hover:bg-[#465f88]/5 p-2 rounded-full"
+          >
+            <span class="material-symbols-outlined text-2xl">account_circle</span>
+          </button>
+        </div>
+      </div>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="pt-28 pb-32 md:pb-12 px-4 md:px-8 max-w-screen-xl mx-auto flex flex-col gap-12">
+      <!-- Header / Context -->
+      <header class="flex flex-col gap-2">
+        <h1
+          class="font-headline font-extrabold text-4xl md:text-5xl tracking-tight text-on-surface"
+        >
+          Superpolla
+        </h1>
+        <p class="font-body text-on-surface-variant text-lg">
+          Predict, compete, and claim your spot in the global gallery.
+        </p>
+      </header>
+      <!-- Bento Grid: User Status & Highlights -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Primary Profile Jewel Card (Spans 2 columns on desktop) -->
+        <div
+          class="md:col-span-2 relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container p-8 shadow-[0_20px_40px_-15px_rgba(0,78,52,0.4)] flex flex-col justify-between min-h-[240px]"
+        >
+          <!-- Decorative Blur Orbs -->
+          <div
+            class="absolute top-0 right-0 w-64 h-64 bg-tertiary rounded-full mix-blend-screen filter blur-[80px] opacity-40 translate-x-1/3 -translate-y-1/4 pointer-events-none"
+          ></div>
+          <div
+            class="absolute bottom-0 left-0 w-48 h-48 bg-secondary rounded-full mix-blend-screen filter blur-[60px] opacity-30 -translate-x-1/4 translate-y-1/4 pointer-events-none"
+          ></div>
+          <div class="relative z-10 flex justify-between items-start">
+            <div class="flex items-center gap-4">
+              <img
+                alt="Avatar"
+                class="w-16 h-16 rounded-full object-cover border-2 border-on-primary/20 shadow-lg"
+                data-alt="close up portrait of a young woman with a focused expression, warm lighting against a dark background"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_gCBBexYEhWZdaKW65gAvzxzVY2srCPd5yiN2Rg5lc8YK4C6C8_Co2TGBkdT9ty5cNCAzuLJuSAyguISS1WiMf3Gtp_I9un4ydarQoyzQnTu5CCzAF_DOwN6HueskqzoL2ec_dsPcHPkb9qPbjOYS7SVox9u-5hZDbQ0EtpStJacRH664HjCl425P3EEOWXOL5ayutwQwaT1unFErZWWFhof-wpithkelsYe3mCZzY22UA5i_0hfMQjxmhC-2w4Ysv9njC1y16LM"
+              />
+              <div>
+                <h2 class="font-headline font-bold text-2xl text-on-primary tracking-tight">
+                  Elena M.
+                </h2>
+                <span
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm bg-surface-container-lowest/10 text-on-primary font-label text-xs uppercase tracking-widest backdrop-blur-md"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Team Canada
+                </span>
+              </div>
+            </div>
+            <button class="text-on-primary/80 hover:text-on-primary transition-colors">
+              <span class="material-symbols-outlined">share</span>
+            </button>
+          </div>
+          <div class="relative z-10 flex flex-col sm:flex-row gap-8 items-end justify-between mt-8">
+            <div>
+              <p
+                class="font-label text-sm text-on-primary-container uppercase tracking-widest mb-1"
+              >
+                Global Rank
+              </p>
+              <div class="flex items-baseline gap-2">
+                <span class="font-headline font-extrabold text-5xl text-on-primary tracking-tighter"
+                  >1,248</span
+                >
+                <span class="font-label text-sm text-primary-fixed-dim">↑ 12</span>
+              </div>
+            </div>
+            <div class="text-right sm:text-left">
+              <p
+                class="font-label text-sm text-on-primary-container uppercase tracking-widest mb-1"
+              >
+                Total Points
+              </p>
+              <span class="font-headline font-bold text-3xl text-on-primary">45,920</span>
+            </div>
+          </div>
+        </div>
+        <!-- Contextual Stats Cards -->
+        <div class="flex flex-col gap-6">
+          <!-- Stat 1 -->
+          <div class="flex-1 bg-surface-container-low rounded-xl p-6 flex flex-col justify-center">
+            <div class="flex items-center justify-between mb-4">
+              <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant"
+                >Accuracy</span
+              >
+              <span class="material-symbols-outlined text-secondary">target</span>
+            </div>
+            <div class="font-headline font-bold text-3xl text-on-surface">68.4%</div>
+            <div class="mt-2 w-full bg-surface-variant rounded-full h-1.5">
+              <div class="bg-secondary h-1.5 rounded-full" style="width: 68.4%"></div>
+            </div>
+          </div>
+          <!-- Stat 2 -->
+          <div
+            class="flex-1 bg-surface-container-lowest rounded-xl p-6 flex flex-col justify-center shadow-sm"
+          >
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-label text-xs uppercase tracking-widest text-on-surface-variant"
+                >Next Milestone</span
+              >
+              <span class="material-symbols-outlined text-tertiary">military_tech</span>
+            </div>
+            <div class="font-body text-sm text-on-surface mb-1">Top 1,000 Global</div>
+            <div class="font-headline font-bold text-xl text-primary">2,100 pts away</div>
+          </div>
+        </div>
+      </section>
+      <!-- Leaderboard Section -->
+      <section class="flex flex-col gap-8">
+        <!-- Section Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
+          <h2 class="font-headline font-bold text-3xl text-on-surface tracking-tight">
+            Global Rankings
+          </h2>
+          <!-- Filters (No lines, pill shape) -->
+          <div class="flex bg-surface-container-high rounded-full p-1">
+            <button
+              class="px-6 py-2 rounded-full bg-surface-container-lowest text-on-surface font-label text-sm font-semibold shadow-sm transition-all"
+            >
+              Global
+            </button>
+            <button
+              class="px-6 py-2 rounded-full text-on-surface-variant hover:text-on-surface font-label text-sm font-medium transition-all"
+            >
+              Friends
+            </button>
+            <button
+              class="px-6 py-2 rounded-full text-on-surface-variant hover:text-on-surface font-label text-sm font-medium transition-all"
+            >
+              National
+            </button>
+          </div>
+        </div>
+        <!-- The Gallery (List) -->
+        <div class="flex flex-col gap-3">
+          <!-- Top 1 - Highlighted -->
+          <div
+            class="group relative flex items-center justify-between p-4 pl-6 rounded-xl bg-surface-container-lowest shadow-[0_8px_24px_rgba(0,0,0,0.02)] hover:bg-surface-container-low transition-colors duration-300"
+          >
+            <!-- Subtle highlight bar -->
+            <div
+              class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1/2 bg-gradient-to-b from-secondary to-primary rounded-r-sm"
+            ></div>
+            <div class="flex items-center gap-6">
+              <span class="font-headline font-black text-2xl text-primary w-8 text-center">1</span>
+              <div class="relative">
+                <img
+                  alt="Avatar"
+                  class="w-12 h-12 rounded-full object-cover"
+                  data-alt="portrait of a young man with a slight smile in bright daylight against a blurred urban background"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhMRLuNfkOGuSwnphAoBxqkB03OELF_L8ufwNLbwlmZP3kP6FmmfDaz7HjGzRLEIT1DUCMol-MRPdqc0W9YTZSDEIGYu0Obm6OckMIB8OV39N3UlQ9yKQTRAdZS1_RrgTiM_W74rO00CsPSCWUxWTFGmnT29Bz5YtssImTOb3vpCwzBF4sM3Ei9dlG709t6iNagCd__uWEAmCtjJnMVgCqFTyNShHGwpAzYByrFAm_xHCZlxv_KGiUgnVdX-PRI3KObTfCv2TRzP8"
+                />
+                <div
+                  class="absolute -bottom-1 -right-1 bg-surface-container-lowest rounded-full p-0.5"
+                >
+                  <span class="material-symbols-outlined text-sm text-tertiary icon-fill"
+                    >verified</span
+                  >
+                </div>
+              </div>
+              <div>
+                <h3 class="font-headline font-bold text-lg text-on-surface">Alex Mercer</h3>
+                <span
+                  class="font-label text-xs uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5 mt-0.5"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> USA
+                </span>
+              </div>
+            </div>
+            <div class="font-headline font-bold text-xl text-on-surface tracking-tight">52,100</div>
+          </div>
+          <!-- Top 2 -->
+          <div
+            class="group flex items-center justify-between p-4 pl-6 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-colors duration-300"
+          >
+            <div class="flex items-center gap-6">
+              <span class="font-headline font-bold text-xl text-on-surface-variant w-8 text-center"
+                >2</span
+              >
+              <img
+                alt="Avatar"
+                class="w-10 h-10 rounded-full object-cover"
+                data-alt="portrait of a smiling woman with dark hair outdoors softly lit by evening sun"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAyurf2eSj74eO_tGVHoXeUd8Jldk323ajhsQEHkyAjHOzzTL2-WON9WkkIt8puN4ECqD_mIA7L14pvWXnHTM4Gi08u46HOqhtGjQv1oPnTpXM04fnBTcvdN0t1g9T03K80CvQpCHdHjhPTtdPbIaFoNDRIk3HZoGrS-39_HmF6wScqMYgHOPVZPdEENktjh2j74BrZSMKezk5B47Wx13gj1eGC2GwXyZLfGRrkVCCpnfRIkVNoaOhu4Inr_xDCg1D-RiSMZGCePJw"
+              />
+              <div>
+                <h3 class="font-headline font-semibold text-base text-on-surface">Sofia Reyes</h3>
+                <span
+                  class="font-label text-xs uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5 mt-0.5"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Mexico
+                </span>
+              </div>
+            </div>
+            <div class="font-headline font-semibold text-lg text-on-surface tracking-tight">
+              51,850
+            </div>
+          </div>
+          <!-- Top 3 -->
+          <div
+            class="group flex items-center justify-between p-4 pl-6 rounded-xl bg-surface-container-lowest hover:bg-surface-container-low transition-colors duration-300"
+          >
+            <div class="flex items-center gap-6">
+              <span class="font-headline font-bold text-xl text-on-surface-variant w-8 text-center"
+                >3</span
+              >
+              <img
+                alt="Avatar"
+                class="w-10 h-10 rounded-full object-cover"
+                data-alt="portrait of a man with glasses looking directly at the camera in soft studio lighting"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoMTyrtkDQYcZXjsRdobs86CmzoIb85DWMEz4y6VmliSwS_aOTfJWPmwmIhQd_qH38xCB7B5CFLdO3wYCDT8esRQxwD5TLsXyGyhmvu6oKNHnc8npsBGVXRwBCI2S6WEFh4eX6sJCh91WAsCkl0WTq_qYJzCil0h0yIy-h7_1KqfP5voQx5YF-IHF8DDasBElbaHCZG15bxTTDArlKfrgeNFBvVnji0FxbclMZeIFpF3U6q7QTz16i2MO0r8JDDSFHA59UnSWY6EE"
+              />
+              <div>
+                <h3 class="font-headline font-semibold text-base text-on-surface">David Chen</h3>
+                <span
+                  class="font-label text-xs uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5 mt-0.5"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Canada
+                </span>
+              </div>
+            </div>
+            <div class="font-headline font-semibold text-lg text-on-surface tracking-tight">
+              50,900
+            </div>
+          </div>
+          <!-- Gap/Separator indicating list continues -->
+          <div class="py-2 flex justify-center">
+            <span class="material-symbols-outlined text-on-surface-variant/30 text-lg"
+              >more_vert</span
+            >
+          </div>
+          <!-- Current User Context in List -->
+          <div
+            class="flex items-center justify-between p-4 pl-6 rounded-xl bg-surface-container-low border border-primary/10"
+          >
+            <div class="flex items-center gap-6">
+              <span class="font-headline font-bold text-lg text-on-surface-variant w-8 text-center"
+                >1,248</span
+              >
+              <img
+                alt="Avatar"
+                class="w-10 h-10 rounded-full object-cover ring-2 ring-primary ring-offset-2 ring-offset-surface-container-low"
+                data-alt="close up portrait of a young woman with a focused expression, warm lighting against a dark background"
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAgprXmL7eO3SQdF3P7WG31Pd-2ukuZq60GzjR9hBQWB3zPaRqcwNMsjhr2XH0bckVVXSKv8U7Keanuy1oJtdsb_2gn_hi31KiJHLXSl_kaEcV1QOELgmZFk-irkr1LiI0eD4b5kEhw-S2jIMlUxEN1UXuk99rksd7tiO8UfMHZu5n8h7ELJ3WfOSTHq7qZDYNGf_NuB3_Ld6nrOrKrqz-uk_rE5Grz8z9oleJCO9EwaKJafILL6rbypwHVleQHg_jHX-goX2SNz2k"
+              />
+              <div>
+                <h3 class="font-headline font-bold text-base text-primary">
+                  Elena M.
+                  <span class="text-sm font-normal text-on-surface-variant ml-1">(You)</span>
+                </h3>
+                <span
+                  class="font-label text-xs uppercase tracking-widest text-on-surface-variant flex items-center gap-1.5 mt-0.5"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Canada
+                </span>
+              </div>
+            </div>
+            <div class="font-headline font-bold text-lg text-primary tracking-tight">45,920</div>
+          </div>
+        </div>
+        <!-- Load More Action -->
+        <div class="flex justify-center mt-4">
+          <button
+            class="bg-surface-container-highest text-on-secondary-container font-label text-sm font-semibold uppercase tracking-widest px-8 py-3 rounded-md hover:bg-surface-variant transition-colors"
+          >
+            Load More Rankings
+          </button>
+        </div>
+      </section>
+    </main>
+    <!-- BottomNavBar Component (Mobile Only) -->
+    <nav
+      class="bg-[#fbfbe2] dark:bg-stone-950 fixed bottom-0 w-full z-50 rounded-t-3xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)] shadow-2xl fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pt-3 pb-8 md:hidden"
+    >
+      <!-- Experience -->
+      <a
+        class="flex flex-col items-center justify-center text-[#465f88] dark:text-slate-500 opacity-80 hover:opacity-100 hover:text-[#8b0700] active:scale-90 transition-all cubic-bezier(0.34,1.56,0.64,1) gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-2xl">explore</span>
+        <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.1em]"
+          >Experience</span
+        >
+      </a>
+      <!-- Stadiums -->
+      <a
+        class="flex flex-col items-center justify-center text-[#465f88] dark:text-slate-500 opacity-80 hover:opacity-100 hover:text-[#8b0700] active:scale-90 transition-all cubic-bezier(0.34,1.56,0.64,1) gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-2xl">stadium</span>
+        <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.1em]"
+          >Stadiums</span
+        >
+      </a>
+      <!-- Superpolla (Active) -->
+      <a
+        class="flex flex-col items-center justify-center bg-[#004e34] text-white rounded-2xl px-5 py-2.5 scale-110 shadow-lg shadow-[#004e34]/20 active:scale-90 transition-all cubic-bezier(0.34,1.56,0.64,1) gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-2xl icon-fill">emoji_events</span>
+        <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.1em]"
+          >Superpolla</span
+        >
+      </a>
+      <!-- Album -->
+      <a
+        class="flex flex-col items-center justify-center text-[#465f88] dark:text-slate-500 opacity-80 hover:opacity-100 hover:text-[#8b0700] active:scale-90 transition-all cubic-bezier(0.34,1.56,0.64,1) gap-1"
+        href="#"
+      >
+        <span class="material-symbols-outlined text-2xl">style</span>
+        <span class="font-['Inter'] text-[10px] font-bold uppercase tracking-[0.1em]">Album</span>
+      </a>
+    </nav>
+  </body>
+</html>
