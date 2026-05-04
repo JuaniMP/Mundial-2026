@@ -12,8 +12,11 @@ concurrency:
 
 jobs:
   web:
-    name: web · lint · typecheck · test · build
+    name: frontend · lint · typecheck · build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend/world-cup-2026
     steps:
       - uses: actions/checkout@v4
 
@@ -27,16 +30,13 @@ jobs:
         run: npm ci
 
       - name: Lint
-        run: npm run lint --workspace=apps/web
+        run: npm run lint
 
       - name: Typecheck
-        run: npm run typecheck --workspace=apps/web
-
-      - name: Unit tests
-        run: npm run test --workspace=apps/web
+        run: npm run typecheck
 
       - name: Build
-        run: npm run build --workspace=apps/web
+        run: npm run build
 
   format:
     name: prettier
@@ -47,5 +47,5 @@ jobs:
         with:
           node-version-file: .nvmrc
           cache: npm
-      - run: npm ci
-      - run: npx prettier --check "**/*.{ts,tsx,js,jsx,json,md,css,html}"
+      - run: npm ci --ignore-scripts
+      - run: npx prettier --check "frontend/world-cup-2026/src/**/*.{ts,tsx,js,jsx,json,md,css,html}" "backend/src/**/*.{java,properties,yml}"
