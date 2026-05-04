@@ -3,6 +3,7 @@ package co.edu.unbosque.service;
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +20,8 @@ public class DataSeederService {
     private final SeleccionRepository seleccionRepository;
     private final JugadorRepository jugadorRepository;
     private final PartidoRepository partidoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void seedDatabase() {
@@ -30,6 +33,7 @@ public class DataSeederService {
 
         System.out.println("🌱 Iniciando seeding de base de datos...");
         seedRoles();
+        seedUsuarios();
         seedSedes();
         seedEstadios();
         seedSelecciones();
@@ -247,5 +251,46 @@ public class DataSeederService {
         }
 
         System.out.println("✓ Partidos cargados");
+    }
+
+    private void seedUsuarios() {
+        Rol adminRole = rolRepository.findByNombre("ADMIN").orElse(null);
+        Rol aficionadoRole = rolRepository.findByNombre("AFICIONADO").orElse(null);
+        Rol operadorRole = rolRepository.findByNombre("OPERADOR").orElse(null);
+
+        if (adminRole != null && usuarioRepository.findByEmail("admin@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Admin Usuario")
+                    .email("admin@test.com")
+                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .rol(adminRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Argentina")
+                    .build());
+        }
+
+        if (aficionadoRole != null && usuarioRepository.findByEmail("aficionado@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Aficionado Prueba")
+                    .email("aficionado@test.com")
+                    .passwordHash(passwordEncoder.encode("aficionado123"))
+                    .rol(aficionadoRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Colombia")
+                    .build());
+        }
+
+        if (operadorRole != null && usuarioRepository.findByEmail("operador@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Operador Sistema")
+                    .email("operador@test.com")
+                    .passwordHash(passwordEncoder.encode("operador123"))
+                    .rol(operadorRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Brasil")
+                    .build());
+        }
+
+        System.out.println("✓ Usuarios de prueba cargados");
     }
 }
