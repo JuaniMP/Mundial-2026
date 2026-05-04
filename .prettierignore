@@ -1,10 +1,2 @@
-node_modules
-dist
-build
-coverage
-.turbo
-.vite
-.next
-docs/design-source
-*.lock
-package-lock.json
+﻿.github/java-upgrade/hooks/**
+.claude/**
