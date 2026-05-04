@@ -10,34 +10,35 @@ import { Album } from './pages/Album';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './App.css';
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
+          {/* Protected Routes */}
           <Route
+            path="/*"
             element={
               <PrivateRoute>
                 <Layout>
                   <Navbar />
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/stadiums" element={<Stadiums />} />
+                    <Route path="/superpolla" element={<Superpolla />} />
+                    <Route path="/album" element={<Album />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
                 </Layout>
               </PrivateRoute>
             }
-          >
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/stadiums" element={<Stadiums />} />
-            <Route path="/superpolla" element={<Superpolla />} />
-            <Route path="/album" element={<Album />} />
-          </Route>
-
-          <Route path="*" element={<Navigate to="/" replace />} />
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
