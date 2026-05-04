@@ -1,8 +1,6 @@
 package co.edu.unbosque.service;
 
-import co.edu.unbosque.dto.LoginRequest;
-import co.edu.unbosque.dto.RegisterRequest;
-import co.edu.unbosque.dto.AuthResponse;
+import co.edu.unbosque.dto.*;
 import co.edu.unbosque.entity.Rol;
 import co.edu.unbosque.entity.Usuario;
 import co.edu.unbosque.exception.BadRequestException;
@@ -11,6 +9,7 @@ import co.edu.unbosque.repository.RolRepository;
 import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,9 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
@@ -33,6 +35,22 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+
+    private final Map<String, ResetCodeData> resetCodes = new ConcurrentHashMap<>();
+
+    private static class ResetCodeData {
+        String code;
+        long expiresAt;
+
+        ResetCodeData(String code, long expiresAt) {
+            this.code = code;
+            this.expiresAt = expiresAt;
+        }
+
+        boolean isExpired() {
+            return System.currentTimeMillis() > expiresAt;
+        }
+    }
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
@@ -70,8 +88,8 @@ public class AuthService {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // Initialize Rol relationship before authentication
-        String rolNombre = usuario.getRol().getNombre();
+        String rolNombre = usuarioRepository.findRoleNameByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
 
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
@@ -94,5 +112,73 @@ public class AuthService {
                 .nombre(usuario.getNombre())
                 .rol(rolNombre)
                 .build();
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado: " + email));
+
+        String resetCode = generateResetCode();
+        long expiresAt = System.currentTimeMillis() + (15 * 60 * 1000); // 15 minutes
+
+        resetCodes.put(email, new ResetCodeData(resetCode, expiresAt));
+
+        log.info("🔐 Reset code for {}: {} (Expires in 15 minutes)", email, resetCode);
+        log.info("📧 DEMO MODE: No email sent. Use code above to reset password");
+    }
+
+    @Transactional
+    public AuthResponse resetPassword(ResetPasswordRequest request) {
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        ResetCodeData resetCodeData = resetCodes.get(request.getEmail());
+        if (resetCodeData == null) {
+            throw new BadRequestException("No se encontró solicitud de reset para este email");
+        }
+
+        if (resetCodeData.isExpired()) {
+            resetCodes.remove(request.getEmail());
+            throw new BadRequestException("El código de reset ha expirado. Solicita uno nuevo");
+        }
+
+        if (!resetCodeData.code.equals(request.getCode())) {
+            throw new BadRequestException("Código de reset inválido");
+        }
+
+        usuario.setPasswordHash(passwordEncoder.encode(request.getNewPassword()));
+        usuarioRepository.save(usuario);
+        resetCodes.remove(request.getEmail());
+
+        log.info("✅ Password reset successfully for: {}", request.getEmail());
+
+        String rolNombre = usuarioRepository.findRoleNameByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
+
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", rolNombre);
+        extraClaims.put("userId", usuario.getId());
+
+        String token = jwtUtil.generateToken(userDetails, extraClaims);
+
+        return AuthResponse.builder()
+                .token(token)
+                .email(usuario.getEmail())
+                .nombre(usuario.getNombre())
+                .rol(rolNombre)
+                .build();
+    }
+
+    private String generateResetCode() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 6; i++) {
+            code.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return code.toString();
     }
 }
