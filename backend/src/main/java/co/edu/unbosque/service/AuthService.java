@@ -65,13 +65,17 @@ public class AuthService {
                 .build();
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest request) {
+        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+
+        // Initialize Rol relationship before authentication
+        String rolNombre = usuario.getRol().getNombre();
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-
-        Usuario usuario = usuarioRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         usuario.setUltimoLogin(LocalDateTime.now());
         usuarioRepository.save(usuario);
@@ -79,7 +83,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
 
         Map<String, Object> extraClaims = new HashMap<>();
-        extraClaims.put("role", usuario.getRol().getNombre());
+        extraClaims.put("role", rolNombre);
         extraClaims.put("userId", usuario.getId());
 
         String token = jwtUtil.generateToken(userDetails, extraClaims);
@@ -88,7 +92,7 @@ public class AuthService {
                 .token(token)
                 .email(usuario.getEmail())
                 .nombre(usuario.getNombre())
-                .rol(usuario.getRol().getNombre())
+                .rol(rolNombre)
                 .build();
     }
 }

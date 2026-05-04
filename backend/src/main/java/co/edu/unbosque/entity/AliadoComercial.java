@@ -15,7 +15,7 @@ public class AliadoComercial {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "nombre", nullable = false, length = 100)
     private String nombre;
 
     @Column(name = "tipo_servicio", nullable = false, length = 100)
@@ -24,7 +24,7 @@ public class AliadoComercial {
     @Column(name = "token_acceso", unique = true, length = 255)
     private String tokenAcceso;
 
-    @Column(length = 50)
+    @Column(name = "estado", length = 50)
     @Builder.Default
     private String estado = "ACTIVO";
 }
