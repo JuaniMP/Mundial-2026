@@ -4,12 +4,12 @@ Los 4 diagramas oficiales del proyecto viven aquí en formato `.drawio`. Se edit
 
 ## Catálogo
 
-| # | Archivo | Tipo | Qué muestra |
-|---|---|---|---|
-| 1 | [`DiagramaContexto.drawio`](DiagramaContexto.drawio) | Contexto C4 nivel 1 | Sistema central + 11 actores: Aficionados, Operadores, Soporte, Compliance, Admin, Firebase/FCM, SendGrid, Splunk/ElasticSearch, API FIFA, Pasarela de pagos. |
-| 2 | [`DiagramaDePaquetes.drawio`](DiagramaDePaquetes.drawio) | UML de paquetes (capas) | Arquitectura por capas: Presentación · Aplicación (RFs) · Dominios · Integraciones · Infra técnica · Utilidades. Numera los 26 RFs por módulo. |
-| 3 | [`Modelo E-R.drawio`](Modelo%20E-R.drawio) | E-R clásico | Entidades, atributos y relaciones del dominio (Usuario, Rol, Polla, Predicción, Partido, Estadio, Selección, Lámina, Álbum, Paquete, Intercambio, Entrada, etc.). |
-| 4 | [`ModeloE-R-Extendido.drawio`](ModeloE-R-Extendido.drawio) | E-R extendido | Versión enriquecida con cardinalidades, atributos compuestos y entidades débiles. Es el que alimenta `backend/src/main/resources/schema.sql`. |
+| #   | Archivo                                                    | Tipo                    | Qué muestra                                                                                                                                                       |
+| --- | ---------------------------------------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | [`DiagramaContexto.drawio`](DiagramaContexto.drawio)       | Contexto C4 nivel 1     | Sistema central + 11 actores: Aficionados, Operadores, Soporte, Compliance, Admin, Firebase/FCM, SendGrid, Splunk/ElasticSearch, API FIFA, Pasarela de pagos.     |
+| 2   | [`DiagramaDePaquetes.drawio`](DiagramaDePaquetes.drawio)   | UML de paquetes (capas) | Arquitectura por capas: Presentación · Aplicación (RFs) · Dominios · Integraciones · Infra técnica · Utilidades. Numera los 26 RFs por módulo.                    |
+| 3   | [`Modelo E-R.drawio`](Modelo%20E-R.drawio)                 | E-R clásico             | Entidades, atributos y relaciones del dominio (Usuario, Rol, Polla, Predicción, Partido, Estadio, Selección, Lámina, Álbum, Paquete, Intercambio, Entrada, etc.). |
+| 4   | [`ModeloE-R-Extendido.drawio`](ModeloE-R-Extendido.drawio) | E-R extendido           | Versión enriquecida con cardinalidades, atributos compuestos y entidades débiles. Es el que alimenta `backend/src/main/resources/schema.sql`.                     |
 
 ## Cómo se generan los archivos físicos en este folder
 

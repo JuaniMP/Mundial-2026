@@ -1,6 +1,6 @@
 # Design System Document: High-End Editorial Strategy
 
-> Sistema de diseño *"Diplomatic Gallery"* para la plataforma Mundial 2026.
+> Sistema de diseño _"Diplomatic Gallery"_ para la plataforma Mundial 2026.
 > Tokens implementados en [`tokens.md`](tokens.md) y `apps/web/tailwind.config.ts`.
 
 ## 1. Overview & Creative North Star: "The Diplomatic Gallery"

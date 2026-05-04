@@ -24,7 +24,7 @@ Necesitamos un backend REST que sirva al SPA, ingiera el feed de FIFA, gestione 
 
 ## Options Considered
 
-### Option A — Spring Boot 3 + Java 21 *(Decisión)*
+### Option A — Spring Boot 3 + Java 21 _(Decisión)_
 
 **Pros:** Equipo experto, ecosistema maduro, virtual threads (Project Loom) → mejor throughput sin reactive complexity, soporte LTS hasta 2031.
 **Cons:** Footprint de memoria mayor que Quarkus/Micronaut; startup más lento (mitigable con CDS o GraalVM Native Image si fuera crítico).
@@ -53,16 +53,19 @@ Si en el futuro un servicio necesita escalar a serverless con cold starts agresi
 ## Consequences
 
 **Más fácil:**
+
 - Velocidad de desarrollo.
 - Debugging y observabilidad (Spring Actuator, Micrometer).
 - Migrar y testear (Flyway + Testcontainers).
 - Onboarding de devs Java.
 
 **Más difícil:**
+
 - Footprint de memoria → containers más grandes (~512Mi mínimo). OK para Cloud Run / EKS.
 - Startup ~5-10s; mitigable con CDS / GraalVM si necesitamos serverless.
 
 **Revisitar:**
+
 - Si necesitamos serverless con cold start <1s, evaluar Quarkus + GraalVM Native.
 - Si nos topamos con cuellos en el feed FIFA (ingesta masiva), evaluar reactive (WebFlux) en ese servicio.
 

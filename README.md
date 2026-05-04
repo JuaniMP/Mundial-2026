@@ -1,6 +1,6 @@
 # Mundial 2026 — Un Mundial para Todos
 
-> Plataforma digital del Mundial FIFA 2026 (México 🇲🇽 · Estados Unidos 🇺🇸 · Canadá 🇨🇦) — *"Un Mundial para Todos"*.
+> Plataforma digital del Mundial FIFA 2026 (México 🇲🇽 · Estados Unidos 🇺🇸 · Canadá 🇨🇦) — _"Un Mundial para Todos"_.
 >
 > Stack: **Vite + React 18 + TypeScript + Tailwind** (web) · **Spring Boot + MySQL** (api, próximamente) · **monorepo con npm workspaces**.
 
@@ -27,14 +27,14 @@
 
 **Un Mundial para Todos** es una plataforma de fan engagement para el Mundial 2026 con cuatro experiencias principales:
 
-| Sección | Qué hace | Story |
-|---|---|---|
+| Sección                   | Qué hace                                                                | Story                                     |
+| ------------------------- | ----------------------------------------------------------------------- | ----------------------------------------- |
 | 🏟️ **Stadium Experience** | Detalle de estadios, partidos, mapa de calor de asientos, estadísticas. | [US-2](docs/product/spec.md#user-story-2) |
-| 🎟️ **Album Digital** | Colección de stickers, progreso por país, apertura de packs. | [US-3](docs/product/spec.md#user-story-3) |
-| 🏆 **Superpolla** | Predicciones, leaderboard global, standings. | [US-4](docs/product/spec.md#user-story-4) |
-| 📊 **Dashboard** | Hero del próximo partido, accesos rápidos, highlights. | [US-5](docs/product/spec.md#user-story-5) |
+| 🎟️ **Album Digital**      | Colección de stickers, progreso por país, apertura de packs.            | [US-3](docs/product/spec.md#user-story-3) |
+| 🏆 **Superpolla**         | Predicciones, leaderboard global, standings.                            | [US-4](docs/product/spec.md#user-story-4) |
+| 📊 **Dashboard**          | Hero del próximo partido, accesos rápidos, highlights.                  | [US-5](docs/product/spec.md#user-story-5) |
 
-El sistema de diseño *"Diplomatic Gallery"* trata el Mundial no como un torneo sino como una cumbre global — editorial, premium, sin bordes de 1px. Detalles en [docs/design-system/DESIGN.md](docs/design-system/DESIGN.md).
+El sistema de diseño _"Diplomatic Gallery"_ trata el Mundial no como un torneo sino como una cumbre global — editorial, premium, sin bordes de 1px. Detalles en [docs/design-system/DESIGN.md](docs/design-system/DESIGN.md).
 
 ---
 
@@ -84,7 +84,7 @@ Cada carpeta tiene su propio `README.md` con su misión, convenciones y comandos
 
 - **Node.js 20.x LTS** (ver [`.nvmrc`](.nvmrc))
 - **npm 10+** (workspaces nativos)
-- **Java 21 + Maven 3.9+** *(solo cuando empiece el backend)*
+- **Java 21 + Maven 3.9+** _(solo cuando empiece el backend)_
 - **Git**
 
 ### Setup
@@ -120,16 +120,16 @@ npm run format      # prettier --write
 
 ## Stack y decisiones
 
-| Capa | Tecnología | ADR |
-|---|---|---|
-| Frontend | Vite + React 18 + TypeScript 5 + Tailwind 3 | [ADR-0002](docs/architecture/adrs/0002-frontend-stack-vite-react-ts.md) |
-| Routing | React Router v6 | ADR-0002 |
-| Estado | TanStack Query + Zustand (cuando hace falta) | ADR-0002 |
-| Estilos | Tailwind + CSS variables (design tokens) | ADR-0002 |
-| Tests | Vitest + Testing Library + Playwright (e2e) | [ADR-0005](docs/architecture/adrs/0005-testing-strategy.md) |
-| Backend | Spring Boot 3 + Java 21 | [ADR-0003](docs/architecture/adrs/0003-backend-stack-spring-boot.md) |
+| Capa          | Tecnología                                        | ADR                                                                      |
+| ------------- | ------------------------------------------------- | ------------------------------------------------------------------------ |
+| Frontend      | Vite + React 18 + TypeScript 5 + Tailwind 3       | [ADR-0002](docs/architecture/adrs/0002-frontend-stack-vite-react-ts.md)  |
+| Routing       | React Router v6                                   | ADR-0002                                                                 |
+| Estado        | TanStack Query + Zustand (cuando hace falta)      | ADR-0002                                                                 |
+| Estilos       | Tailwind + CSS variables (design tokens)          | ADR-0002                                                                 |
+| Tests         | Vitest + Testing Library + Playwright (e2e)       | [ADR-0005](docs/architecture/adrs/0005-testing-strategy.md)              |
+| Backend       | Spring Boot 3 + Java 21                           | [ADR-0003](docs/architecture/adrs/0003-backend-stack-spring-boot.md)     |
 | Base de datos | MySQL 8 + JSON columns para payloads heterogéneos | [ADR-0004](docs/architecture/adrs/0004-database-relational-with-json.md) |
-| Monorepo | npm workspaces | [ADR-0001](docs/architecture/adrs/0001-monorepo-structure.md) |
+| Monorepo      | npm workspaces                                    | [ADR-0001](docs/architecture/adrs/0001-monorepo-structure.md)            |
 
 > Cada ADR sigue el formato **Status / Context / Decision / Options / Trade-offs / Consequences**. Si propones un cambio importante, abre un ADR nuevo (`0006-...`) antes de codear.
 
@@ -141,7 +141,7 @@ La doc viva está en [`docs/`](docs/). Mapa rápido:
 
 - 🏛️ **[docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md)** — visión big-picture, diagramas C4, flujos.
 - 📜 **[docs/architecture/adrs/](docs/architecture/adrs/)** — Architecture Decision Records.
-- 🎨 **[docs/design-system/DESIGN.md](docs/design-system/DESIGN.md)** — sistema de diseño *Diplomatic Gallery*.
+- 🎨 **[docs/design-system/DESIGN.md](docs/design-system/DESIGN.md)** — sistema de diseño _Diplomatic Gallery_.
 - 📋 **[docs/product/spec.md](docs/product/spec.md)** — spec funcional con user stories y FRs.
 - 📚 **[docs/runbooks/](docs/runbooks/)** — cómo operar en producción.
 - 🖼️ **[docs/design-source/](docs/design-source/)** — mockups HTML originales del Stitch (referencia).
@@ -150,14 +150,14 @@ La doc viva está en [`docs/`](docs/). Mapa rápido:
 
 ## Roadmap
 
-| Fase | Entregables | Estado |
-|---|---|---|
-| **0 — Foundations** | Repo, specs, design system, ADRs base | ✅ |
-| **1 — Web prototype** | 4 vistas con datos mock, navegación, responsive | 🚧 |
-| **2 — API base** | Spring Boot, MySQL schema, auth (Keycloak/JWT) | ⏳ |
-| **3 — Integración** | Web ↔ API, TanStack Query, env config | ⏳ |
-| **4 — Hardening** | Tests e2e, CI/CD, observabilidad, perf budget | ⏳ |
-| **5 — Launch** | Deploy a Vercel (web) + Cloud Run/EKS (api) | ⏳ |
+| Fase                  | Entregables                                     | Estado |
+| --------------------- | ----------------------------------------------- | ------ |
+| **0 — Foundations**   | Repo, specs, design system, ADRs base           | ✅     |
+| **1 — Web prototype** | 4 vistas con datos mock, navegación, responsive | 🚧     |
+| **2 — API base**      | Spring Boot, MySQL schema, auth (Keycloak/JWT)  | ⏳     |
+| **3 — Integración**   | Web ↔ API, TanStack Query, env config           | ⏳     |
+| **4 — Hardening**     | Tests e2e, CI/CD, observabilidad, perf budget   | ⏳     |
+| **5 — Launch**        | Deploy a Vercel (web) + Cloud Run/EKS (api)     | ⏳     |
 
 ---
 

@@ -5,7 +5,7 @@
 **Status**: Draft
 **Input**: "API REST para gestionar mundial 2026 con entidades de usuarios, roles, selecciones, jugadores, partidos, entradas, pollas, album digital, paquetes, intercambios, soporte, logs, notificaciones, aliados comerciales y reportes compliance. Paquete base: co.edu.unbosque. Java 17 con Spring Boot."
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Gestión de Usuarios y Roles (Priority: P1)
 
@@ -116,7 +116,7 @@ Como administrador de compliance necesito generar reportes de auditoría y monit
 
 ---
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -137,7 +137,7 @@ Como administrador de compliance necesito generar reportes de auditoría y monit
 - **FR-015**: El sistema debe generar reportes de interacción con APIs de aliados
 - **FR-016**: El sistema debe generar reportes de compliance con auditoría
 
-### Key Entities *(include if feature involves data)*
+### Key Entities _(include if feature involves data)_
 
 - **Rol**: id, nombre (AFICIONADO, OPERADOR, SOPORTE, COMPLIANCE, ADMIN, ALIADO)
 - **Usuario**: id, nombre, email, password_hash, zona_horaria, seleccion_favorita, id_rol, fecha_registro, ultimo_login
@@ -162,7 +162,7 @@ Como administrador de compliance necesito generar reportes de auditoría y monit
 - **ReporteInteraccionAPI**: id, id_aliado, endpoint, peticiones_exitosas, peticiones_fallidas, fecha_corte
 - **ReporteCompliance**: id, tipo_reporte, descripcion, ruta_archivo, id_generador, fecha_generacion
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 

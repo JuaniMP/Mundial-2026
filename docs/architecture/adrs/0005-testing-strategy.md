@@ -24,20 +24,20 @@ Aplicamos la **pirámide de tests**:
 
 ### Frontend (`apps/web`)
 
-| Tipo | Herramientas | Cobertura objetivo | Dónde |
-|---|---|---|---|
-| Unit | Vitest + React Testing Library | 70% líneas en `components/` y `hooks/` | `*.test.tsx` junto al archivo |
-| Integration | Vitest + MSW (mock API) | smoke por ruta | `src/routes/**/__tests__/` |
-| e2e | Playwright | critical paths (login, predicción, abrir pack) | `apps/web/e2e/` |
-| Visual | (futuro) Chromatic / Percy | componentes del design system | Storybook |
+| Tipo        | Herramientas                   | Cobertura objetivo                             | Dónde                         |
+| ----------- | ------------------------------ | ---------------------------------------------- | ----------------------------- |
+| Unit        | Vitest + React Testing Library | 70% líneas en `components/` y `hooks/`         | `*.test.tsx` junto al archivo |
+| Integration | Vitest + MSW (mock API)        | smoke por ruta                                 | `src/routes/**/__tests__/`    |
+| e2e         | Playwright                     | critical paths (login, predicción, abrir pack) | `apps/web/e2e/`               |
+| Visual      | (futuro) Chromatic / Percy     | componentes del design system                  | Storybook                     |
 
 ### Backend (`apps/api`)
 
-| Tipo | Herramientas | Cobertura objetivo | Dónde |
-|---|---|---|---|
-| Unit | JUnit 5 + Mockito | 80% líneas en `service/` y `domain/` | `src/test/java/` |
-| Integration | `@SpringBootTest` + Testcontainers (MySQL real) | endpoints + repos críticos | `src/test/java/.../it/` |
-| Contract | Spring Cloud Contract o JSON Schema diff contra `packages/shared-types` | endpoints expuestos | CI check |
+| Tipo        | Herramientas                                                            | Cobertura objetivo                   | Dónde                   |
+| ----------- | ----------------------------------------------------------------------- | ------------------------------------ | ----------------------- |
+| Unit        | JUnit 5 + Mockito                                                       | 80% líneas en `service/` y `domain/` | `src/test/java/`        |
+| Integration | `@SpringBootTest` + Testcontainers (MySQL real)                         | endpoints + repos críticos           | `src/test/java/.../it/` |
+| Contract    | Spring Cloud Contract o JSON Schema diff contra `packages/shared-types` | endpoints expuestos                  | CI check                |
 
 ## Reglas
 
@@ -50,10 +50,12 @@ Aplicamos la **pirámide de tests**:
 ## Consequences
 
 **Más fácil:**
+
 - Refactors confiables.
 - Detección temprana de regresiones.
 
 **Más difícil:**
+
 - Mantener Testcontainers requiere Docker en local y CI.
 - e2e tests son lentos — corren en CI nightly + en PR de cambios visuales.
 

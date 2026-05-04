@@ -6,7 +6,7 @@
 
 ## Context
 
-Necesitamos un stack de frontend para una SPA prototipo (sin SEO crítico) que muestre 4 experiencias visuales con datos mock al inicio y se conecte a una API real más tarde. El sistema de diseño *Diplomatic Gallery* ya existe (ver `docs/design-system/DESIGN.md`) y exige Tailwind. El equipo es fuerte en React.
+Necesitamos un stack de frontend para una SPA prototipo (sin SEO crítico) que muestre 4 experiencias visuales con datos mock al inicio y se conecte a una API real más tarde. El sistema de diseño _Diplomatic Gallery_ ya existe (ver `docs/design-system/DESIGN.md`) y exige Tailwind. El equipo es fuerte en React.
 
 ## Decision
 
@@ -22,7 +22,7 @@ Necesitamos un stack de frontend para una SPA prototipo (sin SEO crítico) que m
 
 ## Options Considered
 
-### Option A — Vite + React + TS *(Decisión)*
+### Option A — Vite + React + TS _(Decisión)_
 
 **Pros:** Dev server <500ms; HMR instantáneo; builds rápidos; comunidad enorme; cero magia. Perfecto para SPA.
 **Cons:** No SSR/SSG out-of-the-box (no lo necesitamos para prototipo).
@@ -43,15 +43,18 @@ Para un prototipo SPA con mock data → API REST clásica, Vite es la opción m�
 ## Consequences
 
 **Más fácil:**
+
 - Dev experience rapidísima.
 - Onboarding mínimo.
 - Deploy a cualquier static host (Vercel, Netlify, Cloudflare Pages, S3+CloudFront).
 
 **Más difícil:**
+
 - SEO si necesitáramos páginas indexables (mitigable con prerendering selectivo o migración a Next.js).
 - Routing manual (vs Next.js auto).
 
 **Revisitar:**
+
 - Si una vista necesita SEO, evaluar migrar esa ruta a SSG/SSR (Astro, Next.js).
 - Si el bundle inicial supera 200kB gzip, considerar code-splitting más agresivo o framework con RSC.
 

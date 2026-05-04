@@ -7,6 +7,7 @@ This is a SpecFlow/Speckit-based agent workflow repository using OpenCode. El re
 ## Commands
 
 Execute workflow commands via `/speckit.<command>`:
+
 - `/speckit.constitution` — Create/update project constitution
 - `/speckit.specify` — Generate feature specification
 - `/speckit.plan` — Execute implementation planning
@@ -19,6 +20,7 @@ Execute workflow commands via `/speckit.<command>`:
 ## Templates
 
 Templates are in `.specify/templates/`:
+
 - `constitution-template.md` — Constitution base
 - `spec-template.md` — Feature specification
 - `plan-template.md` — Implementation plan
