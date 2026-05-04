@@ -34,7 +34,7 @@ public class Usuario {
     @Column(name = "seleccion_favorita", length = 50)
     private String seleccionFavorita;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol", nullable = false)
     private Rol rol;
 
