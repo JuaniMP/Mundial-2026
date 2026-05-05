@@ -44,15 +44,16 @@ npm run dev          # arranca apps/web
 
 Trabajamos con **trunk-based development** sobre `main`. Branches efímeras, vida corta (≤ 3 días idealmente):
 
-| Tipo | Prefijo | Ejemplo |
-|---|---|---|
-| Feature | `feat/` | `feat/web-stadium-heatmap` |
-| Fix | `fix/` | `fix/web-album-progress-rounding` |
-| Chore | `chore/` | `chore/upgrade-vite-5` |
-| Docs | `docs/` | `docs/adr-frontend-stack` |
+| Tipo     | Prefijo     | Ejemplo                               |
+| -------- | ----------- | ------------------------------------- |
+| Feature  | `feat/`     | `feat/web-stadium-heatmap`            |
+| Fix      | `fix/`      | `fix/web-album-progress-rounding`     |
+| Chore    | `chore/`    | `chore/upgrade-vite-5`                |
+| Docs     | `docs/`     | `docs/adr-frontend-stack`             |
 | Refactor | `refactor/` | `refactor/web-extract-card-primitive` |
 
 **Reglas:**
+
 - Una branch = un PR = un propósito.
 - Reb base contra `main` antes de mergear (squash merge).
 - Nada de `develop`, `staging` etc. — un solo trunk.
@@ -106,6 +107,7 @@ Todos los cambios pasan por PR. Plantilla en [`.github/pull_request_template.md`
 - [ ] Issue/ticket linkeado (`Closes #123`).
 
 **Reglas:**
+
 - Mínimo 1 reviewer aprobador.
 - CI verde antes de merge.
 - Squash merge (mantenemos historial limpio en `main`).
@@ -141,7 +143,7 @@ CI corre lo mismo + tests e2e (Playwright) en `apps/web`.
 
 ### Estilos
 
-- Sigue [DESIGN.md](docs/design-system/DESIGN.md) — *no inventes colores ni font-sizes*.
+- Sigue [DESIGN.md](docs/design-system/DESIGN.md) — _no inventes colores ni font-sizes_.
 - Tokens en CSS variables; nunca hardcodees `#004e34` — usa `var(--color-primary)` o `bg-primary` (Tailwind).
 - **No 1px solid borders** (regla del design system). Diferenciación por tonos de surface o whitespace.
 

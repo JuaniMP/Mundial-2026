@@ -4,17 +4,17 @@ Inventario inicial. Cada componente vive en `apps/web/src/components/ui/` y debe
 
 ## Inventario base
 
-| Componente | Status | Archivo |
-|---|---|---|
-| `<Button>` | 📐 Spec | `apps/web/src/components/ui/Button.tsx` |
-| `<Card>` | 📐 Spec | `apps/web/src/components/ui/Card.tsx` |
-| `<Chip>` (national identity) | 📐 Spec | `apps/web/src/components/ui/Chip.tsx` |
-| `<Input>` (filled) | 📐 Spec | `apps/web/src/components/ui/Input.tsx` |
-| `<NavBar>` | 📐 Spec | `apps/web/src/components/layout/NavBar.tsx` |
-| `<MomentumTracker>` | 📐 Spec | `apps/web/src/components/domain/MomentumTracker.tsx` |
-| `<StadiumHeatmap>` | 🚧 TBD | `apps/web/src/components/domain/StadiumHeatmap.tsx` |
-| `<StickerCard>` | 🚧 TBD | `apps/web/src/components/domain/StickerCard.tsx` |
-| `<Leaderboard>` | 🚧 TBD | `apps/web/src/components/domain/Leaderboard.tsx` |
+| Componente                   | Status  | Archivo                                              |
+| ---------------------------- | ------- | ---------------------------------------------------- |
+| `<Button>`                   | 📐 Spec | `apps/web/src/components/ui/Button.tsx`              |
+| `<Card>`                     | 📐 Spec | `apps/web/src/components/ui/Card.tsx`                |
+| `<Chip>` (national identity) | 📐 Spec | `apps/web/src/components/ui/Chip.tsx`                |
+| `<Input>` (filled)           | 📐 Spec | `apps/web/src/components/ui/Input.tsx`               |
+| `<NavBar>`                   | 📐 Spec | `apps/web/src/components/layout/NavBar.tsx`          |
+| `<MomentumTracker>`          | 📐 Spec | `apps/web/src/components/domain/MomentumTracker.tsx` |
+| `<StadiumHeatmap>`           | 🚧 TBD  | `apps/web/src/components/domain/StadiumHeatmap.tsx`  |
+| `<StickerCard>`              | 🚧 TBD  | `apps/web/src/components/domain/StickerCard.tsx`     |
+| `<Leaderboard>`              | 🚧 TBD  | `apps/web/src/components/domain/Leaderboard.tsx`     |
 
 Status: 📐 Spec · 🚧 TBD · ✅ Done · 🐛 Bug
 

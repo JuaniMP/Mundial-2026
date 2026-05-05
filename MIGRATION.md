@@ -31,10 +31,12 @@ Remove-Item -Recurse -Force .\frontend
 ```
 
 > ¿Quieres conservar los mockups HTML del Stitch? Antes de borrar, muévelos:
+>
 > ```powershell
 > Move-Item .\frontend\FrontIng\design-source\stitch_un_mundial_para_todos_experience\* `
 >           .\docs\design-source\stitch_un_mundial_para_todos_experience\
 > ```
+>
 > Y solo entonces borra `frontend\`.
 
 ### 2) Verificar que no queden archivos huérfanos

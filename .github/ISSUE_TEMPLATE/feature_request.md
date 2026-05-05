@@ -1,7 +1,7 @@
 ---
 name: Feature request
 about: Proponer una nueva capacidad o mejora
-title: "[feat] "
+title: '[feat] '
 labels: enhancement
 assignees: ''
 ---

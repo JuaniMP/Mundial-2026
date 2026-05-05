@@ -35,6 +35,7 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final EmailService emailService;
 
     private final Map<String, ResetCodeData> resetCodes = new ConcurrentHashMap<>();
 
@@ -124,8 +125,9 @@ public class AuthService {
 
         resetCodes.put(email, new ResetCodeData(resetCode, expiresAt));
 
-        log.info("🔐 Reset code for {}: {} (Expires in 15 minutes)", email, resetCode);
-        log.info("📧 DEMO MODE: No email sent. Use code above to reset password");
+        log.info("🔐 Reset code generated for {}: {} (Expires in 15 minutes)", email, resetCode);
+        emailService.sendPasswordResetEmail(email, resetCode);
+        log.info("📧 Password reset email sent to: {}", email);
     }
 
     @Transactional

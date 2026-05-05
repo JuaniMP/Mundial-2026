@@ -13,8 +13,7 @@ const variants = {
     'gradient-primary text-text-inverse font-bold shadow-lg hover:shadow-xl hover:brightness-110',
   secondary:
     'bg-bg-elevated text-text-primary border border-border hover:border-border-hover hover:bg-bg-hover',
-  ghost:
-    'bg-transparent text-text-secondary hover:text-text-primary hover:bg-bg-elevated',
+  ghost: 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-bg-elevated',
   outline:
     'bg-transparent text-primary border border-primary/30 hover:bg-primary-subtle hover:border-primary/50',
 };
@@ -43,13 +42,9 @@ export function Button({
       `}
       {...props}
     >
-      {Icon && iconPosition === 'left' && (
-        <Icon className="w-5 h-5" />
-      )}
+      {Icon && iconPosition === 'left' && <Icon className="w-5 h-5" />}
       {children}
-      {Icon && iconPosition === 'right' && (
-        <Icon className="w-5 h-5" />
-      )}
+      {Icon && iconPosition === 'right' && <Icon className="w-5 h-5" />}
     </button>
   );
 }

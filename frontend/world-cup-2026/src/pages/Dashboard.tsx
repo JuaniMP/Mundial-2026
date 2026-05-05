@@ -34,8 +34,8 @@ export function Dashboard() {
               <span className="gradient-text">Comienzo</span>
             </h1>
             <p className="text-base md:text-lg text-white/90 max-w-xl leading-relaxed mb-8">
-              The opening match of the 2026 FIFA World Cup. Witness history as
-              the host nations take center stage.
+              The opening match of the 2026 FIFA World Cup. Witness history as the host nations take
+              center stage.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button variant="primary" icon={ArrowRight} size="lg">

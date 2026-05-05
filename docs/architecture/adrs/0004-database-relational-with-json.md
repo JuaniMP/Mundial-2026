@@ -12,7 +12,7 @@ El dominio es **financiero**: ACID es no-negociable, los reportes agregados (tot
 
 ## Decision
 
-**MySQL 8 como base relacional única, con tabla `transactions` que combina columnas comunes + columna `payload JSON` para los atributos específicos del tipo.** Atributos del payload con alta frecuencia de query se *promueven* a columnas reales con índices conforme aparecen.
+**MySQL 8 como base relacional única, con tabla `transactions` que combina columnas comunes + columna `payload JSON` para los atributos específicos del tipo.** Atributos del payload con alta frecuencia de query se _promueven_ a columnas reales con índices conforme aparecen.
 
 No usar MongoDB como almacén primario. Sí permitido como cache de lectura desnormalizada o event log analítico, pero la fuente de verdad es relacional.
 
@@ -28,10 +28,10 @@ No usar MongoDB como almacén primario. Sí permitido como cache de lectura desn
 **Pros:** Cada tipo respeta sus propias constraints (NOT NULL, FK); reportes rápidos sobre `transactions`.
 **Cons:** Detalle = join al subtipo; agregar tipo = migración; ORM verboso.
 
-### Option C — Híbrido: tabla base + columna `JSON payload` *(Decisión)*
+### Option C — Híbrido: tabla base + columna `JSON payload` _(Decisión)_
 
 **Pros:** ACID, FKs, joins y reportes preservados; flexibilidad documental contenida en `payload`; índices funcionales sobre claves del JSON cuando hace falta; agregar tipos = solo código (validación con JSON Schema en la app).
-**Cons:** Validación del payload vive en la aplicación (Bean Validation + JSON Schema); querys agregadas sobre claves del JSON menos óptimas que sobre columnas — por eso se *promueven* las claves "calientes" a columnas reales con migración.
+**Cons:** Validación del payload vive en la aplicación (Bean Validation + JSON Schema); querys agregadas sobre claves del JSON menos óptimas que sobre columnas — por eso se _promueven_ las claves "calientes" a columnas reales con migración.
 
 ### Option D — MongoDB como almacén primario
 
@@ -44,21 +44,24 @@ El nudo es **flexibilidad de esquema vs integridad transaccional**. Como es dine
 
 NULLs masivos pierden integridad y los reportes se complican. Tabla por tipo es correcta pero ceremoniosa. Híbrido es lo que usan ledgers modernos (Stripe, Plaid).
 
-Sobre la pregunta original *"¿NULLs o documento libre?"*: ninguna pura. El híbrido es la respuesta práctica.
+Sobre la pregunta original _"¿NULLs o documento libre?"_: ninguna pura. El híbrido es la respuesta práctica.
 
 ## Consequences
 
 **Más fácil:**
+
 - Agregar tipos sin migrar esquema.
 - Reportes y conciliaciones con SQL clásico.
 - Auditoría con `transaction_events` append-only.
 - Double-entry contable con `INSERT` atómicos.
 
 **Más difícil:**
+
 - Validación del `payload`: requiere JSON Schema por tipo y disciplina.
 - Promoción de claves del payload a columnas reales cuando se vuelven calientes (trabajo recurrente, planificable).
 
 **Revisitar:**
+
 - Si llegamos a >50K tps sostenidos en write, evaluar partitioning por mes/usuario o ledger dedicado tipo TigerBeetle.
 - Si surge una vista analítica masiva, replicar a un warehouse (Snowflake/BigQuery).
 

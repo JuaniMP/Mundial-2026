@@ -7,9 +7,30 @@ import { Share2, Target, Medal, MoreVertical, ChevronDown } from 'lucide-react';
 type FilterTab = 'global' | 'friends' | 'national';
 
 const rankingData = [
-  { rank: 1, name: 'Alex Mercer', country: 'USA', points: 52100, seed: 'AlexMercer', dotColor: 'bg-secondary' },
-  { rank: 2, name: 'Sofia Reyes', country: 'Mexico', points: 51850, seed: 'SofiaReyes', dotColor: 'bg-primary' },
-  { rank: 3, name: 'David Chen', country: 'Canada', points: 50900, seed: 'DavidChen', dotColor: 'bg-danger' },
+  {
+    rank: 1,
+    name: 'Alex Mercer',
+    country: 'USA',
+    points: 52100,
+    seed: 'AlexMercer',
+    dotColor: 'bg-secondary',
+  },
+  {
+    rank: 2,
+    name: 'Sofia Reyes',
+    country: 'Mexico',
+    points: 51850,
+    seed: 'SofiaReyes',
+    dotColor: 'bg-primary',
+  },
+  {
+    rank: 3,
+    name: 'David Chen',
+    country: 'Canada',
+    points: 50900,
+    seed: 'DavidChen',
+    dotColor: 'bg-danger',
+  },
 ];
 
 export function Superpolla() {
@@ -35,9 +56,15 @@ export function Superpolla() {
           <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary rounded-full mix-blend-screen blur-[60px] opacity-15 -translate-x-1/4 translate-y-1/4 pointer-events-none" />
           <div className="relative z-10 flex justify-between items-start">
             <div className="flex items-center gap-4">
-              <img alt={currentUser.name} className="w-14 h-14 rounded-full object-cover border-2 border-white/20 shadow-lg" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}`} />
+              <img
+                alt={currentUser.name}
+                className="w-14 h-14 rounded-full object-cover border-2 border-white/20 shadow-lg"
+                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.name}`}
+              />
               <div>
-                <h2 className="font-headline font-bold text-2xl text-white tracking-tight">{currentUser.name}</h2>
+                <h2 className="font-headline font-bold text-2xl text-white tracking-tight">
+                  {currentUser.name}
+                </h2>
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm bg-white/10 text-white/80 text-xs uppercase tracking-widest backdrop-blur-md">
                   <span className="w-1.5 h-1.5 rounded-full bg-accent" />
                   Team {currentUser.team.name}
@@ -52,7 +79,9 @@ export function Superpolla() {
             <div>
               <p className="text-xs text-white/50 uppercase tracking-[0.12em] mb-1">Global Rank</p>
               <div className="flex items-baseline gap-2">
-                <span className="font-headline font-extrabold text-5xl text-white tracking-tighter">1,248</span>
+                <span className="font-headline font-extrabold text-5xl text-white tracking-tighter">
+                  1,248
+                </span>
                 <span className="text-sm text-primary-light font-semibold">↑ 12</span>
               </div>
             </div>
@@ -63,17 +92,36 @@ export function Superpolla() {
           </div>
         </div>
         <div className="flex flex-col gap-5">
-          <StatCard label="Accuracy" value="68.4%" icon={Target} iconColor="text-secondary" progress={68.4} progressColor="linear-gradient(90deg, var(--color-secondary-dim), var(--color-secondary))" />
-          <StatCard label="Next Milestone" value="2,100 pts away" icon={Medal} iconColor="text-accent" subtitle="Top 1,000 Global" />
+          <StatCard
+            label="Accuracy"
+            value="68.4%"
+            icon={Target}
+            iconColor="text-secondary"
+            progress={68.4}
+            progressColor="linear-gradient(90deg, var(--color-secondary-dim), var(--color-secondary))"
+          />
+          <StatCard
+            label="Next Milestone"
+            value="2,100 pts away"
+            icon={Medal}
+            iconColor="text-accent"
+            subtitle="Top 1,000 Global"
+          />
         </div>
       </section>
 
       <section className="flex flex-col gap-6 animate-fade-in-up delay-200">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
-          <h2 className="font-headline font-bold text-2xl md:text-3xl text-text-primary tracking-tight">Global Rankings</h2>
+          <h2 className="font-headline font-bold text-2xl md:text-3xl text-text-primary tracking-tight">
+            Global Rankings
+          </h2>
           <div className="flex bg-bg-elevated rounded-xl p-1 border border-border">
             {tabs.map((tab) => (
-              <button key={tab.key} onClick={() => setActiveTab(tab.key)} className={`px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${activeTab === tab.key ? 'bg-bg-card text-text-primary shadow-sm border border-border' : 'text-text-muted hover:text-text-secondary'}`}>
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`px-5 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${activeTab === tab.key ? 'bg-bg-card text-text-primary shadow-sm border border-border' : 'text-text-muted hover:text-text-secondary'}`}
+              >
                 {tab.label}
               </button>
             ))}
@@ -81,15 +129,34 @@ export function Superpolla() {
         </div>
         <div className="flex flex-col gap-2.5">
           {rankingData.map((entry) => (
-            <LeaderboardRow key={entry.rank} rank={entry.rank} name={entry.name} country={entry.country} points={entry.points} avatarSeed={entry.seed} isTop={entry.rank === 1} dotColor={entry.dotColor} />
+            <LeaderboardRow
+              key={entry.rank}
+              rank={entry.rank}
+              name={entry.name}
+              country={entry.country}
+              points={entry.points}
+              avatarSeed={entry.seed}
+              isTop={entry.rank === 1}
+              dotColor={entry.dotColor}
+            />
           ))}
           <div className="py-2 flex justify-center">
             <MoreVertical className="text-text-muted/30 w-5 h-5" />
           </div>
-          <LeaderboardRow rank={1248} name={currentUser.name} country="Canada" points={45920} avatarSeed={currentUser.name} isCurrentUser dotColor="bg-danger" />
+          <LeaderboardRow
+            rank={1248}
+            name={currentUser.name}
+            country="Canada"
+            points={45920}
+            avatarSeed={currentUser.name}
+            isCurrentUser
+            dotColor="bg-danger"
+          />
         </div>
         <div className="flex justify-center mt-2">
-          <Button variant="secondary" icon={ChevronDown} size="md">Load More Rankings</Button>
+          <Button variant="secondary" icon={ChevronDown} size="md">
+            Load More Rankings
+          </Button>
         </div>
       </section>
     </main>

@@ -110,7 +110,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const clearError = () => setError(null);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, login, register, logout, clearError }}>
+    <AuthContext.Provider
+      value={{ user, token, loading, error, login, register, logout, clearError }}
+    >
       {children}
     </AuthContext.Provider>
   );
