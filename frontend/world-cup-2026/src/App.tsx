@@ -4,6 +4,8 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { Layout } from './components/layout/Layout';
 import { Navbar } from './components/layout/Navbar';
 import { Dashboard } from './pages/Dashboard';
+import { Matches } from './pages/Matches';
+import { Standings } from './pages/Standings';
 import { Stadiums } from './pages/Stadiums';
 import { Superpolla } from './pages/Superpolla';
 import { Album } from './pages/Album';
@@ -30,6 +32,8 @@ function App() {
                   <Navbar />
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
+                    <Route path="/matches" element={<Matches />} />
+                    <Route path="/standings" element={<Standings />} />
                     <Route path="/stadiums" element={<Stadiums />} />
                     <Route path="/superpolla" element={<Superpolla />} />
                     <Route path="/album" element={<Album />} />
