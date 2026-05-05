@@ -61,7 +61,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data?.message as string) || 'Login failed'
+        ? (err.response?.data?.data?.error as string) ||
+          (err.response?.data?.message as string) ||
+          'Login failed'
         : 'Login failed';
       setError(message);
       throw new Error(message);
@@ -94,7 +96,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (err) {
       const message = axios.isAxiosError(err)
-        ? (err.response?.data?.message as string) || 'Registration failed'
+        ? (err.response?.data?.data?.error as string) ||
+          (err.response?.data?.message as string) ||
+          'Registration failed'
         : 'Registration failed';
       setError(message);
       throw new Error(message);
