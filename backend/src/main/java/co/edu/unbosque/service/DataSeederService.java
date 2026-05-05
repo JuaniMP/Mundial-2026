@@ -3,6 +3,7 @@ package co.edu.unbosque.service;
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +20,14 @@ public class DataSeederService {
     private final SeleccionRepository seleccionRepository;
     private final JugadorRepository jugadorRepository;
     private final PartidoRepository partidoRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public void seedDatabase() {
+        // Always try to seed WC 2026 stadiums (has its own guard)
+        seedWC2026StadiumsIfNeeded();
+
         // Verificar si ya hay datos
         if (rolRepository.count() > 0) {
             System.out.println("Base de datos ya contiene datos. Seeding omitido.");
@@ -30,6 +36,7 @@ public class DataSeederService {
 
         System.out.println("🌱 Iniciando seeding de base de datos...");
         seedRoles();
+        seedUsuarios();
         seedSedes();
         seedEstadios();
         seedSelecciones();
@@ -247,5 +254,130 @@ public class DataSeederService {
         }
 
         System.out.println("✓ Partidos cargados");
+    }
+
+    // ── WC 2026 Stadiums ──────────────────────────────────────────────────────
+
+    /**
+     * Seeds the 16 real FIFA World Cup 2026 stadiums (USA / Canada / Mexico)
+     * with hardcoded coordinates. Safe to call multiple times — guard prevents
+     * re-seeding if MetLife Stadium already exists.
+     */
+    private void seedWC2026StadiumsIfNeeded() {
+        if (estadioRepository.findByNombre("MetLife Stadium").isPresent()) {
+            return; // Already migrated
+        }
+        System.out.println("🏟️ Seeding estadios del Mundial 2026...");
+
+        // Sedes (host cities) — ciudad, pais
+        String[][] ciudades = {
+            {"East Rutherford", "USA"},
+            {"Los Angeles",     "USA"},
+            {"Dallas",          "USA"},
+            {"San Francisco",   "USA"},
+            {"Los Angeles",     "USA"},   // Pasadena — same pais, different ciudad key
+            {"Kansas City",     "USA"},
+            {"Houston",         "USA"},
+            {"Boston",          "USA"},
+            {"Philadelphia",    "USA"},
+            {"Charlotte",       "USA"},
+            {"Miami",           "USA"},
+            {"Vancouver",       "Canada"},
+            {"Toronto",         "Canada"},
+            {"Ciudad de México","México"},
+            {"Monterrey",       "México"},
+            {"Guadalajara",     "México"},
+        };
+        for (String[] c : ciudades) {
+            if (sedeRepository.findByCiudadAndPais(c[0], c[1]).isEmpty()) {
+                sedeRepository.save(Sede.builder().ciudad(c[0]).pais(c[1]).build());
+            }
+        }
+
+        // Stadiums: nombre, direccion, capacidad, ciudad, pais, lat, lng
+        Object[][] estadios = {
+            {"MetLife Stadium",          "1 MetLife Stadium Dr, East Rutherford, NJ", 82500, "East Rutherford", "USA",              40.8136,  -74.0744},
+            {"SoFi Stadium",             "1001 Stadium Dr, Inglewood, CA",            70240, "Los Angeles",     "USA",              33.9535, -118.3392},
+            {"AT&T Stadium",             "1 AT&T Way, Arlington, TX",                 80000, "Dallas",          "USA",              32.7482,  -97.0928},
+            {"Levi's Stadium",           "4900 Marie P DeBartolo Way, Santa Clara, CA",68500,"San Francisco",   "USA",              37.4034, -121.9697},
+            {"Rose Bowl",                "1001 Rose Bowl Dr, Pasadena, CA",           92542, "Los Angeles",     "USA",              34.1613, -118.1676},
+            {"Arrowhead Stadium",        "One Arrowhead Dr, Kansas City, MO",         73861, "Kansas City",     "USA",              39.0489,  -94.4839},
+            {"NRG Stadium",              "1 NRG Pkwy, Houston, TX",                   72220, "Houston",         "USA",              29.6847,  -95.4107},
+            {"Gillette Stadium",         "1 Patriot Pl, Foxborough, MA",              65878, "Boston",          "USA",              42.0909,  -71.2643},
+            {"Lincoln Financial Field",  "1 Lincoln Financial Field Way, Philadelphia",69796, "Philadelphia",   "USA",              39.9007,  -75.1676},
+            {"Bank of America Stadium",  "800 S Mint St, Charlotte, NC",              74867, "Charlotte",       "USA",              35.2258,  -80.8528},
+            {"Hard Rock Stadium",        "347 Don Shula Dr, Miami Gardens, FL",       64767, "Miami",           "USA",              25.9580,  -80.2389},
+            {"BC Place",                 "777 Pacific Blvd, Vancouver, BC",           54500, "Vancouver",       "Canada",           49.2767, -123.1117},
+            {"BMO Field",                "170 Princes' Blvd, Toronto, ON",            30990, "Toronto",         "Canada",           43.6333,  -79.4167},
+            {"Estadio Azteca",           "Calzada de Tlalpan 3465, Ciudad de México", 87523, "Ciudad de México","México",           19.3029,  -99.1505},
+            {"Estadio BBVA",             "Av. Pablo Livas 2011, Guadalupe, Monterrey",53500, "Monterrey",       "México",           25.6694, -100.2438},
+            {"Estadio Akron",            "Av. de las Rosas 3476, Zapopan, Jalisco",   49850, "Guadalajara",     "México",           20.6858, -103.4676},
+        };
+
+        for (Object[] est : estadios) {
+            String nombre   = (String) est[0];
+            String dir      = (String) est[1];
+            int    cap      = (int)    est[2];
+            String ciudad   = (String) est[3];
+            String pais     = (String) est[4];
+            double lat      = (double) est[5];
+            double lng      = (double) est[6];
+
+            if (estadioRepository.findByNombre(nombre).isEmpty()) {
+                Sede sede = sedeRepository.findByCiudadAndPais(ciudad, pais).orElseGet(() ->
+                        sedeRepository.save(Sede.builder().ciudad(ciudad).pais(pais).build())
+                );
+                estadioRepository.save(Estadio.builder()
+                        .nombre(nombre)
+                        .direccion(dir)
+                        .capacidad(cap)
+                        .lat(lat)
+                        .lng(lng)
+                        .sede(sede)
+                        .build());
+            }
+        }
+        System.out.println("✅ Estadios del Mundial 2026 cargados (16 venues)");
+    }
+
+    private void seedUsuarios() {
+        Rol adminRole = rolRepository.findByNombre("ADMIN").orElse(null);
+        Rol aficionadoRole = rolRepository.findByNombre("AFICIONADO").orElse(null);
+        Rol operadorRole = rolRepository.findByNombre("OPERADOR").orElse(null);
+
+        if (adminRole != null && usuarioRepository.findByEmail("admin@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Admin Usuario")
+                    .email("admin@test.com")
+                    .passwordHash(passwordEncoder.encode("admin123"))
+                    .rol(adminRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Argentina")
+                    .build());
+        }
+
+        if (aficionadoRole != null && usuarioRepository.findByEmail("aficionado@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Aficionado Prueba")
+                    .email("aficionado@test.com")
+                    .passwordHash(passwordEncoder.encode("aficionado123"))
+                    .rol(aficionadoRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Colombia")
+                    .build());
+        }
+
+        if (operadorRole != null && usuarioRepository.findByEmail("operador@test.com").isEmpty()) {
+            usuarioRepository.save(Usuario.builder()
+                    .nombre("Operador Sistema")
+                    .email("operador@test.com")
+                    .passwordHash(passwordEncoder.encode("operador123"))
+                    .rol(operadorRole)
+                    .zonaHoraria("America/Bogota")
+                    .seleccionFavorita("Brasil")
+                    .build());
+        }
+
+        System.out.println("✓ Usuarios de prueba cargados");
     }
 }

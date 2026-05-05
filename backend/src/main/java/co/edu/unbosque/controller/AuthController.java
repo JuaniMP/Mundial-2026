@@ -27,4 +27,16 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(ApiResponse.success(response, "Login exitoso"));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<ApiResponse<String>> forgotPassword(@RequestBody ForgotPasswordRequest request) {
+        authService.forgotPassword(request.getEmail());
+        return ResponseEntity.ok(ApiResponse.success("Código de reset enviado", "Se envió un código a tu email"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<ApiResponse<AuthResponse>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        AuthResponse response = authService.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success(response, "Contraseña actualizada exitosamente"));
+    }
 }
