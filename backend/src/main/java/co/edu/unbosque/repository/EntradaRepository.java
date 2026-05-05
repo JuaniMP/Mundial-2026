@@ -13,4 +13,5 @@ public interface EntradaRepository extends JpaRepository<Entrada, Integer> {
     List<Entrada> findByPartidoId(Integer partidoId);
     List<Entrada> findByUsuarioCompradorId(Integer usuarioId);
     List<Entrada> findByEstado(String estado);
+    List<Entrada> findByStripePaymentIntentId(String piId);
 }
