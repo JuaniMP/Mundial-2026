@@ -119,6 +119,21 @@ export interface EstadioApi {
   direccion: string;
 }
 
+// ── Partido API (from our backend DB) ────────────────────────────────────────
+
+export interface PartidoApi {
+  id: number;
+  fechaHora: string;
+  ronda: string;
+  estado: string;
+  marcadorLocal: number;
+  marcadorVisitante: number;
+  idEstadio: number;
+  estadioNombre: string;
+  seleccionLocal: string;
+  seleccionVisitante: string;
+}
+
 // ── Prediction types ─────────────────────────────────────────────────────────
 
 export interface Prediction {
