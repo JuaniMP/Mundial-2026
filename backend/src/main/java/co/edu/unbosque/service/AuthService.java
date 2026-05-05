@@ -126,8 +126,13 @@ public class AuthService {
         resetCodes.put(email, new ResetCodeData(resetCode, expiresAt));
 
         log.info("🔐 Reset code generated for {}: {} (Expires in 15 minutes)", email, resetCode);
-        emailService.sendPasswordResetEmail(email, resetCode);
-        log.info("📧 Password reset email sent to: {}", email);
+        try {
+            emailService.sendPasswordResetEmail(email, resetCode);
+            log.info("📧 Password reset email sent to: {}", email);
+        } catch (Exception e) {
+            log.error("⚠️ Failed to send reset email to {}: {}", email, e.getMessage());
+            throw new BadRequestException("Error al enviar el correo. Verifica la dirección e inténtalo de nuevo.");
+        }
     }
 
     @Transactional

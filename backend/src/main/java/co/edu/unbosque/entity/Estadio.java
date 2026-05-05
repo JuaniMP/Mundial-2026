@@ -26,6 +26,12 @@ public class Estadio {
     @Column(nullable = false)
     private Integer capacidad;
 
+    @Column(nullable = true)
+    private Double lat;
+
+    @Column(nullable = true)
+    private Double lng;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_sede", nullable = false)
     private Sede sede;
