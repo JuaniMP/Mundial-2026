@@ -131,7 +131,9 @@
       "Bash(findstr -i docker)",
       "Bash([ -s \"$OUTPUT\" ])",
       "Bash(mvn spring-boot:run -DskipTests -Dspring-boot.run.jvmArguments=\"-DMAIL_USERNAME=mundialparatodos2026@gmail.com -DMAIL_PASSWORD=ozkp pvku yepu moap\")",
-      "Bash(gh pr *)"
+      "Bash(gh pr *)",
+      "PowerShell($env:GIT_ASKPASS = \"\"; $result = git ls-remote https://github.com/JuaniMP/Mundial-2026 HEAD 2>&1; Write-Output $result)",
+      "Bash(git commit -m 'chore: update allowed tools in settings.local.json *)"
     ]
   }
 }
