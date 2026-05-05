@@ -1,6 +1,6 @@
 import { stadiums, matches } from '../data/mockData';
 import { MatchCard } from '../components/features/MatchCard';
-import { StatCard, PageHeader, Badge } from '../components/ui';
+import { StatCard, PageHeader } from '../components/ui';
 import { Users, CloudSun, Star, Tag } from 'lucide-react';
 
 export function Stadiums() {
