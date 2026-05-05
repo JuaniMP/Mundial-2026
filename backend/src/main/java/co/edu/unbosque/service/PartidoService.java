@@ -24,24 +24,28 @@ public class PartidoService {
     private final EstadioRepository estadioRepository;
     private final SeleccionRepository seleccionRepository;
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getAllPartidos() {
         return partidoRepository.findAll().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public PartidoResponse getPartidoById(Integer id) {
         Partido partido = partidoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Partido no encontrado con ID: " + id));
         return toResponse(partido);
     }
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getPartidosByEstado(String estado) {
         return partidoRepository.findByEstado(estado).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getPartidosByRonda(String ronda) {
         return partidoRepository.findByRonda(ronda).stream()
                 .map(this::toResponse)
