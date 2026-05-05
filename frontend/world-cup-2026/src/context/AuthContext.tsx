@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Login failed';
+      const message = err.response?.data?.data?.error || err.response?.data?.message || 'Login failed';
       setError(message);
       throw new Error(message);
     } finally {
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } catch (err: any) {
-      const message = err.response?.data?.message || 'Registration failed';
+      const message = err.response?.data?.data?.error || err.response?.data?.message || 'Registration failed';
       setError(message);
       throw new Error(message);
     } finally {
