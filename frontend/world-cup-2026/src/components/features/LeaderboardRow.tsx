@@ -28,10 +28,7 @@ export function LeaderboardRow({
       className={`
         group relative flex items-center justify-between p-4 pl-5 rounded-xl
         transition-all duration-300
-        ${isCurrentUser
-          ? 'bg-primary-subtle border border-border-accent'
-          : 'card-base'
-        }
+        ${isCurrentUser ? 'bg-primary-subtle border border-border-accent' : 'card-base'}
         ${className}
       `}
     >
@@ -72,9 +69,11 @@ export function LeaderboardRow({
 
         {/* Info */}
         <div className="min-w-0">
-          <h3 className={`font-headline font-semibold text-sm md:text-base truncate ${
-            isCurrentUser ? 'text-primary' : 'text-text-primary'
-          }`}>
+          <h3
+            className={`font-headline font-semibold text-sm md:text-base truncate ${
+              isCurrentUser ? 'text-primary' : 'text-text-primary'
+            }`}
+          >
             {name}
             {isCurrentUser && (
               <span className="text-xs font-normal text-text-muted ml-1.5">(You)</span>
@@ -90,9 +89,11 @@ export function LeaderboardRow({
       </div>
 
       {/* Points */}
-      <div className={`font-headline font-bold text-base md:text-lg tracking-tight shrink-0 ${
-        isCurrentUser ? 'text-primary' : 'text-text-primary'
-      }`}>
+      <div
+        className={`font-headline font-bold text-base md:text-lg tracking-tight shrink-0 ${
+          isCurrentUser ? 'text-primary' : 'text-text-primary'
+        }`}
+      >
         {typeof points === 'number' ? points.toLocaleString() : points}
       </div>
     </div>

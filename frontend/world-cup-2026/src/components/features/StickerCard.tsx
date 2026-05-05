@@ -37,7 +37,9 @@ export function StickerCard({
 
   if (isLarge) {
     return (
-      <div className={`card-base col-span-2 row-span-2 p-4 flex flex-col overflow-hidden group shine-effect ${className}`}>
+      <div
+        className={`card-base col-span-2 row-span-2 p-4 flex flex-col overflow-hidden group shine-effect ${className}`}
+      >
         <div className="w-full h-48 md:h-64 rounded-xl overflow-hidden mb-4 relative">
           {imageUrl && (
             <img
@@ -65,9 +67,7 @@ export function StickerCard({
   return (
     <div className={`card-base p-3 flex flex-col ${className}`}>
       <div className="w-full aspect-[3/4] rounded-lg overflow-hidden mb-3">
-        {imageUrl && (
-          <img className="w-full h-full object-cover" alt={name} src={imageUrl} />
-        )}
+        {imageUrl && <img className="w-full h-full object-cover" alt={name} src={imageUrl} />}
       </div>
       <div className="px-1">
         <h3 className="font-headline text-sm font-bold text-text-primary truncate">{name}</h3>

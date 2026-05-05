@@ -1,6 +1,6 @@
 import { stadiums, matches } from '../data/mockData';
 import { MatchCard } from '../components/features/MatchCard';
-import { StatCard, PageHeader, Badge } from '../components/ui';
+import { StatCard, PageHeader } from '../components/ui';
 import { Users, CloudSun, Star, Tag } from 'lucide-react';
 
 export function Stadiums() {
@@ -128,17 +128,27 @@ export function Stadiums() {
                 </div>
               </div>
               <p className="text-text-secondary text-sm leading-relaxed flex-grow">
-                "The atmosphere here is electric! Section 204 has incredible
-                views of the whole pitch. Arrive early to soak it all in."
+                "The atmosphere here is electric! Section 204 has incredible views of the whole
+                pitch. Arrive early to soak it all in."
               </p>
             </div>
 
             {/* Photo Grid */}
             <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { alt: 'Soccer ball', src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA_vskEac3zVKo1nmpl99uDJ2dlZwwcdziZFHEViSfDIVq6Sq59ZWueu4N1XGGqA9M5OQfp8nQye7ymqP7EMQgKCj_uR_BvlFr8zaCJXVAUt_BlSMQ7kKppclp449_WHJZpZLTZlpcDE2WEV25qN19Lk6OKk41JlfxZIfpGiy_ukFwO4xp9mJD8Rodp-pkjBXe7tciS-kJwlRMC_e8K5jF_TDTuctcUvhgyZSCV0hHEGN_gv68udtDvGByKQusVl_jLQArVjWdZ53Y' },
-                { alt: 'Fans cheering', src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBIrgOBR-sxa4TPzDa4Q9a9Z-d7eZ0WH1QPkst2cJFlwwWGKYCzLkqxHNkCenZYNi5BdM8YbFYxPSpbLlW0PsWRVICh7iahehIuQB6I7KMjmdo-CSlFI3GmgGuX5usvOFmFkhw8RpleHN22PdHNZcdyMoYlB7OCgX5TGUjB300YNXpKe8Cr8fMu_lPpGZs-ZLT_CYDZ_33heR2D1n9dARAKOIPgf1oUP-5aVZYdCYsQxHAAmnZexzgU3TWA_PBdjNRjfTe8YAOBXuA' },
-                { alt: 'Stadium exterior', src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDm9mrP7l1LUobgt3F5-MOf9pUfs6RMqhYzTzwlSxZx1TkC4Ksw6W8Lp2pxHftoxKnvNuleY6UvKPPkn5N24Qmk0ni4N5VikQPEIEQVOrd7EQYnSbnJaJRZbDz-OmD3879LbaAaAce2SYh5ZFx4RshdfyVn2IWEm2d0Kolk7Nq6hBJc7w17MnwN6VUPHxMZJGUQIBXFSkrEd9_e8gs95RDWOD_cEtciMmfwLHv1pgHezigzL6i70N7KyrRVzwWSEB-5VR2Hhc6MvWQ', colSpan: true },
+                {
+                  alt: 'Soccer ball',
+                  src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuA_vskEac3zVKo1nmpl99uDJ2dlZwwcdziZFHEViSfDIVq6Sq59ZWueu4N1XGGqA9M5OQfp8nQye7ymqP7EMQgKCj_uR_BvlFr8zaCJXVAUt_BlSMQ7kKppclp449_WHJZpZLTZlpcDE2WEV25qN19Lk6OKk41JlfxZIfpGiy_ukFwO4xp9mJD8Rodp-pkjBXe7tciS-kJwlRMC_e8K5jF_TDTuctcUvhgyZSCV0hHEGN_gv68udtDvGByKQusVl_jLQArVjWdZ53Y',
+                },
+                {
+                  alt: 'Fans cheering',
+                  src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBIrgOBR-sxa4TPzDa4Q9a9Z-d7eZ0WH1QPkst2cJFlwwWGKYCzLkqxHNkCenZYNi5BdM8YbFYxPSpbLlW0PsWRVICh7iahehIuQB6I7KMjmdo-CSlFI3GmgGuX5usvOFmFkhw8RpleHN22PdHNZcdyMoYlB7OCgX5TGUjB300YNXpKe8Cr8fMu_lPpGZs-ZLT_CYDZ_33heR2D1n9dARAKOIPgf1oUP-5aVZYdCYsQxHAAmnZexzgU3TWA_PBdjNRjfTe8YAOBXuA',
+                },
+                {
+                  alt: 'Stadium exterior',
+                  src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDm9mrP7l1LUobgt3F5-MOf9pUfs6RMqhYzTzwlSxZx1TkC4Ksw6W8Lp2pxHftoxKnvNuleY6UvKPPkn5N24Qmk0ni4N5VikQPEIEQVOrd7EQYnSbnJaJRZbDz-OmD3879LbaAaAce2SYh5ZFx4RshdfyVn2IWEm2d0Kolk7Nq6hBJc7w17MnwN6VUPHxMZJGUQIBXFSkrEd9_e8gs95RDWOD_cEtciMmfwLHv1pgHezigzL6i70N7KyrRVzwWSEB-5VR2Hhc6MvWQ',
+                  colSpan: true,
+                },
               ].map((photo, i) => (
                 <div
                   key={i}
