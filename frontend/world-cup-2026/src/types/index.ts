@@ -56,6 +56,71 @@ export interface Album {
   }[];
 }
 
+// ── Football Data API types ──────────────────────────────────────────────────
+
+export interface FdTeam {
+  id: number;
+  name: string;
+  shortName: string;
+  tla: string;
+  crest: string;
+}
+
+export interface FdScore {
+  winner: string | null;
+  fullTime: { home: number | null; away: number | null };
+  halfTime: { home: number | null; away: number | null };
+}
+
+export interface FdMatch {
+  id: number;
+  utcDate: string;
+  status: 'TIMED' | 'SCHEDULED' | 'LIVE' | 'IN_PLAY' | 'PAUSED' | 'FINISHED' | 'POSTPONED' | 'CANCELLED';
+  matchday: number;
+  stage: string;
+  group: string | null;
+  venue: string | null;
+  homeTeam: FdTeam;
+  awayTeam: FdTeam;
+  score: FdScore;
+}
+
+export interface FdTableEntry {
+  position: number;
+  team: FdTeam;
+  playedGames: number;
+  won: number;
+  draw: number;
+  lost: number;
+  points: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDifference: number;
+  form: string | null;
+}
+
+export interface FdStandingsGroup {
+  stage: string;
+  type: string;
+  group: string;
+  table: FdTableEntry[];
+}
+
+// ── Estadio / Venue types ────────────────────────────────────────────────────
+
+export interface EstadioApi {
+  id: number;
+  nombre: string;
+  ciudad: string;
+  pais: string;
+  capacidad: number;
+  lat: number;
+  lng: number;
+  direccion: string;
+}
+
+// ── Prediction types ─────────────────────────────────────────────────────────
+
 export interface Prediction {
   id: string;
   match: Match;
