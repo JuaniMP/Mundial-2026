@@ -1,14 +1,105 @@
+import { useState } from 'react';
 import { matches } from '../data/mockData';
 import { MatchCard } from '../components/features/MatchCard';
 import { FeatureCard } from '../components/features/FeatureCard';
 import { Badge, Button } from '../components/ui';
-import { ArrowRight, Play, Landmark, Trophy, BookOpen } from 'lucide-react';
+import { ArrowRight, Play, Landmark, Trophy, BookOpen, Bell, BellOff, X } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useFcm } from '../hooks/useFcm';
 
 export function Dashboard() {
   const nextMatch = matches[0];
+  const { token } = useAuth();
+  const { permission, registered, foregroundMessage, isConfigured, requestAndRegister, disable } =
+    useFcm(token);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const showBanner =
+    isConfigured &&
+    !bannerDismissed &&
+    permission !== 'granted' &&
+    permission !== 'denied' &&
+    permission !== 'unsupported';
+
+  const handleEnable = async () => {
+    setLoading(true);
+    await requestAndRegister();
+    setLoading(false);
+  };
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-2xl mx-auto w-full pb-28 md:pb-12">
+
+      {/* ══════ Foreground Push Toast ══════ */}
+      {foregroundMessage && (
+        <div className="fixed top-20 right-4 z-[200] max-w-sm w-full animate-fade-in-up">
+          <div className="glass border border-primary/30 rounded-xl p-4 shadow-lg flex items-start gap-3">
+            <Bell className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-text-primary text-sm">{foregroundMessage.title}</p>
+              <p className="text-text-secondary text-sm mt-0.5">{foregroundMessage.body}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════ Notification Permission Banner ══════ */}
+      {showBanner && (
+        <div className="mb-6 glass border border-primary/20 rounded-2xl p-4 flex items-center gap-4 animate-fade-in-up">
+          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shrink-0">
+            <Bell className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-text-primary text-sm">Activa las notificaciones push</p>
+            <p className="text-text-muted text-xs mt-0.5">
+              Recibe resultados de partidos y confirmaciones de entradas en tiempo real.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="primary"
+              size="sm"
+              icon={Bell}
+              onClick={handleEnable}
+              // @ts-expect-error custom prop
+              disabled={loading}
+            >
+              {loading ? 'Activando…' : 'Activar'}
+            </Button>
+            <button
+              onClick={() => setBannerDismissed(true)}
+              className="text-text-muted hover:text-text-secondary transition-colors p-1"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══════ Notification Status Chip (when granted) ══════ */}
+      {isConfigured && permission === 'granted' && (
+        <div className="mb-4 flex items-center justify-end gap-2">
+          {registered ? (
+            <button
+              onClick={disable}
+              className="flex items-center gap-1.5 text-xs text-text-muted hover:text-danger transition-colors"
+            >
+              <BellOff className="w-3.5 h-3.5" />
+              Desactivar notificaciones
+            </button>
+          ) : (
+            <button
+              onClick={handleEnable}
+              className="flex items-center gap-1.5 text-xs text-primary hover:underline transition-colors"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              Registrar dispositivo
+            </button>
+          )}
+        </div>
+      )}
+
       {/* ══════ Hero Section: Next Match ══════ */}
       <section className="mb-12 md:mb-16 relative rounded-3xl overflow-hidden group animate-fade-in-up">
         {/* Background */}
@@ -34,8 +125,8 @@ export function Dashboard() {
               <span className="gradient-text">Comienzo</span>
             </h1>
             <p className="text-base md:text-lg text-white/90 max-w-xl leading-relaxed mb-8">
-              The opening match of the 2026 FIFA World Cup. Witness history as the host nations take
-              center stage.
+              The opening match of the 2026 FIFA World Cup. Witness history as
+              the host nations take center stage.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button variant="primary" icon={ArrowRight} size="lg">

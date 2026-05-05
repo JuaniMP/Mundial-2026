@@ -54,11 +54,14 @@ public class StripeService {
 
     private final EntradaRepository entradaRepository;
     private final PartidoRepository  partidoRepository;
+    private final FcmService         fcmService;
 
     public StripeService(EntradaRepository entradaRepository,
-                         PartidoRepository partidoRepository) {
+                         PartidoRepository partidoRepository,
+                         FcmService fcmService) {
         this.entradaRepository = entradaRepository;
         this.partidoRepository  = partidoRepository;
+        this.fcmService         = fcmService;
     }
 
     @PostConstruct
@@ -193,6 +196,21 @@ public class StripeService {
         });
         entradaRepository.saveAll(entradas);
         log.info("✅ {} entradas marcadas como PAGADO para PI: {}", entradas.size(), piId);
+
+        // FCM — notify the buyer
+        if (!entradas.isEmpty()) {
+            Entrada primera = entradas.get(0);
+            String desc = primera.getPartido() != null
+                    ? primera.getPartido().getSeleccionLocal().getPais()
+                      + " vs " + primera.getPartido().getSeleccionVisitante().getPais()
+                      + " — " + primera.getPartido().getRonda()
+                    : "Partido WC 2026";
+            fcmService.notifyTicketPurchase(
+                    primera.getUsuarioComprador(),
+                    desc,
+                    primera.getCategoria(),
+                    entradas.size());
+        }
     }
 
     private void manejarPagoFallido(String piId) {
