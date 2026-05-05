@@ -15,7 +15,7 @@ export const Login = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error is already set in context
     }
   };

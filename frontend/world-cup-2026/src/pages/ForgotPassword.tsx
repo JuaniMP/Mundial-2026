@@ -30,7 +30,7 @@ export const ForgotPassword = () => {
       } else {
         setError(data.data?.error || data.message || 'Failed to process request');
       }
-    } catch (err: any) {
+    } catch {
       setError('Failed to process request. Please try again.');
     } finally {
       setLoading(false);

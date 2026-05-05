@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
-import { User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export const Register = () => {
   const [name, setName] = useState('');
@@ -34,7 +34,7 @@ export const Register = () => {
     try {
       await register(name, email, password);
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error is already set in context
     }
   };

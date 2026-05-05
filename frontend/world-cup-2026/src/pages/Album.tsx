@@ -1,6 +1,6 @@
 import { mockAlbum } from '../data/mockData';
 import { StickerCard } from '../components/features/StickerCard';
-import { PageHeader, ProgressBar, Button } from '../components/ui';
+import { ProgressBar, Button } from '../components/ui';
 import { Star, Globe, ArrowRight, ChevronDown, Shield } from 'lucide-react';
 
 export function Album() {
