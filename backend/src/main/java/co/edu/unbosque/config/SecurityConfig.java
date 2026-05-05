@@ -37,6 +37,10 @@ public class SecurityConfig {
                                 "/api/v1/auth/**",
                                 "/api/v1/football/**",
                                 "/api/v1/estadios/**",
+                                "/api/v1/partidos",
+                                "/api/v1/partidos/**",
+                                "/api/v1/entradas/webhook",
+                                "/api/v1/entradas/precios",
                                 "/actuator/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

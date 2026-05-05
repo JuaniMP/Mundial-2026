@@ -44,6 +44,9 @@ public class Usuario {
     @Column(name = "ultimo_login")
     private LocalDateTime ultimoLogin;
 
+    @Column(name = "fcm_token", length = 255)
+    private String fcmToken;
+
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Album> albumes;
 

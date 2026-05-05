@@ -75,6 +75,24 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Stripe Payments -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>25.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+
+        <!-- Firebase Admin SDK (FCM push notifications) -->
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
+        </dependency>
+
         <!-- Cache (Caffeine + Spring Cache) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

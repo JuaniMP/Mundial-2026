@@ -9,6 +9,7 @@ import co.edu.unbosque.exception.ResourceNotFoundException;
 import co.edu.unbosque.repository.EstadioRepository;
 import co.edu.unbosque.repository.PartidoRepository;
 import co.edu.unbosque.repository.SeleccionRepository;
+import co.edu.unbosque.service.FcmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,28 +21,33 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartidoService {
 
-    private final PartidoRepository partidoRepository;
-    private final EstadioRepository estadioRepository;
+    private final PartidoRepository  partidoRepository;
+    private final EstadioRepository  estadioRepository;
     private final SeleccionRepository seleccionRepository;
+    private final FcmService          fcmService;
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getAllPartidos() {
         return partidoRepository.findAll().stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public PartidoResponse getPartidoById(Integer id) {
         Partido partido = partidoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Partido no encontrado con ID: " + id));
         return toResponse(partido);
     }
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getPartidosByEstado(String estado) {
         return partidoRepository.findByEstado(estado).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<PartidoResponse> getPartidosByRonda(String ronda) {
         return partidoRepository.findByRonda(ronda).stream()
                 .map(this::toResponse)
@@ -84,6 +90,14 @@ public class PartidoService {
         partido.setEstado("TERMINADO");
 
         partido = partidoRepository.save(partido);
+
+        // FCM — broadcast result to all users subscribed to "partidos" topic
+        fcmService.notifyMatchResult(
+                partido.getSeleccionLocal().getPais(),
+                partido.getSeleccionVisitante().getPais(),
+                marcadorLocal,
+                marcadorVisitante);
+
         return toResponse(partido);
     }
 

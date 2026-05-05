@@ -9,6 +9,7 @@ import { Standings } from './pages/Standings';
 import { Stadiums } from './pages/Stadiums';
 import { Superpolla } from './pages/Superpolla';
 import { Album } from './pages/Album';
+import { Tickets } from './pages/Tickets';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/stadiums" element={<Stadiums />} />
                     <Route path="/superpolla" element={<Superpolla />} />
                     <Route path="/album" element={<Album />} />
+                    <Route path="/tickets" element={<Tickets />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
