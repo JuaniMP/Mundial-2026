@@ -1,14 +1,54 @@
 import type { Team, Match, Stadium, User, Sticker, Album } from '../types';
 
 export const teams: Team[] = [
-  { id: 'mex', name: 'Mexico', code: 'MEX', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg' },
-  { id: 'usa', name: 'USA', code: 'USA', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg' },
-  { id: 'can', name: 'Canada', code: 'CAN', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Canada_-_盎斯.svg' },
-  { id: 'eng', name: 'England', code: 'ENG', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_the_United_Kingdom.svg' },
-  { id: 'bra', name: 'Brazil', code: 'BRA', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg' },
-  { id: 'arg', name: 'Argentina', code: 'ARG', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg' },
-  { id: 'fra', name: 'France', code: 'FRA', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg' },
-  { id: 'ger', name: 'Germany', code: 'GER', flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Germany.svg' },
+  {
+    id: 'mex',
+    name: 'Mexico',
+    code: 'MEX',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fc/Flag_of_Mexico.svg',
+  },
+  {
+    id: 'usa',
+    name: 'USA',
+    code: 'USA',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a4/Flag_of_the_United_States.svg',
+  },
+  {
+    id: 'can',
+    name: 'Canada',
+    code: 'CAN',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/d9/Flag_of_Canada_-_盎斯.svg',
+  },
+  {
+    id: 'eng',
+    name: 'England',
+    code: 'ENG',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b7/Flag_of_the_United_Kingdom.svg',
+  },
+  {
+    id: 'bra',
+    name: 'Brazil',
+    code: 'BRA',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Flag_of_Brazil.svg',
+  },
+  {
+    id: 'arg',
+    name: 'Argentina',
+    code: 'ARG',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1a/Flag_of_Argentina.svg',
+  },
+  {
+    id: 'fra',
+    name: 'France',
+    code: 'FRA',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c3/Flag_of_France.svg',
+  },
+  {
+    id: 'ger',
+    name: 'Germany',
+    code: 'GER',
+    flagUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Flag_of_Germany.svg',
+  },
 ];
 
 export const stadiums: Stadium[] = [
@@ -17,7 +57,12 @@ export const stadiums: Stadium[] = [
   { id: 'sofi', name: 'SoFi Stadium', location: 'Inglewood, CA, USA', capacity: 70000 },
   { id: 'bcplace', name: 'BC Place', location: 'Vancouver, Canada', capacity: 54000 },
   { id: 'nrg', name: 'NRG Stadium', location: 'Houston, TX, USA', capacity: 72000 },
-  { id: ' Arrowhead', name: 'Arrowhead Stadium', location: 'Kansas City, MO, USA', capacity: 73000 },
+  {
+    id: ' Arrowhead',
+    name: 'Arrowhead Stadium',
+    location: 'Kansas City, MO, USA',
+    capacity: 73000,
+  },
 ];
 
 export const matches: Match[] = [
