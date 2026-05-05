@@ -15,7 +15,7 @@ export const Login = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error is already set in context
     }
   };
@@ -71,7 +71,10 @@ export const Login = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -124,7 +127,10 @@ export const Login = () => {
           {/* Sign Up Link */}
           <p className="text-center text-text-muted">
             Don't have an account?{' '}
-            <Link to="/register" className="text-primary hover:text-primary-light font-semibold transition-colors">
+            <Link
+              to="/register"
+              className="text-primary hover:text-primary-light font-semibold transition-colors"
+            >
               Sign Up
             </Link>
           </p>

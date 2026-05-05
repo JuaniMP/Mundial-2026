@@ -34,7 +34,8 @@ export function ProgressBar({
           className={`h-full rounded-full transition-all duration-700 ease-out`}
           style={{
             width: `${percentage}%`,
-            background: color || 'linear-gradient(90deg, var(--color-primary-dim), var(--color-primary))',
+            background:
+              color || 'linear-gradient(90deg, var(--color-primary-dim), var(--color-primary))',
           }}
         />
       )}
