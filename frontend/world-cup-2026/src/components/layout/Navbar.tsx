@@ -1,13 +1,15 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, Landmark, Trophy, BookOpen, Globe, Bell, User, LogOut } from 'lucide-react';
+import { Compass, Landmark, Trophy, BookOpen, Globe, Bell, User, LogOut, CalendarDays, BarChart3 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
 const navItems = [
-  { to: '/', label: 'Experience', icon: Compass, exact: true },
-  { to: '/stadiums', label: 'Stadiums', icon: Landmark, exact: false },
+  { to: '/', label: 'Inicio', icon: Compass, exact: true },
+  { to: '/matches', label: 'Partidos', icon: CalendarDays, exact: false },
+  { to: '/standings', label: 'Tabla', icon: BarChart3, exact: false },
+  { to: '/stadiums', label: 'Estadios', icon: Landmark, exact: false },
   { to: '/superpolla', label: 'Superpolla', icon: Trophy, exact: false },
-  { to: '/album', label: 'Album', icon: BookOpen, exact: false },
+  { to: '/album', label: 'Álbum', icon: BookOpen, exact: false },
 ];
 
 export function Navbar() {
