@@ -4,15 +4,15 @@ Mockups HTML originales exportados de Stitch (Figma → HTML/Tailwind). **Son re
 
 ## Mockups
 
-| Pantalla | Carpeta |
-|---|---|
-| Dashboard *(Un Mundial para Todos)* | [`stitch_un_mundial_para_todos_experience/dashboard_un_mundial_para_todos/`](stitch_un_mundial_para_todos_experience/dashboard_un_mundial_para_todos/) |
-| Stadium Experience | [`stitch_un_mundial_para_todos_experience/the_stadium_experience/`](stitch_un_mundial_para_todos_experience/the_stadium_experience/) |
-| Stadium Detailed Heatmap | [`stitch_un_mundial_para_todos_experience/the_stadium_experience_detailed_heatmap/`](stitch_un_mundial_para_todos_experience/the_stadium_experience_detailed_heatmap/) |
-| Album Digital 2026 | [`stitch_un_mundial_para_todos_experience/lbum_digital_2026/`](stitch_un_mundial_para_todos_experience/lbum_digital_2026/) |
-| Superpolla Clasificación 1 | [`stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_1/`](stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_1/) |
-| Superpolla Clasificación 2 | [`stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_2/`](stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_2/) |
-| Horizon 26 | [`stitch_un_mundial_para_todos_experience/horizon_26/`](stitch_un_mundial_para_todos_experience/horizon_26/) — incluye DESIGN.md original |
+| Pantalla                            | Carpeta                                                                                                                                                                |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dashboard _(Un Mundial para Todos)_ | [`stitch_un_mundial_para_todos_experience/dashboard_un_mundial_para_todos/`](stitch_un_mundial_para_todos_experience/dashboard_un_mundial_para_todos/)                 |
+| Stadium Experience                  | [`stitch_un_mundial_para_todos_experience/the_stadium_experience/`](stitch_un_mundial_para_todos_experience/the_stadium_experience/)                                   |
+| Stadium Detailed Heatmap            | [`stitch_un_mundial_para_todos_experience/the_stadium_experience_detailed_heatmap/`](stitch_un_mundial_para_todos_experience/the_stadium_experience_detailed_heatmap/) |
+| Album Digital 2026                  | [`stitch_un_mundial_para_todos_experience/lbum_digital_2026/`](stitch_un_mundial_para_todos_experience/lbum_digital_2026/)                                             |
+| Superpolla Clasificación 1          | [`stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_1/`](stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_1/)                           |
+| Superpolla Clasificación 2          | [`stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_2/`](stitch_un_mundial_para_todos_experience/superpolla_clasificaci_n_2/)                           |
+| Horizon 26                          | [`stitch_un_mundial_para_todos_experience/horizon_26/`](stitch_un_mundial_para_todos_experience/horizon_26/) — incluye DESIGN.md original                              |
 
 Cada carpeta contiene:
 
