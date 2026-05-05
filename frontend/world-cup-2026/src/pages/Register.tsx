@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
-import { User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react';
+import { User, Mail, Lock, AlertCircle } from 'lucide-react';
 
 export const Register = () => {
   const [name, setName] = useState('');
@@ -34,7 +34,7 @@ export const Register = () => {
     try {
       await register(name, email, password);
       navigate('/');
-    } catch (err) {
+    } catch {
       // Error is already set in context
     }
   };
@@ -108,7 +108,10 @@ export const Register = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Password
               </label>
               <div className="relative">
@@ -127,7 +130,10 @@ export const Register = () => {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary mb-2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-text-primary mb-2"
+              >
                 Confirm Password
               </label>
               <div className="relative">
@@ -139,7 +145,9 @@ export const Register = () => {
                   onChange={handleConfirmPasswordChange}
                   placeholder="••••••••"
                   className={`w-full pl-10 pr-4 py-2.5 bg-bg-elevated border rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
-                    passwordMatch ? 'border-border focus:ring-primary' : 'border-accent focus:ring-accent'
+                    passwordMatch
+                      ? 'border-border focus:ring-primary'
+                      : 'border-accent focus:ring-accent'
                   }`}
                   required
                 />
@@ -175,7 +183,10 @@ export const Register = () => {
           {/* Sign In Link */}
           <p className="text-center text-text-muted">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary hover:text-primary-light font-semibold transition-colors">
+            <Link
+              to="/login"
+              className="text-primary hover:text-primary-light font-semibold transition-colors"
+            >
               Sign In
             </Link>
           </p>

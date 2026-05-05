@@ -36,9 +36,7 @@ export function MatchCard({ match, className = '' }: MatchCardProps) {
 
         {/* VS */}
         <div className="flex flex-col items-center shrink-0">
-          <span className="font-headline text-3xl md:text-4xl font-black gradient-text">
-            VS
-          </span>
+          <span className="font-headline text-3xl md:text-4xl font-black gradient-text">VS</span>
           <span className="text-[0.65rem] uppercase text-text-muted mt-1 tracking-wider text-center max-w-[120px]">
             {match.venue}
           </span>

@@ -8,9 +8,6 @@
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
   },
-  "workspaces": [
-    "frontend/world-cup-2026"
-  ],
   "scripts": {
     "dev": "npm run dev -w frontend/FrontIng/world-cup-2026",
     "build": "npm run build -w frontend/FrontIng/world-cup-2026",
