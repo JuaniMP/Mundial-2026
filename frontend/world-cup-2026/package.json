@@ -7,7 +7,6 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "typecheck": "tsc -b --noEmit",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,6 +14,7 @@
     "@stripe/stripe-js": "^9.4.0",
     "@types/leaflet": "^1.9.21",
     "axios": "^1.7.2",
+    "firebase": "^12.12.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.14.0",
     "react": "^19.2.5",

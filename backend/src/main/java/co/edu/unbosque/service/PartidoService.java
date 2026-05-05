@@ -9,6 +9,7 @@ import co.edu.unbosque.exception.ResourceNotFoundException;
 import co.edu.unbosque.repository.EstadioRepository;
 import co.edu.unbosque.repository.PartidoRepository;
 import co.edu.unbosque.repository.SeleccionRepository;
+import co.edu.unbosque.service.FcmService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,9 +21,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PartidoService {
 
-    private final PartidoRepository partidoRepository;
-    private final EstadioRepository estadioRepository;
+    private final PartidoRepository  partidoRepository;
+    private final EstadioRepository  estadioRepository;
     private final SeleccionRepository seleccionRepository;
+    private final FcmService          fcmService;
 
     @Transactional(readOnly = true)
     public List<PartidoResponse> getAllPartidos() {
@@ -88,6 +90,14 @@ public class PartidoService {
         partido.setEstado("TERMINADO");
 
         partido = partidoRepository.save(partido);
+
+        // FCM — broadcast result to all users subscribed to "partidos" topic
+        fcmService.notifyMatchResult(
+                partido.getSeleccionLocal().getPais(),
+                partido.getSeleccionVisitante().getPais(),
+                marcadorLocal,
+                marcadorVisitante);
+
         return toResponse(partido);
     }
 
