@@ -28,9 +28,7 @@ export function StatCard({
         <span className="text-[0.68rem] uppercase tracking-[0.12em] font-semibold text-text-muted">
           {label}
         </span>
-        {Icon && (
-          <Icon className={`w-5 h-5 ${iconColor}`} />
-        )}
+        {Icon && <Icon className={`w-5 h-5 ${iconColor}`} />}
       </div>
       <div className="font-headline font-bold text-2xl text-text-primary">{value}</div>
       {progress !== undefined && (
@@ -38,9 +36,7 @@ export function StatCard({
           <ProgressBar value={progress} color={progressColor} height="h-1.5" />
         </div>
       )}
-      {subtitle && (
-        <p className="mt-2 text-xs text-text-muted font-medium">{subtitle}</p>
-      )}
+      {subtitle && <p className="mt-2 text-xs text-text-muted font-medium">{subtitle}</p>}
     </div>
   );
 }

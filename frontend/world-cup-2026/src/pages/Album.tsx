@@ -20,10 +20,21 @@ export function Album() {
           </h1>
           <div className="flex flex-col gap-4 max-w-md">
             <div className="flex justify-between items-baseline">
-              <span className="font-headline text-2xl font-bold text-text-primary">{mockAlbum.completionPercentage}% Complete</span>
-              <span className="text-sm text-text-muted">{mockAlbum.ownedStickers} / {mockAlbum.totalStickers} Stickers</span>
+              <span className="font-headline text-2xl font-bold text-text-primary">
+                {mockAlbum.completionPercentage}% Complete
+              </span>
+              <span className="text-sm text-text-muted">
+                {mockAlbum.ownedStickers} / {mockAlbum.totalStickers} Stickers
+              </span>
             </div>
-            <ProgressBar value={0} segments={mockAlbum.progressByCountry.map(c => ({ percentage: c.percentage, color: c.color }))} height="h-3" />
+            <ProgressBar
+              value={0}
+              segments={mockAlbum.progressByCountry.map((c) => ({
+                percentage: c.percentage,
+                color: c.color,
+              }))}
+              height="h-3"
+            />
             <div className="flex gap-4 mt-1">
               {mockAlbum.progressByCountry.map((c) => (
                 <div key={c.country} className="flex items-center gap-2">
@@ -36,8 +47,12 @@ export function Album() {
         </div>
         <div className="z-10 flex flex-col items-center justify-center p-6 bg-bg-elevated rounded-2xl border border-border min-w-[180px]">
           <Star className="w-10 h-10 text-accent mb-2 fill-accent" />
-          <span className="font-headline text-3xl font-bold gradient-text-gold">{mockAlbum.goldenStickers}</span>
-          <span className="text-xs uppercase tracking-wider text-text-muted mt-1">Golden Stickers</span>
+          <span className="font-headline text-3xl font-bold gradient-text-gold">
+            {mockAlbum.goldenStickers}
+          </span>
+          <span className="text-xs uppercase tracking-wider text-text-muted mt-1">
+            Golden Stickers
+          </span>
         </div>
       </section>
 
@@ -58,13 +73,19 @@ export function Album() {
               <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-4">
                 <Globe className="w-12 h-12 text-white/50" />
               </div>
-              <span className="font-headline text-white font-bold text-xl tracking-wide uppercase">Standard</span>
-              <span className="text-primary-light text-xs tracking-widest uppercase mt-1">5 Stickers</span>
+              <span className="font-headline text-white font-bold text-xl tracking-wide uppercase">
+                Standard
+              </span>
+              <span className="text-primary-light text-xs tracking-widest uppercase mt-1">
+                5 Stickers
+              </span>
               <div className="absolute top-6 left-0 w-full h-[1px] bg-white/20 border-b border-black/10 border-dashed" />
             </div>
           </div>
           <div className="mt-12 flex flex-col items-center gap-4">
-            <Button variant="primary" size="lg" onClick={handleOpenPack}>Open 3 Packs</Button>
+            <Button variant="primary" size="lg" onClick={handleOpenPack}>
+              Open 3 Packs
+            </Button>
             <p className="text-sm text-text-muted">You have {mockAlbum.packs} unopened packs</p>
           </div>
         </div>
@@ -74,19 +95,43 @@ export function Album() {
       <section className="flex flex-col gap-6 animate-fade-in-up delay-200">
         <div className="flex justify-between items-end">
           <div>
-            <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-text-primary">Recent Acquisitions</h2>
+            <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-text-primary">
+              Recent Acquisitions
+            </h2>
             <p className="text-text-muted mt-1">Sorted by rarity and date added.</p>
           </div>
-          <Button variant="ghost" icon={ArrowRight} size="sm" className="hidden md:flex">View All Gallery</Button>
+          <Button variant="ghost" icon={ArrowRight} size="sm" className="hidden md:flex">
+            View All Gallery
+          </Button>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-5">
-          <StickerCard isLarge name="Mexico City Arena" subtitle="Host Venue" labelBadge="Estadio Azteca" imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAsdR0Aw7Ydh9rW1zEmbye6VZYtBbGvGJHed5bY5Ab-2YihAsiFMuhIJvG-KwIzKi74aYf4SgW7BOnrBTosw1crVO5_SP2nUoLeKAp9O66WBQI7EK72g8jYBUUrnT2qP_cHlnwul0QuHlCgyxT3CroN-DjbL2Eq-HXUaSt7kzS5MMvbuf4lO7tLGHbpLo-rS7s-PkmCANZzqjgC0Nrbz0FllvIaGB4cTPyYbo2zR4Nxy61pztSDXhLQAjbbYllTNcUKgSEcckWpJD4" />
-          <StickerCard name="Player Name" subtitle="MEX - FW" imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuDeCl4b6yopJ6OYkeSN3oVCHnuLRf5WoL8ZdYouSk2wQYj9UGalpU_iNXrx00MTyWUnSg_9G3nEzmoE2KB17Qo_IYZVz5crFnPu9t-xWfLvkYiPaorIcLwvIousPZU5Lhjn1kmp1HZr0CNhDX-XyJvc1YeRw-oHpSWEl-oGJG7iX4w3OJHYus6HNOzjF-yqa1Q3LQLYhdUU7Mbg0o9e656sTLKGUYXCp4PsZ7PJ7UfnrdLWG7Q61pTsLjaK3Re49xCaVjMmya90gkY" />
-          <StickerCard name="Official Match Ball" subtitle="Equipment" imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuA_b91PzwkBb2DY569mCgJ2LhwrzkSYHRHZj5COOfsbQSXnbrvpzs4a2_PaKSgdrhI5yTNxRb7A7vtPTswMoKvqcnwKhytk0wVoZfI_sa2ZT-AfgX_nXiYLJEWXRT6gxfytsFycDaSzA5vUUszv-xihvL-wh2U3J4bnf1sppNGg6QAVqa3wjAH4IxCXwDkuMVwWq8jwkWfDV_bjyTLnprvZjCwcsHcBU5DU1wQnae8kFfyTNASniEa1JHEgbxsnZB3Ji9zQ6kmQsZ8" />
+          <StickerCard
+            isLarge
+            name="Mexico City Arena"
+            subtitle="Host Venue"
+            labelBadge="Estadio Azteca"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAsdR0Aw7Ydh9rW1zEmbye6VZYtBbGvGJHed5bY5Ab-2YihAsiFMuhIJvG-KwIzKi74aYf4SgW7BOnrBTosw1crVO5_SP2nUoLeKAp9O66WBQI7EK72g8jYBUUrnT2qP_cHlnwul0QuHlCgyxT3CroN-DjbL2Eq-HXUaSt7kzS5MMvbuf4lO7tLGHbpLo-rS7s-PkmCANZzqjgC0Nrbz0FllvIaGB4cTPyYbo2zR4Nxy61pztSDXhLQAjbbYllTNcUKgSEcckWpJD4"
+          />
+          <StickerCard
+            name="Player Name"
+            subtitle="MEX - FW"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuDeCl4b6yopJ6OYkeSN3oVCHnuLRf5WoL8ZdYouSk2wQYj9UGalpU_iNXrx00MTyWUnSg_9G3nEzmoE2KB17Qo_IYZVz5crFnPu9t-xWfLvkYiPaorIcLwvIousPZU5Lhjn1kmp1HZr0CNhDX-XyJvc1YeRw-oHpSWEl-oGJG7iX4w3OJHYus6HNOzjF-yqa1Q3LQLYhdUU7Mbg0o9e656sTLKGUYXCp4PsZ7PJ7UfnrdLWG7Q61pTsLjaK3Re49xCaVjMmya90gkY"
+          />
+          <StickerCard
+            name="Official Match Ball"
+            subtitle="Equipment"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuA_b91PzwkBb2DY569mCgJ2LhwrzkSYHRHZj5COOfsbQSXnbrvpzs4a2_PaKSgdrhI5yTNxRb7A7vtPTswMoKvqcnwKhytk0wVoZfI_sa2ZT-AfgX_nXiYLJEWXRT6gxfytsFycDaSzA5vUUszv-xihvL-wh2U3J4bnf1sppNGg6QAVqa3wjAH4IxCXwDkuMVwWq8jwkWfDV_bjyTLnprvZjCwcsHcBU5DU1wQnae8kFfyTNASniEa1JHEgbxsnZB3Ji9zQ6kmQsZ8"
+          />
           <StickerCard isIcon name="USA National Team" subtitle="Emblem" icon={Shield} />
-          <StickerCard name="Head Coach" subtitle="CAN - Staff" imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCpZCFasBRhyyvD6bIcOw55iTN8m1a20-1KTUad1_S5Au_wqrPEqX4P2kP2EQvwpgrVXd0NQFPDU5ZPUI6nag418rybOURqhNVaKJpG1DHqYBbNmASQqWVySVoHauP3LLlASzmu9wKqAEGZaIc0WIPQkW9DxS0qNoR2W12pLzRUB4zNOImUPo9W2YfePGFjxTcd2MN9xjxafOVrC57I6ZfcdpFoAlzsJn8u55fzTfV6Wa4zlZwlFXl6tMb6SaQs8kaxpj7O6Efm7vI" />
+          <StickerCard
+            name="Head Coach"
+            subtitle="CAN - Staff"
+            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCpZCFasBRhyyvD6bIcOw55iTN8m1a20-1KTUad1_S5Au_wqrPEqX4P2kP2EQvwpgrVXd0NQFPDU5ZPUI6nag418rybOURqhNVaKJpG1DHqYBbNmASQqWVySVoHauP3LLlASzmu9wKqAEGZaIc0WIPQkW9DxS0qNoR2W12pLzRUB4zNOImUPo9W2YfePGFjxTcd2MN9xjxafOVrC57I6ZfcdpFoAlzsJn8u55fzTfV6Wa4zlZwlFXl6tMb6SaQs8kaxpj7O6Efm7vI"
+          />
         </div>
-        <Button variant="outline" icon={ChevronDown} className="md:hidden w-full">Load More</Button>
+        <Button variant="outline" icon={ChevronDown} className="md:hidden w-full">
+          Load More
+        </Button>
       </section>
     </main>
   );

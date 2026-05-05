@@ -22,11 +22,11 @@ API REST completa para gestionar el Mundial 2026 incluyendo gestión de usuarios
 
 ## Constitution Check
 
-| Principio | Estado | Notas |
-|-----------|--------|-------|
-| Orden | ✓ CUMPLE | Estructura clara por dominio (entities, repositories, services, controllers) |
-| Simplicidad | ✓ CUMPLE | No sobreingeniería - uso de annotations de Spring Boot |
-| YAGNI | ✓ CUMPLE | Solo lo requerido en spec |
+| Principio   | Estado   | Notas                                                                        |
+| ----------- | -------- | ---------------------------------------------------------------------------- |
+| Orden       | ✓ CUMPLE | Estructura clara por dominio (entities, repositories, services, controllers) |
+| Simplicidad | ✓ CUMPLE | No sobreingeniería - uso de annotations de Spring Boot                       |
+| YAGNI       | ✓ CUMPLE | Solo lo requerido en spec                                                    |
 
 ## Project Structure
 
@@ -72,56 +72,56 @@ pom.xml                  # Maven configuration
 
 ## Technical Stack
 
-| Componente | Tecnología | Versión |
-|------------|------------|---------|
-| Framework | Spring Boot | 3.x |
-| Persistencia | Spring Data JPA | - |
-| Seguridad | Spring Security + JWT | - |
-| Base de datos | MySQL | 8.0 |
-| Build | Maven | 3.x |
-| Java | JDK | 17 |
+| Componente    | Tecnología            | Versión |
+| ------------- | --------------------- | ------- |
+| Framework     | Spring Boot           | 3.x     |
+| Persistencia  | Spring Data JPA       | -       |
+| Seguridad     | Spring Security + JWT | -       |
+| Base de datos | MySQL                 | 8.0     |
+| Build         | Maven                 | 3.x     |
+| Java          | JDK                   | 17      |
 
 ## Entities Mapping
 
-| Tabla SQL | Entity JPA | Paquete |
-|-----------|------------|---------|
-| roles | Rol | entity |
-| usuarios | Usuario | entity |
-| sedes | Sede | entity |
-| estadios | Estadio | entity |
-| selecciones | Seleccion | entity |
-| jugadores | Jugador | entity |
-| partidos | Partido | entity |
-| entradas | Entrada | entity |
-| pollas | Polla | entity |
-| participantes_pollas | ParticipantePolla | entity |
-| predicciones | Prediccion | entity |
-| albumes | Album | entity |
-| laminas | Lamina | entity |
-| laminas_album | LaminaAlbum | entity |
-| paquetes | Paquete | entity |
-| intercambios_laminas | IntercambioLamina | entity |
-| incidentes_soporte | IncidenteSoporte | entity |
-| logs_transaccionales | LogsTransaccional | entity |
-| notificaciones | Notificacion | entity |
-| aliados_comerciales | AliadoComercial | entity |
-| reportes_interaccion_api | ReporteInteraccionAPI | entity |
-| reportes_compliance | ReporteCompliance | entity |
+| Tabla SQL                | Entity JPA            | Paquete |
+| ------------------------ | --------------------- | ------- |
+| roles                    | Rol                   | entity  |
+| usuarios                 | Usuario               | entity  |
+| sedes                    | Sede                  | entity  |
+| estadios                 | Estadio               | entity  |
+| selecciones              | Seleccion             | entity  |
+| jugadores                | Jugador               | entity  |
+| partidos                 | Partido               | entity  |
+| entradas                 | Entrada               | entity  |
+| pollas                   | Polla                 | entity  |
+| participantes_pollas     | ParticipantePolla     | entity  |
+| predicciones             | Prediccion            | entity  |
+| albumes                  | Album                 | entity  |
+| laminas                  | Lamina                | entity  |
+| laminas_album            | LaminaAlbum           | entity  |
+| paquetes                 | Paquete               | entity  |
+| intercambios_laminas     | IntercambioLamina     | entity  |
+| incidentes_soporte       | IncidenteSoporte      | entity  |
+| logs_transaccionales     | LogsTransaccional     | entity  |
+| notificaciones           | Notificacion          | entity  |
+| aliados_comerciales      | AliadoComercial       | entity  |
+| reportes_interaccion_api | ReporteInteraccionAPI | entity  |
+| reportes_compliance      | ReporteCompliance     | entity  |
 
 ## Complexity Tracking
 
-| Decisión | Justificación | Alternativa Simple Rechazada Porque |
-|----------|---------------|-------------------------------------|
-| Repository pattern con JPA | Necesitamos abstracción de BD y testing | Acceso directo JDBC insuficiente |
-| DTOs separados de Entities | Transformación de datos para API | Exponer entities directo no es limpio |
-| Spring Security con JWT | Autenticación moderna stateless | Basic auth menos seguro |
-| MapStruct | Evitar boilerplate manual | Lombok solo no suficiente |
+| Decisión                   | Justificación                           | Alternativa Simple Rechazada Porque   |
+| -------------------------- | --------------------------------------- | ------------------------------------- |
+| Repository pattern con JPA | Necesitamos abstracción de BD y testing | Acceso directo JDBC insuficiente      |
+| DTOs separados de Entities | Transformación de datos para API        | Exponer entities directo no es limpio |
+| Spring Security con JWT    | Autenticación moderna stateless         | Basic auth menos seguro               |
+| MapStruct                  | Evitar boilerplate manual               | Lombok solo no suficiente             |
 
 ## Risk Assessment
 
-| Riesgo | Mitigación |
-|--------|------------|
-| Mucho código repetitivo | Uso de generic services donde aplique |
-| Migraciones de DB | Flyway o Liquibase para versionar schema |
-| Testing de entidades | Factory builders para test data |
-| Performance con 20+ entidades | N+1 queries con fetch joins |
+| Riesgo                        | Mitigación                               |
+| ----------------------------- | ---------------------------------------- |
+| Mucho código repetitivo       | Uso de generic services donde aplique    |
+| Migraciones de DB             | Flyway o Liquibase para versionar schema |
+| Testing de entidades          | Factory builders para test data          |
+| Performance con 20+ entidades | N+1 queries con fetch joins              |

@@ -15,7 +15,7 @@
 # Frontend solamente
 npm run dev
 
-# Backend solamente  
+# Backend solamente
 npm run backend:dev
 
 # Backend compilado
@@ -30,6 +30,7 @@ npm run backend:compile
 ## 🚀 Opción 2: Scripts batch (Windows)
 
 ### Start interactivo
+
 ```bash
 # Desde el raíz del proyecto
 start-dev.bat
@@ -37,6 +38,7 @@ start-dev.bat
 ```
 
 ### Start Backend directo
+
 ```bash
 start-backend.bat
 ```
@@ -45,17 +47,18 @@ start-backend.bat
 
 ## 📍 URLs de desarrollo
 
-| Servicio | URL | Puerto |
-|----------|-----|--------|
-| **Frontend** | http://localhost:5173 | 5173 |
-| **Backend API** | http://localhost:8080 | 8080 |
-| **Base de datos** | localhost:3306 | 3306 |
+| Servicio          | URL                   | Puerto |
+| ----------------- | --------------------- | ------ |
+| **Frontend**      | http://localhost:5173 | 5173   |
+| **Backend API**   | http://localhost:8080 | 8080   |
+| **Base de datos** | localhost:3306        | 3306   |
 
 ---
 
 ## 🗄️ Base de datos
 
 ### Opción A: Docker (si está instalado)
+
 ```bash
 npm run db:start      # Levantar MySQL
 npm run db:logs       # Ver logs
@@ -63,7 +66,9 @@ npm run db:stop       # Parar MySQL
 ```
 
 ### Opción B: MySQL instalado localmente
+
 Asegúrate de que MySQL esté corriendo en `localhost:3306` con:
+
 - Usuario: `mundial_user`
 - Contraseña: `mundial_password`
 - Base de datos: `mundial_2026_hub`
@@ -73,6 +78,7 @@ Asegúrate de que MySQL esté corriendo en `localhost:3306` con:
 ## 🔧 Troubleshooting
 
 ### ❌ Error "mvn: command not found"
+
 ```bash
 # Verifica que Maven está en PATH
 mvn -version
@@ -82,11 +88,13 @@ C:\Users\juame\.maven\maven-3.9.15(1)\bin\mvn -version
 ```
 
 ### ❌ Backend no se conecta a la BD
+
 1. Verifica que MySQL está corriendo (`npm run db:start`)
 2. Revisa credenciales en `backend/src/main/resources/application.yml`
 3. Revisa logs: `npm run db:logs`
 
 ### ❌ Frontend no abre en navegador
+
 - Verifica que el puerto 5173 está libre
 - Recarga el navegador manualmente: `http://localhost:5173`
 
@@ -131,7 +139,7 @@ npm run db:logs          # Docker: ver logs
 ## 🎯 Próximos pasos
 
 1. **Levanta el backend:** `npm run backend:dev` (o `start-backend.bat`)
-2. **Levanta el frontend:** `npm run dev` 
+2. **Levanta el frontend:** `npm run dev`
 3. **Abre:** http://localhost:5173
 4. **Desarrolla:** Los cambios se refrescan automáticamente con HMR
 

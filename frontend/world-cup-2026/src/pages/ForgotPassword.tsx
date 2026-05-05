@@ -49,7 +49,9 @@ export const ForgotPassword = () => {
                 <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-2 font-headline">
                   Reset Password
                 </h1>
-                <p className="text-text-muted">Enter your email and we'll send you a link to reset your password</p>
+                <p className="text-text-muted">
+                  Enter your email and we'll send you a link to reset your password
+                </p>
               </div>
 
               {/* Error Alert */}
@@ -64,7 +66,10 @@ export const ForgotPassword = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-text-primary mb-2"
+                  >
                     Email Address
                   </label>
                   <div className="relative">
@@ -96,7 +101,10 @@ export const ForgotPassword = () => {
 
               {/* Back to Login */}
               <div className="mt-6 flex items-center justify-center">
-                <Link to="/login" className="text-primary hover:text-primary-light font-medium flex items-center gap-2 transition-colors">
+                <Link
+                  to="/login"
+                  className="text-primary hover:text-primary-light font-medium flex items-center gap-2 transition-colors"
+                >
                   <ArrowLeft className="w-4 h-4" />
                   Back to Sign In
                 </Link>
@@ -109,12 +117,16 @@ export const ForgotPassword = () => {
                 <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-full bg-secondary-light/20">
                   <CheckCircle className="w-8 h-8 text-secondary-light" />
                 </div>
-                <h1 className="text-3xl font-bold text-text-primary mb-2 font-headline">Check Your Email</h1>
+                <h1 className="text-3xl font-bold text-text-primary mb-2 font-headline">
+                  Check Your Email
+                </h1>
                 <p className="text-text-muted mb-6">
-                  We've sent a password reset link to <span className="font-semibold text-text-primary">{email}</span>
+                  We've sent a password reset link to{' '}
+                  <span className="font-semibold text-text-primary">{email}</span>
                 </p>
                 <p className="text-sm text-text-muted mb-8">
-                  Click the link in your email to reset your password. If you don't see it, check your spam folder.
+                  Click the link in your email to reset your password. If you don't see it, check
+                  your spam folder.
                 </p>
 
                 {/* Back to Login */}

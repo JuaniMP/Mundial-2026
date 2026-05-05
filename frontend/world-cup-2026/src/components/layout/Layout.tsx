@@ -12,9 +12,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] bg-accent/3 rounded-full blur-[80px]" />
       </div>
 
-      <div className="relative z-10 w-full flex-1 block">
-        {children}
-      </div>
+      <div className="relative z-10 w-full flex-1 block">{children}</div>
 
       {/* Bottom spacing for mobile nav */}
       <div className="h-24 md:hidden" />
