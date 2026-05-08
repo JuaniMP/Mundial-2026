@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Login failed'
         : 'Login failed';
       setError(message);
-      throw new Error(message);
+      throw new Error(message, { cause: err });
     } finally {
       setLoading(false);
     }
@@ -101,7 +101,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           'Registration failed'
         : 'Registration failed';
       setError(message);
-      throw new Error(message);
+      throw new Error(message, { cause: err });
     } finally {
       setLoading(false);
     }
