@@ -30,7 +30,6 @@ export function Dashboard() {
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-2xl mx-auto w-full pb-28 md:pb-12">
-
       {/* ══════ Foreground Push Toast ══════ */}
       {foregroundMessage && (
         <div className="fixed top-20 right-4 z-[200] max-w-sm w-full animate-fade-in-up">
@@ -51,7 +50,9 @@ export function Dashboard() {
             <Bell className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-text-primary text-sm">Activa las notificaciones push</p>
+            <p className="font-semibold text-text-primary text-sm">
+              Activa las notificaciones push
+            </p>
             <p className="text-text-muted text-xs mt-0.5">
               Recibe resultados de partidos y confirmaciones de entradas en tiempo real.
             </p>
@@ -125,8 +126,8 @@ export function Dashboard() {
               <span className="gradient-text">Comienzo</span>
             </h1>
             <p className="text-base md:text-lg text-white/90 max-w-xl leading-relaxed mb-8">
-              The opening match of the 2026 FIFA World Cup. Witness history as
-              the host nations take center stage.
+              The opening match of the 2026 FIFA World Cup. Witness history as the host nations take
+              center stage.
             </p>
             <div className="flex flex-wrap gap-3">
               <Button variant="primary" icon={ArrowRight} size="lg">

@@ -8,18 +8,18 @@ Aplicación web de fan-engagement para el FIFA World Cup 2026.
 
 ## Páginas
 
-| Ruta | Componente | Descripción |
-|---|---|---|
-| `/login` | `Login.tsx` | Autenticación JWT |
-| `/register` | `Register.tsx` | Registro de usuario |
-| `/forgot-password` | `ForgotPassword.tsx` | Recuperación de contraseña |
-| `/` → `/dashboard` | `Dashboard.tsx` | Hero próximo partido, accesos rápidos, banner FCM |
-| `/matches` | `Matches.tsx` | Lista de partidos WC 2026 en vivo |
-| `/standings` | `Standings.tsx` | Tabla general + grupos A–L (FIFA WC 2026) |
-| `/stadiums` | `Stadiums.tsx` | Mapa interactivo de las 16 sedes |
-| `/tickets` | `Tickets.tsx` | Compra de entradas vía Stripe |
-| `/superpolla` | `Superpolla.tsx` | Predicciones y leaderboard |
-| `/album` | `Album.tsx` | Álbum digital de stickers |
+| Ruta               | Componente           | Descripción                                       |
+| ------------------ | -------------------- | ------------------------------------------------- |
+| `/login`           | `Login.tsx`          | Autenticación JWT                                 |
+| `/register`        | `Register.tsx`       | Registro de usuario                               |
+| `/forgot-password` | `ForgotPassword.tsx` | Recuperación de contraseña                        |
+| `/` → `/dashboard` | `Dashboard.tsx`      | Hero próximo partido, accesos rápidos, banner FCM |
+| `/matches`         | `Matches.tsx`        | Lista de partidos WC 2026 en vivo                 |
+| `/standings`       | `Standings.tsx`      | Tabla general + grupos A–L (FIFA WC 2026)         |
+| `/stadiums`        | `Stadiums.tsx`       | Mapa interactivo de las 16 sedes                  |
+| `/tickets`         | `Tickets.tsx`        | Compra de entradas vía Stripe                     |
+| `/superpolla`      | `Superpolla.tsx`     | Predicciones y leaderboard                        |
+| `/album`           | `Album.tsx`          | Álbum digital de stickers                         |
 
 ---
 
@@ -82,10 +82,12 @@ El flujo de notificaciones push funciona así:
 7. El backend suscribe el dispositivo al topic `"partidos"`.
 
 **Disparadores de notificación:**
+
 - Compra exitosa de entrada (Stripe webhook → FCM).
 - Actualización de resultado de partido → broadcast al topic `"partidos"`.
 
 **Archivos relevantes:**
+
 ```
 src/firebase.ts                    # App + Messaging singleton con graceful disable
 src/hooks/useFcm.ts               # Hook completo: permiso, token, registro, disable
