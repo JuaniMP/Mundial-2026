@@ -1,47 +1,108 @@
 package co.edu.unbosque.controller;
 
 import co.edu.unbosque.dto.*;
+import co.edu.unbosque.entity.Usuario;
+import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.service.AlbumService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
+/**
+ * AlbumController — operaciones sobre el álbum digital de stickers.
+ *
+ * <p><b>Row-Level Security:</b> todos los endpoints de escritura y lectura
+ * privada extraen el usuarioId directamente del JWT, nunca del path.
+ * Así un usuario autenticado solo puede ver y modificar SU propio álbum.
+ *
+ * <p>Excepción: {@code GET /api/v1/album/publico/{usuarioId}} expone
+ * el álbum en modo lectura para perfiles públicos (opcional, deshabilitado
+ * por defecto, comentado más abajo).
+ */
 @RestController
 @RequestMapping("/api/v1/album")
 @RequiredArgsConstructor
 public class AlbumController {
 
-    private final AlbumService albumService;
+    private final AlbumService      albumService;
+    private final UsuarioRepository usuarioRepository;
 
-    @GetMapping("/{usuarioId}")
-    public ResponseEntity<ApiResponse<AlbumResponse>> getAlbum(@PathVariable Integer usuarioId) {
-        return ResponseEntity.ok(ApiResponse.success(albumService.getAlbumByUsuario(usuarioId), "Album encontrado"));
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private ResponseEntity<?> forbidden() {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("success", false, "message", "No tienes permiso para acceder a este recurso"));
     }
 
-    @PostMapping("/crear/{usuarioId}")
-    public ResponseEntity<ApiResponse<AlbumResponse>> createAlbum(@PathVariable Integer usuarioId) {
-        AlbumResponse album = albumService.createAlbum(usuarioId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(album, "Album creado"));
+    private Usuario resolveUsuario(UserDetails userDetails) {
+        return usuarioRepository.findByEmail(userDetails.getUsername()).orElse(null);
     }
 
-    @PostMapping("/abrir-paquete/{usuarioId}")
-    public ResponseEntity<ApiResponse<PaqueteResponse>> abrirPaquete(@PathVariable Integer usuarioId) {
-        PaqueteResponse paquete = albumService.abrirPaquete(usuarioId);
+    // ── GET /api/v1/album — álbum del usuario autenticado ────────────────────
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<AlbumResponse>> getMyAlbum(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(null);
+        return ResponseEntity.ok(ApiResponse.success(
+                albumService.getAlbumByUsuario(usuario.getId()), "Album encontrado"));
+    }
+
+    // ── POST /api/v1/album/crear — crear álbum para el usuario autenticado ───
+
+    @PostMapping("/crear")
+    public ResponseEntity<ApiResponse<AlbumResponse>> createMyAlbum(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(null);
+        AlbumResponse album = albumService.createAlbum(usuario.getId());
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(album, "Album creado"));
+    }
+
+    // ── POST /api/v1/album/abrir-paquete ─────────────────────────────────────
+
+    @PostMapping("/abrir-paquete")
+    public ResponseEntity<ApiResponse<PaqueteResponse>> abrirPaquete(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(null);
+        PaqueteResponse paquete = albumService.abrirPaquete(usuario.getId());
         return ResponseEntity.ok(ApiResponse.success(paquete, "Paquete abierto"));
     }
 
-    @GetMapping("/laminas/{usuarioId}")
-    public ResponseEntity<ApiResponse<List<LaminaAlbumResponse>>> getLaminas(@PathVariable Integer usuarioId) {
-        return ResponseEntity.ok(ApiResponse.success(albumService.getLaminasAlbum(usuarioId), "Laminas del album"));
+    // ── GET /api/v1/album/laminas ─────────────────────────────────────────────
+
+    @GetMapping("/laminas")
+    public ResponseEntity<ApiResponse<List<LaminaAlbumResponse>>> getMyLaminas(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(null);
+        return ResponseEntity.ok(ApiResponse.success(
+                albumService.getLaminasAlbum(usuario.getId()), "Laminas del album"));
     }
 
-    @PostMapping("/pegar/{usuarioId}/{laminaId}")
+    // ── POST /api/v1/album/pegar/{laminaId} ──────────────────────────────────
+
+    @PostMapping("/pegar/{laminaId}")
     public ResponseEntity<ApiResponse<AlbumResponse>> pegarLamina(
-            @PathVariable Integer usuarioId,
-            @PathVariable Integer laminaId) {
-        return ResponseEntity.ok(ApiResponse.success(albumService.pegarLamina(usuarioId, laminaId), "Lamina pegada"));
+            @PathVariable Integer laminaId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(null);
+        return ResponseEntity.ok(ApiResponse.success(
+                albumService.pegarLamina(usuario.getId(), laminaId), "Lamina pegada"));
     }
 }

@@ -41,6 +41,7 @@ logs/
 # Environment
 .env
 .env.*
+!.env.local.example
 application-local.yml
 
 # Compiled
