@@ -4,116 +4,123 @@ import { fetchStandings, groupLabel } from '../services/footballApi';
 import { RefreshCw, AlertCircle, TrendingUp, BarChart3, Grid3X3 } from 'lucide-react';
 
 // ── FIFA WC 2026 Official Groups (A–L) ────────────────────────────────────────
-interface GroupTeam { name: string; flag: string; tbd?: boolean }
-interface WC2026Group { id: string; teams: GroupTeam[] }
+interface GroupTeam {
+  name: string;
+  flag: string;
+  tbd?: boolean;
+}
+interface WC2026Group {
+  id: string;
+  teams: GroupTeam[];
+}
 
 const WC2026_GROUPS: WC2026Group[] = [
   {
     id: 'A',
     teams: [
-      { name: 'México',        flag: '🇲🇽' },
-      { name: 'Sudáfrica',     flag: '🇿🇦' },
+      { name: 'México', flag: '🇲🇽' },
+      { name: 'Sudáfrica', flag: '🇿🇦' },
       { name: 'Corea del Sur', flag: '🇰🇷' },
-      { name: 'Repesca',       flag: '🔁', tbd: true },
+      { name: 'Repesca', flag: '🔁', tbd: true },
     ],
   },
   {
     id: 'B',
     teams: [
-      { name: 'Canadá',  flag: '🇨🇦' },
+      { name: 'Canadá', flag: '🇨🇦' },
       { name: 'Repesca', flag: '🔁', tbd: true },
-      { name: 'Qatar',   flag: '🇶🇦' },
-      { name: 'Suiza',   flag: '🇨🇭' },
+      { name: 'Qatar', flag: '🇶🇦' },
+      { name: 'Suiza', flag: '🇨🇭' },
     ],
   },
   {
     id: 'C',
     teams: [
-      { name: 'Brasil',    flag: '🇧🇷' },
+      { name: 'Brasil', flag: '🇧🇷' },
       { name: 'Marruecos', flag: '🇲🇦' },
-      { name: 'Haití',     flag: '🇭🇹' },
-      { name: 'Escocia',   flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
+      { name: 'Haití', flag: '🇭🇹' },
+      { name: 'Escocia', flag: '🏴󠁧󠁢󠁳󠁣󠁴󠁿' },
     ],
   },
   {
     id: 'D',
     teams: [
-      { name: 'USA',       flag: '🇺🇸' },
-      { name: 'Paraguay',  flag: '🇵🇾' },
+      { name: 'USA', flag: '🇺🇸' },
+      { name: 'Paraguay', flag: '🇵🇾' },
       { name: 'Australia', flag: '🇦🇺' },
-      { name: 'Repesca',   flag: '🔁', tbd: true },
+      { name: 'Repesca', flag: '🔁', tbd: true },
     ],
   },
   {
     id: 'E',
     teams: [
-      { name: 'Alemania',        flag: '🇩🇪' },
-      { name: 'Curazao',         flag: '🇨🇼' },
+      { name: 'Alemania', flag: '🇩🇪' },
+      { name: 'Curazao', flag: '🇨🇼' },
       { name: 'Costa de Marfil', flag: '🇨🇮' },
-      { name: 'Ecuador',         flag: '🇪🇨' },
+      { name: 'Ecuador', flag: '🇪🇨' },
     ],
   },
   {
     id: 'F',
     teams: [
       { name: 'Países Bajos', flag: '🇳🇱' },
-      { name: 'Japón',        flag: '🇯🇵' },
-      { name: 'Repesca',      flag: '🔁', tbd: true },
-      { name: 'Túnez',        flag: '🇹🇳' },
+      { name: 'Japón', flag: '🇯🇵' },
+      { name: 'Repesca', flag: '🔁', tbd: true },
+      { name: 'Túnez', flag: '🇹🇳' },
     ],
   },
   {
     id: 'G',
     teams: [
-      { name: 'Bélgica',       flag: '🇧🇪' },
-      { name: 'Egipto',        flag: '🇪🇬' },
-      { name: 'Irán',          flag: '🇮🇷' },
+      { name: 'Bélgica', flag: '🇧🇪' },
+      { name: 'Egipto', flag: '🇪🇬' },
+      { name: 'Irán', flag: '🇮🇷' },
       { name: 'Nueva Zelanda', flag: '🇳🇿' },
     ],
   },
   {
     id: 'H',
     teams: [
-      { name: 'España',       flag: '🇪🇸' },
-      { name: 'Cabo Verde',   flag: '🇨🇻' },
+      { name: 'España', flag: '🇪🇸' },
+      { name: 'Cabo Verde', flag: '🇨🇻' },
       { name: 'Arabia Saudí', flag: '🇸🇦' },
-      { name: 'Uruguay',      flag: '🇺🇾' },
+      { name: 'Uruguay', flag: '🇺🇾' },
     ],
   },
   {
     id: 'I',
     teams: [
-      { name: 'Francia',  flag: '🇫🇷' },
-      { name: 'Senegal',  flag: '🇸🇳' },
-      { name: 'Repesca',  flag: '🔁', tbd: true },
-      { name: 'Noruega',  flag: '🇳🇴' },
+      { name: 'Francia', flag: '🇫🇷' },
+      { name: 'Senegal', flag: '🇸🇳' },
+      { name: 'Repesca', flag: '🔁', tbd: true },
+      { name: 'Noruega', flag: '🇳🇴' },
     ],
   },
   {
     id: 'J',
     teams: [
       { name: 'Argentina', flag: '🇦🇷' },
-      { name: 'Argelia',   flag: '🇩🇿' },
-      { name: 'Austria',   flag: '🇦🇹' },
-      { name: 'Jordania',  flag: '🇯🇴' },
+      { name: 'Argelia', flag: '🇩🇿' },
+      { name: 'Austria', flag: '🇦🇹' },
+      { name: 'Jordania', flag: '🇯🇴' },
     ],
   },
   {
     id: 'K',
     teams: [
-      { name: 'Portugal',    flag: '🇵🇹' },
-      { name: 'Repesca',     flag: '🔁', tbd: true },
-      { name: 'Uzbekistán',  flag: '🇺🇿' },
-      { name: 'Colombia',    flag: '🇨🇴' },
+      { name: 'Portugal', flag: '🇵🇹' },
+      { name: 'Repesca', flag: '🔁', tbd: true },
+      { name: 'Uzbekistán', flag: '🇺🇿' },
+      { name: 'Colombia', flag: '🇨🇴' },
     ],
   },
   {
     id: 'L',
     teams: [
       { name: 'Inglaterra', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-      { name: 'Croacia',    flag: '🇭🇷' },
-      { name: 'Ghana',      flag: '🇬🇭' },
-      { name: 'Panamá',     flag: '🇵🇦' },
+      { name: 'Croacia', flag: '🇭🇷' },
+      { name: 'Ghana', flag: '🇬🇭' },
+      { name: 'Panamá', flag: '🇵🇦' },
     ],
   },
 ];
@@ -122,17 +129,17 @@ const WC2026_GROUPS: WC2026Group[] = [
 type Tab = 'general' | 'grupos';
 
 export function Standings() {
-  const [groups, setGroups]   = useState<FdStandingsGroup[]>([]);
+  const [groups, setGroups] = useState<FdStandingsGroup[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState<string | null>(null);
-  const [tab, setTab]         = useState<Tab>('general');
+  const [error, setError] = useState<string | null>(null);
+  const [tab, setTab] = useState<Tab>('general');
 
   const load = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchStandings();
-      const groupStage = data.filter(g => g.stage === 'GROUP_STAGE' && g.type === 'TOTAL');
+      const groupStage = data.filter((g) => g.stage === 'GROUP_STAGE' && g.type === 'TOTAL');
       setGroups(groupStage);
     } catch {
       setError('No se pudo cargar la tabla. Verifica que el backend esté corriendo.');
@@ -141,11 +148,12 @@ export function Standings() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-2xl mx-auto w-full pb-28 md:pb-12">
-
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -200,13 +208,10 @@ export function Standings() {
 
       {/* ── Two-column layout (desktop) / Tabs (mobile) ── */}
       <div className="flex flex-col lg:flex-row gap-6">
-
         {/* ══════════════════════════════════════════════════════
             LEFT — Tabla General de Posiciones
         ══════════════════════════════════════════════════════ */}
-        <section
-          className={`flex-1 min-w-0 ${tab === 'grupos' ? 'hidden lg:block' : ''}`}
-        >
+        <section className={`flex-1 min-w-0 ${tab === 'grupos' ? 'hidden lg:block' : ''}`}>
           {/* Section header */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center shrink-0">
@@ -235,8 +240,8 @@ export function Standings() {
               </h3>
               <p className="text-sm text-text-muted mb-5">
                 La fase de grupos arranca el{' '}
-                <span className="text-primary font-semibold">11 de junio de 2026</span>.
-                La tabla general se actualizará automáticamente con cada partido.
+                <span className="text-primary font-semibold">11 de junio de 2026</span>. La tabla
+                general se actualizará automáticamente con cada partido.
               </p>
               <div className="flex justify-center gap-8 text-sm text-text-muted">
                 <div className="flex flex-col items-center">
@@ -258,7 +263,7 @@ export function Standings() {
           {/* API data — groups grid */}
           {!loading && groups.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {groups.map(group => (
+              {groups.map((group) => (
                 <ApiGroupTable key={group.group} group={group} />
               ))}
             </div>
@@ -286,7 +291,7 @@ export function Standings() {
 
           {/* Scrollable groups list */}
           <div className="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto pr-1 scrollbar-thin">
-            {WC2026_GROUPS.map(group => (
+            {WC2026_GROUPS.map((group) => (
               <StaticGroupCard key={group.id} group={group} />
             ))}
           </div>
@@ -307,9 +312,12 @@ function ApiGroupTable({ group }: { group: FdStandingsGroup }) {
         <TrendingUp className="w-4 h-4 text-white/70" />
       </div>
       <div className="grid grid-cols-[auto_1fr_repeat(5,auto)] gap-x-3 px-4 py-1.5 text-[10px] font-bold uppercase tracking-wider text-text-muted border-b border-border">
-        <span>#</span><span>Equipo</span>
-        <span className="text-center">PJ</span><span className="text-center">G</span>
-        <span className="text-center">E</span><span className="text-center">P</span>
+        <span>#</span>
+        <span>Equipo</span>
+        <span className="text-center">PJ</span>
+        <span className="text-center">G</span>
+        <span className="text-center">E</span>
+        <span className="text-center">P</span>
         <span className="text-center text-primary">Pts</span>
       </div>
       {group.table.map((entry, idx) => (
@@ -321,14 +329,21 @@ function ApiGroupTable({ group }: { group: FdStandingsGroup }) {
 
 function ApiStandingRow({ entry, qualify }: { entry: FdTableEntry; qualify: boolean }) {
   return (
-    <div className={`grid grid-cols-[auto_1fr_repeat(5,auto)] gap-x-3 px-4 py-2 items-center border-b border-border/50 last:border-0 hover:bg-bg-elevated/50 transition-colors text-sm ${qualify ? 'bg-primary/5' : ''}`}>
+    <div
+      className={`grid grid-cols-[auto_1fr_repeat(5,auto)] gap-x-3 px-4 py-2 items-center border-b border-border/50 last:border-0 hover:bg-bg-elevated/50 transition-colors text-sm ${qualify ? 'bg-primary/5' : ''}`}
+    >
       <span className={`w-5 text-center font-bold ${qualify ? 'text-primary' : 'text-text-muted'}`}>
         {entry.position}
       </span>
       <div className="flex items-center gap-2 min-w-0">
-        <img src={entry.team.crest} alt={entry.team.name}
+        <img
+          src={entry.team.crest}
+          alt={entry.team.name}
           className="w-5 h-5 object-contain shrink-0"
-          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+          onError={(e) => {
+            (e.target as HTMLImageElement).style.display = 'none';
+          }}
+        />
         <span className="font-medium text-text-primary truncate">
           {entry.team.shortName || entry.team.tla}
         </span>
@@ -371,14 +386,18 @@ function StaticGroupCard({ group }: { group: WC2026Group }) {
           className={`grid grid-cols-[auto_1fr_repeat(4,auto)] gap-x-2 px-3 py-2 items-center border-b border-border/40 last:border-0 hover:bg-bg-elevated/40 transition-colors ${idx < 2 ? 'bg-primary/5' : ''}`}
         >
           {/* Position */}
-          <span className={`w-4 text-center text-xs font-bold ${idx < 2 ? 'text-primary' : 'text-text-muted'}`}>
+          <span
+            className={`w-4 text-center text-xs font-bold ${idx < 2 ? 'text-primary' : 'text-text-muted'}`}
+          >
             {idx + 1}
           </span>
 
           {/* Flag + Name */}
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="text-base leading-none">{team.flag}</span>
-            <span className={`text-xs font-medium truncate ${team.tbd ? 'text-text-muted italic' : 'text-text-primary'}`}>
+            <span
+              className={`text-xs font-medium truncate ${team.tbd ? 'text-text-muted italic' : 'text-text-primary'}`}
+            >
               {team.name}
             </span>
           </div>

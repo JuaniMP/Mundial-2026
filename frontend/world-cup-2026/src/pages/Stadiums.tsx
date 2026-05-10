@@ -81,12 +81,15 @@ export function Stadiums() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
-  const filtered = stadiums.filter(s =>
-    s.nombre.toLowerCase().includes(search.toLowerCase()) ||
-    s.ciudad.toLowerCase().includes(search.toLowerCase()) ||
-    s.pais.toLowerCase().includes(search.toLowerCase())
+  const filtered = stadiums.filter(
+    (s) =>
+      s.nombre.toLowerCase().includes(search.toLowerCase()) ||
+      s.ciudad.toLowerCase().includes(search.toLowerCase()) ||
+      s.pais.toLowerCase().includes(search.toLowerCase()),
   );
 
   // Scroll selected stadium into view in the list
@@ -100,7 +103,6 @@ export function Stadiums() {
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-xl mx-auto w-full pb-28 md:pb-12">
-
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -125,11 +127,23 @@ export function Stadiums() {
       {!loading && stadiums.length > 0 && (
         <div className="flex gap-4 mb-6 flex-wrap">
           {[
-            { label: 'Sedes USA', value: stadiums.filter(s => s.pais === 'USA').length, flag: '🇺🇸' },
-            { label: 'Sedes Canadá', value: stadiums.filter(s => s.pais === 'Canada').length, flag: '🇨🇦' },
-            { label: 'Sedes México', value: stadiums.filter(s => s.pais === 'México').length, flag: '🇲🇽' },
+            {
+              label: 'Sedes USA',
+              value: stadiums.filter((s) => s.pais === 'USA').length,
+              flag: '🇺🇸',
+            },
+            {
+              label: 'Sedes Canadá',
+              value: stadiums.filter((s) => s.pais === 'Canada').length,
+              flag: '🇨🇦',
+            },
+            {
+              label: 'Sedes México',
+              value: stadiums.filter((s) => s.pais === 'México').length,
+              flag: '🇲🇽',
+            },
             { label: 'Capacidad total', value: totalCapacity.toLocaleString('es-CO'), flag: '🏟️' },
-          ].map(stat => (
+          ].map((stat) => (
             <div key={stat.label} className="glass rounded-xl px-4 py-2.5 flex items-center gap-2">
               <span className="text-lg">{stat.flag}</span>
               <div>
@@ -164,9 +178,11 @@ export function Stadiums() {
       {/* Map + list layout */}
       {!loading && stadiums.length > 0 && (
         <div className="flex flex-col lg:flex-row gap-4">
-
           {/* ── Leaflet Map ──────────────────────────────────────────────── */}
-          <div className="flex-1 rounded-2xl overflow-hidden border border-border shadow-lg" style={{ minHeight: 480 }}>
+          <div
+            className="flex-1 rounded-2xl overflow-hidden border border-border shadow-lg"
+            style={{ minHeight: 480 }}
+          >
             <MapContainer
               center={[39.5, -98.35]}
               zoom={4}
@@ -178,7 +194,7 @@ export function Stadiums() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               />
               <FlyToSelected stadium={selected} />
-              {stadiums.map(s => (
+              {stadiums.map((s) => (
                 <Marker
                   key={s.id}
                   position={[s.lat, s.lng]}
@@ -186,10 +202,15 @@ export function Stadiums() {
                   eventHandlers={{ click: () => setSelected(s) }}
                 >
                   <Popup>
-                    <div className="text-sm font-semibold">{flag(s.pais)} {s.nombre}</div>
-                    <div className="text-xs text-gray-600 mt-0.5">{s.ciudad}, {s.pais}</div>
+                    <div className="text-sm font-semibold">
+                      {flag(s.pais)} {s.nombre}
+                    </div>
+                    <div className="text-xs text-gray-600 mt-0.5">
+                      {s.ciudad}, {s.pais}
+                    </div>
                     <div className="text-xs mt-1">
-                      <span className="font-bold">{s.capacidad.toLocaleString('es-CO')}</span> espectadores
+                      <span className="font-bold">{s.capacidad.toLocaleString('es-CO')}</span>{' '}
+                      espectadores
                     </div>
                   </Popup>
                 </Marker>
@@ -206,7 +227,7 @@ export function Stadiums() {
                 type="text"
                 placeholder="Buscar estadio o ciudad…"
                 value={search}
-                onChange={e => setSearch(e.target.value)}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-full glass rounded-xl pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 bg-transparent"
               />
             </div>
@@ -217,7 +238,7 @@ export function Stadiums() {
               className="flex flex-col gap-2 overflow-y-auto"
               style={{ maxHeight: 420 }}
             >
-              {filtered.map(s => (
+              {filtered.map((s) => (
                 <StadiumCard
                   key={s.id}
                   stadium={s}
@@ -230,7 +251,6 @@ export function Stadiums() {
               )}
             </div>
           </div>
-
         </div>
       )}
 
@@ -240,7 +260,9 @@ export function Stadiums() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-1">
               <span className="text-2xl">{flag(selected.pais)}</span>
-              <h2 className="font-headline text-xl font-bold text-text-primary">{selected.nombre}</h2>
+              <h2 className="font-headline text-xl font-bold text-text-primary">
+                {selected.nombre}
+              </h2>
             </div>
             <p className="text-text-muted text-sm flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5" />
@@ -251,7 +273,9 @@ export function Stadiums() {
             <div className="glass rounded-xl px-4 py-2 flex items-center gap-3">
               <Users className="w-4 h-4 text-primary shrink-0" />
               <div>
-                <p className="text-sm font-black text-text-primary">{selected.capacidad.toLocaleString('es-CO')}</p>
+                <p className="text-sm font-black text-text-primary">
+                  {selected.capacidad.toLocaleString('es-CO')}
+                </p>
                 <p className="text-[10px] text-text-muted uppercase tracking-wider">Capacidad</p>
               </div>
             </div>
@@ -259,13 +283,14 @@ export function Stadiums() {
               <MapPin className="w-4 h-4 text-primary shrink-0" />
               <div>
                 <p className="text-sm font-black text-text-primary">{selected.ciudad}</p>
-                <p className="text-[10px] text-text-muted uppercase tracking-wider">{selected.pais}</p>
+                <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                  {selected.pais}
+                </p>
               </div>
             </div>
           </div>
         </div>
       )}
-
     </main>
   );
 }
@@ -291,13 +316,19 @@ function StadiumCard({
     >
       <span className="text-xl shrink-0">{flag(stadium.pais)}</span>
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-text-primary'}`}>
+        <p
+          className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-text-primary'}`}
+        >
           {stadium.nombre}
         </p>
-        <p className="text-[11px] text-text-muted truncate">{stadium.ciudad}, {stadium.pais}</p>
+        <p className="text-[11px] text-text-muted truncate">
+          {stadium.ciudad}, {stadium.pais}
+        </p>
       </div>
       <div className="text-right shrink-0">
-        <p className="text-xs font-bold text-text-secondary">{(stadium.capacidad / 1000).toFixed(0)}k</p>
+        <p className="text-xs font-bold text-text-secondary">
+          {(stadium.capacidad / 1000).toFixed(0)}k
+        </p>
         <p className="text-[10px] text-text-muted">cap</p>
       </div>
     </button>

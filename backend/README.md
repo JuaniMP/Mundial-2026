@@ -40,43 +40,47 @@ La primera vez, Maven descarga dependencias (~2-3 min). Arranques siguientes: ~4
 Todas tienen valor por defecto en `application.properties`. Para producción/staging
 configúralas como variables de entorno del sistema o en tu pipeline CI/CD.
 
-| Variable | Default | Descripción |
-|---|---|---|
-| `DB_USER` | `juanita_mh` | Usuario MySQL |
-| `DB_PASSWORD` | _(en props)_ | Contraseña MySQL |
-| `JWT_SECRET` | _(en props)_ | Secreto Base64 ≥256 bits para JWT |
-| `JWT_EXPIRATION_MS` | `3600000` | Expiración del token (1 hora) |
-| `STRIPE_SECRET_KEY` | placeholder | `sk_test_...` de Stripe Dashboard |
-| `STRIPE_PUBLISHABLE_KEY` | placeholder | `pk_test_...` de Stripe Dashboard |
-| `STRIPE_WEBHOOK_SECRET` | placeholder | `whsec_...` de Stripe CLI/Dashboard |
-| `FIREBASE_ENABLED` | `false` | `true` para activar FCM |
-| `FIREBASE_SERVICE_ACCOUNT_FILE` | _(vacío)_ | Ruta al `.json` de Firebase service account |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | _(vacío)_ | JSON inline (alternativa al archivo) |
-| `MAIL_HOST` | `smtp.gmail.com` | Host SMTP |
-| `MAIL_USERNAME` | _(en props)_ | Cuenta Gmail |
-| `MAIL_PASSWORD` | _(en props)_ | App password de Gmail |
-| `FOOTBALL_DATA_KEY` | _(en props)_ | API key de football-data.org |
-| `CORS_ORIGINS` | `http://localhost:5173,...` | Origins permitidos (lista con comas) |
+| Variable                        | Default                     | Descripción                                 |
+| ------------------------------- | --------------------------- | ------------------------------------------- |
+| `DB_USER`                       | `juanita_mh`                | Usuario MySQL                               |
+| `DB_PASSWORD`                   | _(en props)_                | Contraseña MySQL                            |
+| `JWT_SECRET`                    | _(en props)_                | Secreto Base64 ≥256 bits para JWT           |
+| `JWT_EXPIRATION_MS`             | `3600000`                   | Expiración del token (1 hora)               |
+| `STRIPE_SECRET_KEY`             | placeholder                 | `sk_test_...` de Stripe Dashboard           |
+| `STRIPE_PUBLISHABLE_KEY`        | placeholder                 | `pk_test_...` de Stripe Dashboard           |
+| `STRIPE_WEBHOOK_SECRET`         | placeholder                 | `whsec_...` de Stripe CLI/Dashboard         |
+| `FIREBASE_ENABLED`              | `false`                     | `true` para activar FCM                     |
+| `FIREBASE_SERVICE_ACCOUNT_FILE` | _(vacío)_                   | Ruta al `.json` de Firebase service account |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | _(vacío)_                   | JSON inline (alternativa al archivo)        |
+| `MAIL_HOST`                     | `smtp.gmail.com`            | Host SMTP                                   |
+| `MAIL_USERNAME`                 | _(en props)_                | Cuenta Gmail                                |
+| `MAIL_PASSWORD`                 | _(en props)_                | App password de Gmail                       |
+| `FOOTBALL_DATA_KEY`             | _(en props)_                | API key de football-data.org                |
+| `CORS_ORIGINS`                  | `http://localhost:5173,...` | Origins permitidos (lista con comas)        |
 
 ---
 
 ## Módulos principales
 
 ### Autenticación
+
 - `AuthController` — registro, login, forgot/reset password
 - `JwtService` — generación y validación de tokens JWT
 - `JwtAuthFilter` — filtro de seguridad Spring Security
 
 ### Partidos & Estadios
+
 - `FootballDataService` — integración con football-data.org v4, caché Caffeine 5 min
 - `PartidoController` / `EstadioController` — endpoints REST
 
 ### Entradas (Stripe)
+
 - `StripeService` — crea sesiones Checkout, procesa webhooks
 - `EntradaController` — endpoints de compra e historial
 - Al confirmar pago → notifica vía FCM al comprador
 
 ### Notificaciones (Firebase FCM)
+
 - `FirebaseConfig` — inicializa Admin SDK desde archivo JSON o variable de entorno;
   si `firebase.enabled=false`, se desactiva sin romper la app
 - `FcmService` — `sendToToken`, `sendToTopic`, `subscribeToTopic`,
@@ -84,6 +88,7 @@ configúralas como variables de entorno del sistema o en tu pipeline CI/CD.
 - `NotificationController` — gestión de tokens FCM e historial
 
 ### Soporte & Álbum
+
 - `SoporteController`, `AlbumController`, `JugadorController`
 
 ---
@@ -91,6 +96,7 @@ configúralas como variables de entorno del sistema o en tu pipeline CI/CD.
 ## Endpoints principales
 
 ### Auth
+
 ```
 POST /api/v1/auth/register          Registro
 POST /api/v1/auth/login             Login → JWT
@@ -99,6 +105,7 @@ POST /api/v1/auth/reset-password    Confirmar reset con token
 ```
 
 ### Partidos & Standings
+
 ```
 GET  /api/v1/partidos               Lista de partidos
 GET  /api/v1/football/standings     Tabla de posiciones
@@ -106,6 +113,7 @@ GET  /api/v1/estadios               16 sedes
 ```
 
 ### Entradas
+
 ```
 POST /api/v1/entradas/checkout      Crear sesión Stripe Checkout
 POST /api/v1/entradas/webhook       Webhook Stripe (⚠️ sin auth JWT)
@@ -113,6 +121,7 @@ GET  /api/v1/entradas/mis-entradas  Historial del usuario
 ```
 
 ### Notificaciones
+
 ```
 POST   /api/v1/notifications/token              Registrar token FCM
 DELETE /api/v1/notifications/token              Eliminar token
@@ -122,6 +131,7 @@ GET    /api/v1/notifications/mis-notificaciones Historial
 ```
 
 ### Actuator (health / métricas)
+
 ```
 GET /actuator/health    Estado del servicio
 GET /actuator/info      Información de la aplicación
@@ -177,12 +187,14 @@ co.edu.unbosque/
 ## Swagger / OpenAPI
 
 Con el backend corriendo:
+
 ```
 http://localhost:8082/swagger-ui.html
 http://localhost:8082/v3/api-docs
 ```
 
 Todos los endpoints protegidos requieren header:
+
 ```
 Authorization: Bearer <jwt-token>
 ```

@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { AlbumBook }  from '../components/album/AlbumBook';
-import { Inventory }  from '../components/album/Inventory';
-import { Trades }     from '../components/album/Trades';
-import { Missions }   from '../components/album/Missions';
+import { AlbumBook } from '../components/album/AlbumBook';
+import { Inventory } from '../components/album/Inventory';
+import { Trades } from '../components/album/Trades';
+import { Missions } from '../components/album/Missions';
 import { PackOpener } from '../components/album/PackOpener';
 import {
   fetchLaminas,
@@ -12,10 +12,10 @@ import {
 } from '../components/album/albumApi';
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
-const LS_COINS   = 'wc2026_coins';
-const LS_PACKS   = 'wc2026_packs';
+const LS_COINS = 'wc2026_coins';
+const LS_PACKS = 'wc2026_packs';
 const LS_LAST_FREE = 'wc2026_last_free';
-const PACK_COST  = 50;
+const PACK_COST = 50;
 const FREE_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 h
 
 type Tab = 'album' | 'cromos' | 'intercambios' | 'misiones';
@@ -40,14 +40,14 @@ function formatCountdown(ms: number): string {
   const h = Math.floor(ms / 3_600_000);
   const m = Math.floor((ms % 3_600_000) / 60_000);
   const s = Math.floor((ms % 60_000) / 1000);
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 // Mock stickers for pack-opener preview (shown while real call completes)
 function makeMockStickers(ids: number[]): LaminaAlbum[] {
-  const names = ['Carlos López','Pedro Alves','Kenji Tanaka','André Müller','Kwame Asante'];
-  const rarezas = ['COMUN','COMUN','RARO','COMUN','EPICO'];
-  return ids.slice(0,5).map((id, i) => ({
+  const names = ['Carlos López', 'Pedro Alves', 'Kenji Tanaka', 'André Müller', 'Kwame Asante'];
+  const rarezas = ['COMUN', 'COMUN', 'RARO', 'COMUN', 'EPICO'];
+  return ids.slice(0, 5).map((id, i) => ({
     idLamina: id,
     nombreJugador: names[i % names.length],
     rareza: rarezas[i % rarezas.length],
@@ -59,20 +59,20 @@ function makeMockStickers(ids: number[]): LaminaAlbum[] {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Album() {
-  const [tab,     setTab]     = useState<Tab>('album');
+  const [tab, setTab] = useState<Tab>('album');
   const [laminas, setLaminas] = useState<LaminaAlbum[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error,   setError]   = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [coins, setCoins]     = useState(loadCoins);
-  const [packs, setPacks]     = useState(loadPacks);
+  const [coins, setCoins] = useState(loadCoins);
+  const [packs, setPacks] = useState(loadPacks);
 
-  const [packOpen,     setPackOpen]     = useState(false);
-  const [newStickers,  setNewStickers]  = useState<LaminaAlbum[]>([]);
-  const [openingPack,  setOpeningPack]  = useState(false);
+  const [packOpen, setPackOpen] = useState(false);
+  const [newStickers, setNewStickers] = useState<LaminaAlbum[]>([]);
+  const [openingPack, setOpeningPack] = useState(false);
 
-  const [freeReady,    setFreeReady]    = useState(false);
-  const [countdown,    setCountdown]    = useState('');
+  const [freeReady, setFreeReady] = useState(false);
+  const [countdown, setCountdown] = useState('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // ── Load laminas ──
@@ -90,7 +90,9 @@ export function Album() {
     }
   }, []);
 
-  useEffect(() => { void loadLaminas(); }, [loadLaminas]);
+  useEffect(() => {
+    void loadLaminas();
+  }, [loadLaminas]);
 
   // ── Free pack countdown ──
   useEffect(() => {
@@ -107,73 +109,92 @@ export function Album() {
     };
     tick();
     timerRef.current = setInterval(tick, 1000);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, []);
 
   // ── Sync to localStorage ──
-  useEffect(() => { saveCoins(coins); }, [coins]);
-  useEffect(() => { savePacks(packs); }, [packs]);
+  useEffect(() => {
+    saveCoins(coins);
+  }, [coins]);
+  useEffect(() => {
+    savePacks(packs);
+  }, [packs]);
 
   // ── Open pack ──
-  const handleOpenPack = useCallback(async (free = false) => {
-    if (openingPack) return;
-    if (!free && packs < 1) return;
-    if (free && !freeReady) return;
+  const handleOpenPack = useCallback(
+    async (free = false) => {
+      if (openingPack) return;
+      if (!free && packs < 1) return;
+      if (free && !freeReady) return;
 
-    setOpeningPack(true);
-    try {
-      if (free) localStorage.setItem(LS_LAST_FREE, String(Date.now()));
-      else setPacks(p => p - 1);
+      setOpeningPack(true);
+      try {
+        if (free) localStorage.setItem(LS_LAST_FREE, String(Date.now()));
+        else setPacks((p) => p - 1);
 
-      const ids = await abrirPaquete();
-      const stickers = ids.length > 0 ? makeMockStickers(ids) : makeMockStickers([1,2,3,4,5]);
-      setNewStickers(stickers);
-      setPackOpen(true);
-      // Refresh laminas after opening
-      void loadLaminas();
-    } catch {
-      // Fallback: show mock stickers so the ceremony still works
-      setNewStickers(makeMockStickers([1,2,3,4,5]));
-      setPackOpen(true);
-    } finally {
-      setOpeningPack(false);
-    }
-  }, [openingPack, packs, freeReady, loadLaminas]);
+        const ids = await abrirPaquete();
+        const stickers = ids.length > 0 ? makeMockStickers(ids) : makeMockStickers([1, 2, 3, 4, 5]);
+        setNewStickers(stickers);
+        setPackOpen(true);
+        // Refresh laminas after opening
+        void loadLaminas();
+      } catch {
+        // Fallback: show mock stickers so the ceremony still works
+        setNewStickers(makeMockStickers([1, 2, 3, 4, 5]));
+        setPackOpen(true);
+      } finally {
+        setOpeningPack(false);
+      }
+    },
+    [openingPack, packs, freeReady, loadLaminas],
+  );
 
   // ── Pegar lamina ──
   const handlePegar = useCallback(async (laminaId: number) => {
     // Optimistic update
-    setLaminas(prev => prev.map(l => l.idLamina === laminaId ? { ...l, estaPegada: true } : l));
+    setLaminas((prev) =>
+      prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: true } : l)),
+    );
     try {
       await pegarLamina(laminaId);
     } catch {
       // Revert on error
-      setLaminas(prev => prev.map(l => l.idLamina === laminaId ? { ...l, estaPegada: false } : l));
+      setLaminas((prev) =>
+        prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: false } : l)),
+      );
     }
   }, []);
 
   // ── Vender repetida ──
   const handleVender = useCallback((laminaId: number) => {
-    setLaminas(prev => prev.map(l =>
-      l.idLamina === laminaId && l.cantidadRepetidas > 1
-        ? { ...l, cantidadRepetidas: l.cantidadRepetidas - 1 }
-        : l
-    ));
-    setCoins(c => c + 10);
+    setLaminas((prev) =>
+      prev.map((l) =>
+        l.idLamina === laminaId && l.cantidadRepetidas > 1
+          ? { ...l, cantidadRepetidas: l.cantidadRepetidas - 1 }
+          : l,
+      ),
+    );
+    setCoins((c) => c + 10);
   }, []);
 
   // ── Trade accepted ──
   const handleTradeAccept = useCallback((giveId: number, receive: LaminaAlbum) => {
-    setLaminas(prev => {
-      const next = prev.map(l =>
+    setLaminas((prev) => {
+      const next = prev.map((l) =>
         l.idLamina === giveId && l.cantidadRepetidas > 1
           ? { ...l, cantidadRepetidas: l.cantidadRepetidas - 1 }
-          : l
+          : l,
       );
       // Add received sticker if not already owned
-      const existing = next.find(l => l.idLamina === receive.idLamina);
+      const existing = next.find((l) => l.idLamina === receive.idLamina);
       if (existing) {
-        return next.map(l => l.idLamina === receive.idLamina ? { ...l, cantidadRepetidas: l.cantidadRepetidas + 1 } : l);
+        return next.map((l) =>
+          l.idLamina === receive.idLamina
+            ? { ...l, cantidadRepetidas: l.cantidadRepetidas + 1 }
+            : l,
+        );
       }
       return [...next, receive];
     });
@@ -181,27 +202,27 @@ export function Album() {
 
   // ── Claim mission reward ──
   const handleClaimMission = useCallback((reward: number) => {
-    setCoins(c => c + reward);
+    setCoins((c) => c + reward);
   }, []);
 
   // ── Buy extra pack with coins ──
   const handleBuyPack = useCallback(() => {
     if (coins < PACK_COST) return;
-    setCoins(c => c - PACK_COST);
-    setPacks(p => p + 1);
+    setCoins((c) => c - PACK_COST);
+    setPacks((p) => p + 1);
   }, [coins]);
 
   // ── Album progress stats ──
   const totalStickers = laminas.length;
-  const pastedCount   = laminas.filter(l => l.estaPegada).length;
-  const pct           = Math.round((pastedCount / (32 * 10)) * 100);
+  const pastedCount = laminas.filter((l) => l.estaPegada).length;
+  const pct = Math.round((pastedCount / (32 * 10)) * 100);
 
   // ── Tab nav ──
   const tabs: { id: Tab; label: string; icon: string }[] = [
-    { id: 'album',        label: 'Álbum',        icon: '📖' },
-    { id: 'cromos',       label: 'Cromos',        icon: '🃏' },
-    { id: 'intercambios', label: 'Intercambios',  icon: '🔄' },
-    { id: 'misiones',     label: 'Misiones',      icon: '🎯' },
+    { id: 'album', label: 'Álbum', icon: '📖' },
+    { id: 'cromos', label: 'Cromos', icon: '🃏' },
+    { id: 'intercambios', label: 'Intercambios', icon: '🔄' },
+    { id: 'misiones', label: 'Misiones', icon: '🎯' },
   ];
 
   return (
@@ -216,7 +237,6 @@ export function Album() {
       )}
 
       <main className="pt-20 md:pt-24 pb-28 md:pb-12 max-w-screen-xl mx-auto w-full px-4 md:px-6 flex flex-col gap-6 overflow-x-hidden flex-1">
-
         {/* ── Top header: progress + coins + pack buttons ── */}
         <section className="card-base p-6 animate-fade-in-up">
           <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
@@ -229,12 +249,17 @@ export function Album() {
               <div className="flex flex-col gap-2 max-w-sm">
                 <div className="flex justify-between items-baseline text-sm">
                   <span className="font-bold text-text-primary">{pct}% completado</span>
-                  <span className="text-text-muted">{pastedCount} / {32 * 10} pegados · {totalStickers} obtenidos</span>
+                  <span className="text-text-muted">
+                    {pastedCount} / {32 * 10} pegados · {totalStickers} obtenidos
+                  </span>
                 </div>
                 <div className="w-full h-2.5 rounded-full bg-bg-hover overflow-hidden">
                   <div
                     className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#1d4ed8,#15803d)' }}
+                    style={{
+                      width: `${pct}%`,
+                      background: 'linear-gradient(90deg,#1d4ed8,#15803d)',
+                    }}
                   />
                 </div>
               </div>
@@ -314,7 +339,7 @@ export function Album() {
 
         {/* ── Tab bar ── */}
         <div className="flex gap-1 p-1 rounded-xl bg-bg-elevated border border-border w-fit">
-          {tabs.map(t => (
+          {tabs.map((t) => (
             <button
               key={t.id}
               onClick={() => setTab(t.id)}
@@ -322,7 +347,8 @@ export function Album() {
               style={{
                 background: tab === t.id ? '#fff' : 'transparent',
                 color: tab === t.id ? '#0f172a' : '#64748b',
-                border: 'none', cursor: 'pointer',
+                border: 'none',
+                cursor: 'pointer',
                 boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
                 fontFamily: 'Inter, sans-serif',
                 whiteSpace: 'nowrap',
@@ -336,13 +362,24 @@ export function Album() {
         {/* ── Tab content ── */}
         {loading ? (
           <div className="flex items-center justify-center py-24">
-            <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#1d4ed8', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <div
+              style={{
+                width: 40,
+                height: 40,
+                border: '3px solid #e2e8f0',
+                borderTopColor: '#1d4ed8',
+                borderRadius: '50%',
+                animation: 'spin 0.8s linear infinite',
+              }}
+            />
             <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
         ) : error ? (
           <div className="card-base p-8 text-center">
             <p className="text-accent font-semibold">{error}</p>
-            <button onClick={loadLaminas} className="mt-4 text-primary text-sm underline">Reintentar</button>
+            <button onClick={loadLaminas} className="mt-4 text-primary text-sm underline">
+              Reintentar
+            </button>
           </div>
         ) : (
           <>

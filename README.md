@@ -27,17 +27,17 @@
 
 ## Características implementadas
 
-| Módulo | Descripción | Sprint |
-|---|---|---|
-| 🔐 **Auth JWT** | Registro, login, recuperación de contraseña por email (Gmail SMTP) | 1 |
-| 🌍 **Partidos & API FIFA** | Integración con football-data.org v4, caché Caffeine 5 min | 1–2 |
-| 🏟️ **Mapa de Estadios** | 16 sedes con coordenadas, estadísticas e integración Leaflet | 2 |
-| 📊 **Tabla de Posiciones** | Tabla general (API en vivo) + grupos A–L estáticos FIFA WC 2026 | 2–4 |
-| 🎟️ **Entradas (Stripe)** | Compra de tickets por categoría (VIP / General / Premium), webhooks Stripe sandbox | 3 |
-| 🎴 **Álbum Digital** | Colección de stickers por jugador, apertura de packs, progreso | 1–2 |
-| 🏆 **Superpolla** | Predicciones de resultados, leaderboard global | 1–2 |
-| 🔔 **Push Notifications (FCM)** | Firebase Cloud Messaging: notificación al comprar entrada y al registrarse resultado, broadcast al topic "partidos" | 4 |
-| 📧 **Notificaciones in-app** | Historial de notificaciones por usuario en BD | 4 |
+| Módulo                          | Descripción                                                                                                         | Sprint |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ |
+| 🔐 **Auth JWT**                 | Registro, login, recuperación de contraseña por email (Gmail SMTP)                                                  | 1      |
+| 🌍 **Partidos & API FIFA**      | Integración con football-data.org v4, caché Caffeine 5 min                                                          | 1–2    |
+| 🏟️ **Mapa de Estadios**         | 16 sedes con coordenadas, estadísticas e integración Leaflet                                                        | 2      |
+| 📊 **Tabla de Posiciones**      | Tabla general (API en vivo) + grupos A–L estáticos FIFA WC 2026                                                     | 2–4    |
+| 🎟️ **Entradas (Stripe)**        | Compra de tickets por categoría (VIP / General / Premium), webhooks Stripe sandbox                                  | 3      |
+| 🎴 **Álbum Digital**            | Colección de stickers por jugador, apertura de packs, progreso                                                      | 1–2    |
+| 🏆 **Superpolla**               | Predicciones de resultados, leaderboard global                                                                      | 1–2    |
+| 🔔 **Push Notifications (FCM)** | Firebase Cloud Messaging: notificación al comprar entrada y al registrarse resultado, broadcast al topic "partidos" | 4      |
+| 📧 **Notificaciones in-app**    | Historial de notificaciones por usuario en BD                                                                       | 4      |
 
 ---
 
@@ -119,13 +119,13 @@ Mundial-2026/
 
 ### Prerrequisitos
 
-| Herramienta | Versión mínima | Notas |
-|---|---|---|
-| Node.js | 20 LTS | Ver `.nvmrc` |
-| Java (JDK) | 17 | Eclipse Adoptium recomendado |
-| Maven | 3.9+ | O usa el wrapper `mvnw` |
-| MySQL | 8.x | En VM remota vía Tailscale |
-| Tailscale | cualquiera | Para conectar a la VM MySQL |
+| Herramienta | Versión mínima | Notas                        |
+| ----------- | -------------- | ---------------------------- |
+| Node.js     | 20 LTS         | Ver `.nvmrc`                 |
+| Java (JDK)  | 17             | Eclipse Adoptium recomendado |
+| Maven       | 3.9+           | O usa el wrapper `mvnw`      |
+| MySQL       | 8.x            | En VM remota vía Tailscale   |
+| Tailscale   | cualquiera     | Para conectar a la VM MySQL  |
 
 ### Backend
 
@@ -171,34 +171,34 @@ npx vite --port 5173
 
 ### Backend — `application.properties` / env vars
 
-| Variable | Descripción | Requerida |
-|---|---|---|
-| `DB_USER` | Usuario MySQL | No (default: `juanita_mh`) |
-| `DB_PASSWORD` | Contraseña MySQL | No (default en props) |
-| `JWT_SECRET` | Secreto Base64 para firmar JWT (≥256 bits) | No (default en props) |
-| `STRIPE_SECRET_KEY` | Clave secreta Stripe (`sk_test_...`) | Sí para pagos |
-| `STRIPE_PUBLISHABLE_KEY` | Clave publicable Stripe (`pk_test_...`) | Sí para pagos |
-| `STRIPE_WEBHOOK_SECRET` | Secreto webhook Stripe (`whsec_...`) | Sí para webhooks |
-| `FIREBASE_ENABLED` | `true` para activar FCM | No (default: `false`) |
-| `FIREBASE_SERVICE_ACCOUNT_FILE` | Ruta al JSON de servicio de Firebase | Solo si FCM habilitado |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | JSON de servicio inline (alternativa al archivo) | Solo si FCM habilitado |
-| `MAIL_USERNAME` | Cuenta Gmail para envío de correos | No (default en props) |
-| `MAIL_PASSWORD` | App password de Gmail | No (default en props) |
-| `FOOTBALL_DATA_KEY` | API key de football-data.org | No (default en props) |
-| `CORS_ORIGINS` | Origins permitidos (lista separada por comas) | No (default: localhost:5173…) |
+| Variable                        | Descripción                                      | Requerida                     |
+| ------------------------------- | ------------------------------------------------ | ----------------------------- |
+| `DB_USER`                       | Usuario MySQL                                    | No (default: `juanita_mh`)    |
+| `DB_PASSWORD`                   | Contraseña MySQL                                 | No (default en props)         |
+| `JWT_SECRET`                    | Secreto Base64 para firmar JWT (≥256 bits)       | No (default en props)         |
+| `STRIPE_SECRET_KEY`             | Clave secreta Stripe (`sk_test_...`)             | Sí para pagos                 |
+| `STRIPE_PUBLISHABLE_KEY`        | Clave publicable Stripe (`pk_test_...`)          | Sí para pagos                 |
+| `STRIPE_WEBHOOK_SECRET`         | Secreto webhook Stripe (`whsec_...`)             | Sí para webhooks              |
+| `FIREBASE_ENABLED`              | `true` para activar FCM                          | No (default: `false`)         |
+| `FIREBASE_SERVICE_ACCOUNT_FILE` | Ruta al JSON de servicio de Firebase             | Solo si FCM habilitado        |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | JSON de servicio inline (alternativa al archivo) | Solo si FCM habilitado        |
+| `MAIL_USERNAME`                 | Cuenta Gmail para envío de correos               | No (default en props)         |
+| `MAIL_PASSWORD`                 | App password de Gmail                            | No (default en props)         |
+| `FOOTBALL_DATA_KEY`             | API key de football-data.org                     | No (default en props)         |
+| `CORS_ORIGINS`                  | Origins permitidos (lista separada por comas)    | No (default: localhost:5173…) |
 
 ### Frontend — `.env.local`
 
-| Variable | Descripción |
-|---|---|
-| `VITE_STRIPE_PK` | Clave publicable Stripe (`pk_test_...`) |
-| `VITE_FIREBASE_API_KEY` | API key del proyecto Firebase |
-| `VITE_FIREBASE_AUTH_DOMAIN` | `<proyecto>.firebaseapp.com` |
-| `VITE_FIREBASE_PROJECT_ID` | ID del proyecto Firebase |
-| `VITE_FIREBASE_STORAGE_BUCKET` | `<proyecto>.firebasestorage.app` |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Número del proyecto Firebase |
-| `VITE_FIREBASE_APP_ID` | App ID de la web app registrada en Firebase |
-| `VITE_FIREBASE_VAPID_KEY` | Clave pública VAPID (Firebase Console → Cloud Messaging → Certificados push web) |
+| Variable                            | Descripción                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------- |
+| `VITE_STRIPE_PK`                    | Clave publicable Stripe (`pk_test_...`)                                          |
+| `VITE_FIREBASE_API_KEY`             | API key del proyecto Firebase                                                    |
+| `VITE_FIREBASE_AUTH_DOMAIN`         | `<proyecto>.firebaseapp.com`                                                     |
+| `VITE_FIREBASE_PROJECT_ID`          | ID del proyecto Firebase                                                         |
+| `VITE_FIREBASE_STORAGE_BUCKET`      | `<proyecto>.firebasestorage.app`                                                 |
+| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Número del proyecto Firebase                                                     |
+| `VITE_FIREBASE_APP_ID`              | App ID de la web app registrada en Firebase                                      |
+| `VITE_FIREBASE_VAPID_KEY`           | Clave pública VAPID (Firebase Console → Cloud Messaging → Certificados push web) |
 
 > Copia `frontend/world-cup-2026/.env.example` como punto de partida.
 
@@ -206,52 +206,56 @@ npx vite --port 5173
 
 ## Stack y decisiones
 
-| Capa | Tecnología | Notas |
-|---|---|---|
-| **Frontend** | Vite 6 + React 18 + TypeScript 5 + Tailwind 3 | SPA con React Router v6 |
-| **Backend** | Spring Boot 3.2 + Java 17 | REST API, JPA/Hibernate |
-| **Base de datos** | MySQL 8 en VM remota (Tailscale) | DDL auto: `update` |
-| **Autenticación** | JWT (jjwt 0.12) + Spring Security 6 | Tokens con expiración 1h |
-| **Pagos** | Stripe Java SDK 25.x | Sandbox, webhooks |
-| **Push Notifications** | Firebase Admin SDK 9.2 (backend) + Firebase JS SDK 11.x (frontend) | FCM v1 API, VAPID |
-| **API FIFA** | football-data.org v4 | Caché Caffeine 5 min |
-| **Email** | Spring Mail + Gmail SMTP | Recuperación de contraseña |
-| **CI** | GitHub Actions | Lint + typecheck + build |
+| Capa                   | Tecnología                                                         | Notas                      |
+| ---------------------- | ------------------------------------------------------------------ | -------------------------- |
+| **Frontend**           | Vite 6 + React 18 + TypeScript 5 + Tailwind 3                      | SPA con React Router v6    |
+| **Backend**            | Spring Boot 3.2 + Java 17                                          | REST API, JPA/Hibernate    |
+| **Base de datos**      | MySQL 8 en VM remota (Tailscale)                                   | DDL auto: `update`         |
+| **Autenticación**      | JWT (jjwt 0.12) + Spring Security 6                                | Tokens con expiración 1h   |
+| **Pagos**              | Stripe Java SDK 25.x                                               | Sandbox, webhooks          |
+| **Push Notifications** | Firebase Admin SDK 9.2 (backend) + Firebase JS SDK 11.x (frontend) | FCM v1 API, VAPID          |
+| **API FIFA**           | football-data.org v4                                               | Caché Caffeine 5 min       |
+| **Email**              | Spring Mail + Gmail SMTP                                           | Recuperación de contraseña |
+| **CI**                 | GitHub Actions                                                     | Lint + typecheck + build   |
 
 ---
 
 ## API — Endpoints principales
 
 ### Auth
-| Método | Ruta | Descripción |
-|---|---|---|
-| `POST` | `/api/v1/auth/register` | Registro de usuario |
-| `POST` | `/api/v1/auth/login` | Login → devuelve JWT |
+
+| Método | Ruta                           | Descripción                   |
+| ------ | ------------------------------ | ----------------------------- |
+| `POST` | `/api/v1/auth/register`        | Registro de usuario           |
+| `POST` | `/api/v1/auth/login`           | Login → devuelve JWT          |
 | `POST` | `/api/v1/auth/forgot-password` | Solicitar reset de contraseña |
-| `POST` | `/api/v1/auth/reset-password` | Confirmar reset con token |
+| `POST` | `/api/v1/auth/reset-password`  | Confirmar reset con token     |
 
 ### Partidos & Standings
-| Método | Ruta | Descripción |
-|---|---|---|
-| `GET` | `/api/v1/partidos` | Lista de partidos WC 2026 |
-| `GET` | `/api/v1/football/standings` | Tabla general de posiciones |
-| `GET` | `/api/v1/estadios` | 16 sedes con coordenadas |
+
+| Método | Ruta                         | Descripción                 |
+| ------ | ---------------------------- | --------------------------- |
+| `GET`  | `/api/v1/partidos`           | Lista de partidos WC 2026   |
+| `GET`  | `/api/v1/football/standings` | Tabla general de posiciones |
+| `GET`  | `/api/v1/estadios`           | 16 sedes con coordenadas    |
 
 ### Entradas (Stripe)
-| Método | Ruta | Descripción |
-|---|---|---|
-| `POST` | `/api/v1/entradas/checkout` | Crear sesión Stripe Checkout |
-| `POST` | `/api/v1/entradas/webhook` | Webhook Stripe (pago exitoso) |
-| `GET` | `/api/v1/entradas/mis-entradas` | Entradas del usuario autenticado |
+
+| Método | Ruta                            | Descripción                      |
+| ------ | ------------------------------- | -------------------------------- |
+| `POST` | `/api/v1/entradas/checkout`     | Crear sesión Stripe Checkout     |
+| `POST` | `/api/v1/entradas/webhook`      | Webhook Stripe (pago exitoso)    |
+| `GET`  | `/api/v1/entradas/mis-entradas` | Entradas del usuario autenticado |
 
 ### Notificaciones (FCM)
-| Método | Ruta | Descripción |
-|---|---|---|
-| `POST` | `/api/v1/notifications/token` | Registrar token FCM del dispositivo |
-| `DELETE` | `/api/v1/notifications/token` | Eliminar token (desactivar push) |
-| `GET` | `/api/v1/notifications/has-token` | Verificar si hay token registrado |
-| `POST` | `/api/v1/notifications/test` | Enviar push de prueba al propio usuario |
-| `GET` | `/api/v1/notifications/mis-notificaciones` | Historial de notificaciones |
+
+| Método   | Ruta                                       | Descripción                             |
+| -------- | ------------------------------------------ | --------------------------------------- |
+| `POST`   | `/api/v1/notifications/token`              | Registrar token FCM del dispositivo     |
+| `DELETE` | `/api/v1/notifications/token`              | Eliminar token (desactivar push)        |
+| `GET`    | `/api/v1/notifications/has-token`          | Verificar si hay token registrado       |
+| `POST`   | `/api/v1/notifications/test`               | Enviar push de prueba al propio usuario |
+| `GET`    | `/api/v1/notifications/mis-notificaciones` | Historial de notificaciones             |
 
 > Swagger UI completo en `http://localhost:8082/swagger-ui.html` (con el backend activo).
 
@@ -259,28 +263,28 @@ npx vite --port 5173
 
 ## Roadmap / Sprints
 
-| Sprint | Entregables | Estado |
-|---|---|---|
-| **1 — Foundations** | Auth JWT, estructura Spring Boot, entidades base, email, football-data API | ✅ Completo |
-| **2 — Core Features** | Mapa de estadios (Leaflet), partidos en vivo, álbum digital, superpolla, tabla posiciones | ✅ Completo |
-| **3 — Pagos Stripe** | Flujo completo de compra de entradas, Stripe Checkout, webhooks, historial | ✅ Completo |
-| **4 — Push Notifications** | Firebase FCM (backend Admin SDK + frontend Messaging SDK), VAPID, Service Worker, grupos A–L en Standings | ✅ Completo |
-| **5 — Hardening** | Tests e2e (Playwright), observabilidad, perf budget, accesibilidad WCAG 2.1 | ⏳ Pendiente |
-| **6 — Deploy** | Vercel (frontend) + hosting backend, dominio, CI/CD completo | ⏳ Pendiente |
+| Sprint                     | Entregables                                                                                               | Estado       |
+| -------------------------- | --------------------------------------------------------------------------------------------------------- | ------------ |
+| **1 — Foundations**        | Auth JWT, estructura Spring Boot, entidades base, email, football-data API                                | ✅ Completo  |
+| **2 — Core Features**      | Mapa de estadios (Leaflet), partidos en vivo, álbum digital, superpolla, tabla posiciones                 | ✅ Completo  |
+| **3 — Pagos Stripe**       | Flujo completo de compra de entradas, Stripe Checkout, webhooks, historial                                | ✅ Completo  |
+| **4 — Push Notifications** | Firebase FCM (backend Admin SDK + frontend Messaging SDK), VAPID, Service Worker, grupos A–L en Standings | ✅ Completo  |
+| **5 — Hardening**          | Tests e2e (Playwright), observabilidad, perf budget, accesibilidad WCAG 2.1                               | ⏳ Pendiente |
+| **6 — Deploy**             | Vercel (frontend) + hosting backend, dominio, CI/CD completo                                              | ⏳ Pendiente |
 
 ---
 
 ## Documentación
 
-| Documento | Descripción |
-|---|---|
-| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | Visión big-picture, diagramas C4, flujos de datos |
-| [`docs/architecture/adrs/`](docs/architecture/adrs/) | Architecture Decision Records (por qué elegimos cada tecnología) |
-| [`docs/design-system/DESIGN.md`](docs/design-system/DESIGN.md) | Sistema de diseño _Diplomatic Gallery_ |
-| [`docs/product/spec.md`](docs/product/spec.md) | Spec funcional con user stories |
-| [`backend/README.md`](backend/README.md) | Guía del backend: setup, env vars, endpoints |
-| [`frontend/world-cup-2026/README.md`](frontend/world-cup-2026/README.md) | Guía del frontend: setup, páginas, Firebase/Stripe |
-| [`docs/runbooks/`](docs/runbooks/) | Procedimientos operativos |
+| Documento                                                                | Descripción                                                      |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | Visión big-picture, diagramas C4, flujos de datos                |
+| [`docs/architecture/adrs/`](docs/architecture/adrs/)                     | Architecture Decision Records (por qué elegimos cada tecnología) |
+| [`docs/design-system/DESIGN.md`](docs/design-system/DESIGN.md)           | Sistema de diseño _Diplomatic Gallery_                           |
+| [`docs/product/spec.md`](docs/product/spec.md)                           | Spec funcional con user stories                                  |
+| [`backend/README.md`](backend/README.md)                                 | Guía del backend: setup, env vars, endpoints                     |
+| [`frontend/world-cup-2026/README.md`](frontend/world-cup-2026/README.md) | Guía del frontend: setup, páginas, Firebase/Stripe               |
+| [`docs/runbooks/`](docs/runbooks/)                                       | Procedimientos operativos                                        |
 
 ---
 
