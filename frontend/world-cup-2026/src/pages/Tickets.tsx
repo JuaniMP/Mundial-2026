@@ -172,8 +172,9 @@ export function Tickets() {
       );
       setCS(data.data.clientSecret);
       setStep('payment');
-    } catch (err: any) {
-      const msg = err.response?.data?.message ?? 'Error al iniciar el pago';
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      const msg = axiosErr.response?.data?.message ?? 'Error al iniciar el pago';
       setError(msg);
     } finally {
       setLoadingCO(false);

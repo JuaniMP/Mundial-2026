@@ -84,15 +84,17 @@ export function stageLabel(stage: string): string {
   return labels[stage] ?? stage;
 }
 
-export function statusBadge(status: string): { label: string; color: string } {
-  const map: Record<string, { label: string; color: string }> = {
+export type BadgeVariant = 'primary' | 'accent' | 'danger' | 'secondary';
+
+export function statusBadge(status: string): { label: string; color: BadgeVariant } {
+  const map: Record<string, { label: string; color: BadgeVariant }> = {
     TIMED: { label: 'Programado', color: 'secondary' },
     SCHEDULED: { label: 'Programado', color: 'secondary' },
     LIVE: { label: '🔴 En Vivo', color: 'danger' },
     IN_PLAY: { label: '🔴 En Juego', color: 'danger' },
-    PAUSED: { label: 'Descanso', color: 'warning' },
+    PAUSED: { label: 'Descanso', color: 'accent' },
     FINISHED: { label: 'Finalizado', color: 'primary' },
-    POSTPONED: { label: 'Postergado', color: 'warning' },
+    POSTPONED: { label: 'Postergado', color: 'accent' },
     CANCELLED: { label: 'Cancelado', color: 'danger' },
   };
   return map[status] ?? { label: status, color: 'secondary' };

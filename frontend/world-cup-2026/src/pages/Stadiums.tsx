@@ -7,7 +7,7 @@ import { fetchEstadios } from '../services/footballApi';
 import { RefreshCw, AlertCircle, MapPin, Users, Search } from 'lucide-react';
 
 // ── Fix Leaflet default icons in Vite ────────────────────────────────────────
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -82,6 +82,7 @@ export function Stadiums() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
 

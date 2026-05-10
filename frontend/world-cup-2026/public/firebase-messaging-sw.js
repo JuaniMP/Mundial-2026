@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 /**
  * Firebase Cloud Messaging — Service Worker
  * Background message handler for WC 2026 Hub.
