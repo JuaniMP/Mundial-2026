@@ -6,6 +6,7 @@ import {
   groupLabel,
   stageLabel,
   statusBadge,
+  type BadgeVariant,
 } from '../services/footballApi';
 import { Calendar, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
@@ -31,7 +32,7 @@ export function Matches() {
     try {
       const data = await fetchAllMatches();
       setMatches(data);
-    } catch (e: any) {
+    } catch {
       setError('No se pudo cargar los partidos. Verifica que el backend esté corriendo.');
     } finally {
       setLoading(false);
@@ -39,6 +40,7 @@ export function Matches() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
 
@@ -162,7 +164,7 @@ function MatchRow({ match }: { match: FdMatch }) {
           {match.group ? groupLabel(match.group) : stageLabel(match.stage)}
           {match.matchday ? ` • Jornada ${match.matchday}` : ''}
         </span>
-        <Badge variant={statusColor as any}>{statusLabel}</Badge>
+        <Badge variant={statusColor as BadgeVariant}>{statusLabel}</Badge>
       </div>
 
       {/* Teams + Score */}

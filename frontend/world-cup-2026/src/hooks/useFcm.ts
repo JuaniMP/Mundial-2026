@@ -55,13 +55,17 @@ export function useFcm(authToken: string | null): UseFcmReturn {
   }, [isConfigured, authToken]);
 
   // ── Check existing permission on mount ──────────────────────────────────────
+  // permission is already initialised via the lazy useState initialiser above;
+  // here we only need to mark the device as registered if permission was pre-granted.
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'Notification' in window) {
-      setPermission(Notification.permission);
-      // If already granted and we have a token, mark as registered
-      if (Notification.permission === 'granted' && authToken) {
-        setRegistered(true);
-      }
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted' &&
+      authToken
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRegistered(true);
     }
   }, [authToken]);
 
