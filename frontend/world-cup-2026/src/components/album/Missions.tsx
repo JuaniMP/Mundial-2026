@@ -152,7 +152,7 @@ function loadClaimed(): Set<string> {
   }
 }
 
-export function Missions({ laminas, onClaim }: MissionsProps) {
+export function Missions({ laminas, coins, onClaim }: MissionsProps) {
   const [claimed, setClaimed] = useState<Set<string>>(loadClaimed);
 
   useEffect(() => {

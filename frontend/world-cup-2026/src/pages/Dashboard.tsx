@@ -63,7 +63,6 @@ export function Dashboard() {
               size="sm"
               icon={Bell}
               onClick={handleEnable}
-              // @ts-expect-error custom prop
               disabled={loading}
             >
               {loading ? 'Activando…' : 'Activar'}
