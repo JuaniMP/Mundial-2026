@@ -14,7 +14,7 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, seleccionFavorita?: string) => Promise<void>;
   logout: () => void;
   clearError: () => void;
 }
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string, seleccionFavorita?: string) => {
     setLoading(true);
     setError(null);
     try {
@@ -80,6 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         nombre: name,
         email,
         password,
+        seleccionFavorita: seleccionFavorita ?? null,
       });
 
       const { data } = response.data;
