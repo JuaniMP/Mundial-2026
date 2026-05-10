@@ -95,7 +95,7 @@ function AlbumCover({ laminas, onOpen }: { laminas: LaminaAlbum[]; onOpen: () =>
       opacity: 0.2 + (i % 5) * 0.12,
       animDuration: 2 + (i % 4),
       animDelay: (i % 3) * 0.7,
-    }))
+    })),
   );
 
   return (
