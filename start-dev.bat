@@ -22,7 +22,7 @@ set /p choice="Opción: "
 
 if "%choice%"=="1" (
     echo [INFO] Iniciando frontend...
-    cd frontend/FrontIng/world-cup-2026
+    cd frontend/world-cup-2026
     npm run dev
 ) else if "%choice%"=="2" (
     echo [INFO] Iniciando backend...
@@ -30,10 +30,10 @@ if "%choice%"=="1" (
     mvn spring-boot:run -DskipTests
 ) else if "%choice%"=="3" (
     echo [INFO] Abriendo ventanas de terminal...
-    start "Frontend" cmd /c "cd frontend\FrontIng\world-cup-2026 && npm run dev"
+    start "Frontend" cmd /c "cd frontend\world-cup-2026 && npm run dev"
     start "Backend" cmd /c "set MAVEN_HOME=C:\Users\juame\.maven\maven-3.9.15(1) && set PATH=%MAVEN_HOME%\bin;%PATH% && cd backend && mvn spring-boot:run -DskipTests"
-    echo [OK] Frontend: http://localhost:5173
-    echo [OK] Backend: http://localhost:8080
+    echo [OK] Frontend: http://localhost:5174
+    echo [OK] Backend: http://localhost:8082
 ) else (
     echo [INFO] Saliendo...
     exit /b 0

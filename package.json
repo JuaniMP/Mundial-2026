@@ -2,6 +2,9 @@
   "name": "mundial-2026",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "frontend/world-cup-2026"
+  ],
   "description": "Un Mundial para Todos — plataforma del Mundial FIFA 2026 (monorepo).",
   "license": "MIT",
   "engines": {
@@ -9,11 +12,11 @@
     "npm": ">=10.0.0"
   },
   "scripts": {
-    "dev": "npm run dev -w frontend/FrontIng/world-cup-2026",
-    "build": "npm run build -w frontend/FrontIng/world-cup-2026",
-    "lint": "npm run lint -w frontend/FrontIng/world-cup-2026",
-    "typecheck": "npm run typecheck -w frontend/FrontIng/world-cup-2026",
-    "test": "npm run test -w frontend/FrontIng/world-cup-2026",
+    "dev": "npm run dev -w frontend/world-cup-2026",
+    "build": "npm run build -w frontend/world-cup-2026",
+    "lint": "npm run lint -w frontend/world-cup-2026",
+    "typecheck": "npm run typecheck -w frontend/world-cup-2026",
+    "test": "npm run test -w frontend/world-cup-2026",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css,html}\"",
     "backend:build": "cd backend && mvn clean package -DskipTests",
     "backend:dev": "cd backend && mvn spring-boot:run",
