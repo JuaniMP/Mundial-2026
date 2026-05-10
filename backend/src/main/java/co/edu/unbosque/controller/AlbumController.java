@@ -93,6 +93,20 @@ public class AlbumController {
                 albumService.getLaminasAlbum(usuario.getId()), "Laminas del album"));
     }
 
+    // ── GET /api/v1/album/paquetes-hoy ───────────────────────────────────────
+
+    @GetMapping("/paquetes-hoy")
+    public ResponseEntity<ApiResponse<Map<String, Integer>>> getPacketesHoy(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = resolveUsuario(userDetails);
+        if (usuario == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        int abiertos = albumService.getPacketesAbiertosHoy(usuario.getId());
+        int restantes = Math.max(0, 3 - abiertos);
+        return ResponseEntity.ok(ApiResponse.success(
+                Map.of("abiertos", abiertos, "limite", 3, "restantes", restantes),
+                "Paquetes del dia"));
+    }
+
     // ── POST /api/v1/album/pegar/{laminaId} ──────────────────────────────────
 
     @PostMapping("/pegar/{laminaId}")
