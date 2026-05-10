@@ -6,6 +6,7 @@ import {
   groupLabel,
   stageLabel,
   statusBadge,
+  type BadgeVariant,
 } from '../services/footballApi';
 import { Calendar, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
@@ -31,18 +32,19 @@ export function Matches() {
     try {
       const data = await fetchAllMatches();
       setMatches(data);
-    } catch (e: any) {
+    } catch {
       setError('No se pudo cargar los partidos. Verifica que el backend esté corriendo.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    load();
+  }, []);
 
-  const filtered = activeStage === 'ALL'
-    ? matches
-    : matches.filter(m => m.stage === activeStage);
+  const filtered = activeStage === 'ALL' ? matches : matches.filter((m) => m.stage === activeStage);
 
   // Agrupar por fecha para mostrar secciones
   const byDate = filtered.reduce<Record<string, FdMatch[]>>((acc, m) => {
@@ -73,7 +75,7 @@ export function Matches() {
 
       {/* Stage filter tabs */}
       <div className="flex gap-2 flex-wrap mb-8">
-        {STAGES.map(s => (
+        {STAGES.map((s) => (
           <button
             key={s.key}
             onClick={() => setActiveStage(s.key)}
@@ -112,8 +114,8 @@ export function Matches() {
           <h3 className="text-xl font-bold text-text-primary mb-2">API Key requerida</h3>
           <p className="text-text-muted mb-4">
             Registrate gratis en{' '}
-            <span className="text-primary font-semibold">football-data.org</span>{' '}
-            y añade tu key al backend.
+            <span className="text-primary font-semibold">football-data.org</span> y añade tu key al
+            backend.
           </p>
           <code className="text-xs bg-bg-elevated px-3 py-2 rounded-lg text-text-secondary block">
             FOOTBALL_DATA_KEY=tu_key_aqui
@@ -122,20 +124,23 @@ export function Matches() {
       )}
 
       {/* Match list grouped by date */}
-      {!loading && Object.entries(byDate).map(([date, dayMatches]) => (
-        <section key={date} className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <Calendar className="w-4 h-4 text-primary" />
-            <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider">{date}</h2>
-            <div className="flex-1 h-px bg-border" />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {dayMatches.map(match => (
-              <MatchRow key={match.id} match={match} />
-            ))}
-          </div>
-        </section>
-      ))}
+      {!loading &&
+        Object.entries(byDate).map(([date, dayMatches]) => (
+          <section key={date} className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <Calendar className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider">
+                {date}
+              </h2>
+              <div className="flex-1 h-px bg-border" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {dayMatches.map((match) => (
+                <MatchRow key={match.id} match={match} />
+              ))}
+            </div>
+          </section>
+        ))}
     </main>
   );
 }
@@ -150,16 +155,16 @@ function MatchRow({ match }: { match: FdMatch }) {
   const awayScore = match.score?.fullTime?.away;
 
   return (
-    <div className={`glass rounded-2xl p-5 transition-all hover:bg-bg-elevated ${isLive ? 'ring-1 ring-danger' : ''}`}>
+    <div
+      className={`glass rounded-2xl p-5 transition-all hover:bg-bg-elevated ${isLive ? 'ring-1 ring-danger' : ''}`}
+    >
       {/* Top row: group + status */}
       <div className="flex justify-between items-center mb-4">
         <span className="text-xs text-text-muted font-medium">
           {match.group ? groupLabel(match.group) : stageLabel(match.stage)}
           {match.matchday ? ` • Jornada ${match.matchday}` : ''}
         </span>
-        <Badge variant={statusColor as any}>
-          {statusLabel}
-        </Badge>
+        <Badge variant={statusColor as BadgeVariant}>{statusLabel}</Badge>
       </div>
 
       {/* Teams + Score */}
@@ -170,7 +175,9 @@ function MatchRow({ match }: { match: FdMatch }) {
             src={match.homeTeam.crest}
             alt={match.homeTeam.name}
             className="w-12 h-12 object-contain drop-shadow"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
           <span className="text-sm font-bold text-text-primary text-center leading-tight">
             {match.homeTeam.shortName || match.homeTeam.tla}
@@ -180,7 +187,9 @@ function MatchRow({ match }: { match: FdMatch }) {
         {/* Score / Time */}
         <div className="flex flex-col items-center shrink-0 px-2">
           {isFinished || isLive ? (
-            <span className={`font-headline text-2xl font-black ${isLive ? 'text-danger' : 'gradient-text'}`}>
+            <span
+              className={`font-headline text-2xl font-black ${isLive ? 'text-danger' : 'gradient-text'}`}
+            >
               {homeScore ?? 0} — {awayScore ?? 0}
             </span>
           ) : (
@@ -200,7 +209,9 @@ function MatchRow({ match }: { match: FdMatch }) {
             src={match.awayTeam.crest}
             alt={match.awayTeam.name}
             className="w-12 h-12 object-contain drop-shadow"
-            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
           />
           <span className="text-sm font-bold text-text-primary text-center leading-tight">
             {match.awayTeam.shortName || match.awayTeam.tla}
