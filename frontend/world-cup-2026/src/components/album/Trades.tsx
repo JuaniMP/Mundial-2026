@@ -79,9 +79,8 @@ export function Trades({ laminas, onAccept }: TradesProps) {
       const o = generateOffer(repeated);
       if (o) initial.push(o);
     }
-    setOffers(initial);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    setTimeout(() => setOffers(initial), 0);
+  }, [repeated]);
 
   // Countdown + expiry timer
   useEffect(() => {

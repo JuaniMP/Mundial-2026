@@ -74,6 +74,7 @@ export function Album() {
   const [freeReady, setFreeReady] = useState(false);
   const [countdown, setCountdown] = useState('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const loadedRef = useRef(false);
 
   // ── Load laminas ──
   const loadLaminas = useCallback(async () => {
@@ -91,7 +92,10 @@ export function Album() {
   }, []);
 
   useEffect(() => {
-    void loadLaminas();
+    if (!loadedRef.current) {
+      loadedRef.current = true;
+      loadLaminas();
+    }
   }, [loadLaminas]);
 
   // ── Free pack countdown ──

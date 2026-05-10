@@ -85,6 +85,19 @@ function AlbumCover({ laminas, onOpen }: { laminas: LaminaAlbum[]; onOpen: () =>
   const pasted = laminas.filter((l) => l.estaPegada).length;
   const pct = Math.round((pasted / (TEAMS.length * 10)) * 100);
 
+  // Generate star positions once on mount using useState to avoid impurity
+  const [stars] = useState(() =>
+    Array.from({ length: 32 }).map((_, i) => ({
+      top: `${Math.random() * 90 + 5}%`,
+      left: `${Math.random() * 90 + 5}%`,
+      width: 2 + (i % 3),
+      height: 2 + (i % 3),
+      opacity: 0.2 + (i % 5) * 0.12,
+      animDuration: 2 + (i % 4),
+      animDelay: (i % 3) * 0.7,
+    }))
+  );
+
   return (
     <div
       onClick={onOpen}
@@ -105,19 +118,19 @@ function AlbumCover({ laminas, onOpen }: { laminas: LaminaAlbum[]; onOpen: () =>
       }}
     >
       {/* Stars */}
-      {Array.from({ length: 32 }).map((_, i) => (
+      {stars.map((star, i) => (
         <div
           key={i}
           style={{
             position: 'absolute',
-            top: `${Math.random() * 90 + 5}%`,
-            left: `${Math.random() * 90 + 5}%`,
-            width: 2 + (i % 3),
-            height: 2 + (i % 3),
+            top: star.top,
+            left: star.left,
+            width: star.width,
+            height: star.height,
             background: '#fff',
             borderRadius: '50%',
-            opacity: 0.2 + (i % 5) * 0.12,
-            animation: `starTwinkle ${2 + (i % 4)}s ${(i % 3) * 0.7}s ease-in-out infinite`,
+            opacity: star.opacity,
+            animation: `starTwinkle ${star.animDuration}s ${star.animDelay}s ease-in-out infinite`,
           }}
         />
       ))}
