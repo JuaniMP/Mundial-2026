@@ -23,14 +23,14 @@ self.addEventListener('message', (event) => {
       // Handle messages received while the app is in the background
       messaging.onBackgroundMessage((payload) => {
         const title = payload.notification?.title ?? 'WC 2026';
-        const body  = payload.notification?.body  ?? '';
+        const body = payload.notification?.body ?? '';
 
         self.registration.showNotification(title, {
           body,
-          icon:  '/favicon.ico',
+          icon: '/favicon.ico',
           badge: '/favicon.ico',
-          tag:   'wc2026-notification',
-          data:  payload.data ?? {},
+          tag: 'wc2026-notification',
+          data: payload.data ?? {},
           actions: [
             { action: 'open', title: '📱 Abrir app' },
             { action: 'dismiss', title: 'Descartar' },
@@ -61,6 +61,6 @@ self.addEventListener('notificationclick', (event) => {
       if (clients.openWindow) {
         return clients.openWindow('/');
       }
-    })
+    }),
   );
 });

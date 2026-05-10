@@ -1,5 +1,17 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Compass, Landmark, Trophy, BookOpen, Globe, Bell, User, LogOut, CalendarDays, BarChart3, Ticket } from 'lucide-react';
+import {
+  Compass,
+  Landmark,
+  Trophy,
+  BookOpen,
+  Globe,
+  Bell,
+  User,
+  LogOut,
+  CalendarDays,
+  BarChart3,
+  Ticket,
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
@@ -70,7 +82,10 @@ export function Navbar() {
 
           {/* Right Actions */}
           <div className="flex-1 flex justify-end items-center gap-2 min-w-0">
-            <button className="relative text-text-secondary hover:text-text-primary hover:bg-bg-elevated p-2.5 rounded-lg transition-all duration-300 shrink-0" id="btn-notifications">
+            <button
+              className="relative text-text-secondary hover:text-text-primary hover:bg-bg-elevated p-2.5 rounded-lg transition-all duration-300 shrink-0"
+              id="btn-notifications"
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-danger animate-pulse" />
             </button>

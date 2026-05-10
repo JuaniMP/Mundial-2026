@@ -53,8 +53,17 @@ export async function fetchEstadios(): Promise<EstadioApi[]> {
 export function formatMatchDate(utcDate: string): { date: string; time: string } {
   const d = new Date(utcDate);
   return {
-    date: d.toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'America/Bogota' }),
-    time: d.toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Bogota' }),
+    date: d.toLocaleDateString('es-CO', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      timeZone: 'America/Bogota',
+    }),
+    time: d.toLocaleTimeString('es-CO', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/Bogota',
+    }),
   };
 }
 
@@ -77,12 +86,12 @@ export function stageLabel(stage: string): string {
 
 export function statusBadge(status: string): { label: string; color: string } {
   const map: Record<string, { label: string; color: string }> = {
-    TIMED:     { label: 'Programado', color: 'secondary' },
+    TIMED: { label: 'Programado', color: 'secondary' },
     SCHEDULED: { label: 'Programado', color: 'secondary' },
-    LIVE:      { label: '🔴 En Vivo', color: 'danger' },
-    IN_PLAY:   { label: '🔴 En Juego', color: 'danger' },
-    PAUSED:    { label: 'Descanso', color: 'warning' },
-    FINISHED:  { label: 'Finalizado', color: 'primary' },
+    LIVE: { label: '🔴 En Vivo', color: 'danger' },
+    IN_PLAY: { label: '🔴 En Juego', color: 'danger' },
+    PAUSED: { label: 'Descanso', color: 'warning' },
+    FINISHED: { label: 'Finalizado', color: 'primary' },
     POSTPONED: { label: 'Postergado', color: 'warning' },
     CANCELLED: { label: 'Cancelado', color: 'danger' },
   };

@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { getToken, onMessage } from 'firebase/messaging';
 import { getFirebaseMessaging, isFirebaseConfigured, firebaseConfig } from '../firebase';
 
-const API_BASE  = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
 const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY ?? '';
 
 export interface ForegroundMessage {
@@ -26,12 +26,10 @@ export interface UseFcmReturn {
 }
 
 export function useFcm(authToken: string | null): UseFcmReturn {
-  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(
-    () => {
-      if (typeof window === 'undefined' || !('Notification' in window)) return 'unsupported';
-      return Notification.permission;
-    }
-  );
+  const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return 'unsupported';
+    return Notification.permission;
+  });
   const [registered, setRegistered] = useState(false);
   const [foregroundMessage, setForegroundMessage] = useState<ForegroundMessage | null>(null);
 
@@ -46,7 +44,7 @@ export function useFcm(authToken: string | null): UseFcmReturn {
       if (!messaging) return;
       cleanup = onMessage(messaging, (payload) => {
         const title = payload.notification?.title ?? 'WC 2026';
-        const body  = payload.notification?.body  ?? '';
+        const body = payload.notification?.body ?? '';
         setForegroundMessage({ title, body });
         // Auto-dismiss after 6 seconds
         setTimeout(() => setForegroundMessage(null), 6000);
