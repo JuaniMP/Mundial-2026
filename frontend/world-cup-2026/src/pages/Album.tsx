@@ -1,138 +1,377 @@
-import { mockAlbum } from '../data/mockData';
-import { StickerCard } from '../components/features/StickerCard';
-import { ProgressBar, Button } from '../components/ui';
-import { Star, Globe, ArrowRight, ChevronDown, Shield } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { AlbumBook }  from '../components/album/AlbumBook';
+import { Inventory }  from '../components/album/Inventory';
+import { Trades }     from '../components/album/Trades';
+import { Missions }   from '../components/album/Missions';
+import { PackOpener } from '../components/album/PackOpener';
+import {
+  fetchLaminas,
+  pegarLamina,
+  abrirPaquete,
+  type LaminaAlbum,
+} from '../components/album/albumApi';
+
+// ─── localStorage keys ────────────────────────────────────────────────────────
+const LS_COINS   = 'wc2026_coins';
+const LS_PACKS   = 'wc2026_packs';
+const LS_LAST_FREE = 'wc2026_last_free';
+const PACK_COST  = 50;
+const FREE_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 h
+
+type Tab = 'album' | 'cromos' | 'intercambios' | 'misiones';
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function loadCoins(): number {
+  return parseInt(localStorage.getItem(LS_COINS) ?? '100', 10);
+}
+function saveCoins(n: number) {
+  localStorage.setItem(LS_COINS, String(n));
+}
+function loadPacks(): number {
+  return parseInt(localStorage.getItem(LS_PACKS) ?? '3', 10);
+}
+function savePacks(n: number) {
+  localStorage.setItem(LS_PACKS, String(n));
+}
+
+function formatCountdown(ms: number): string {
+  if (ms <= 0) return 'Disponible';
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  const s = Math.floor((ms % 60_000) / 1000);
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+// Mock stickers for pack-opener preview (shown while real call completes)
+function makeMockStickers(ids: number[]): LaminaAlbum[] {
+  const names = ['Carlos López','Pedro Alves','Kenji Tanaka','André Müller','Kwame Asante'];
+  const rarezas = ['COMUN','COMUN','RARO','COMUN','EPICO'];
+  return ids.slice(0,5).map((id, i) => ({
+    idLamina: id,
+    nombreJugador: names[i % names.length],
+    rareza: rarezas[i % rarezas.length],
+    estaPegada: false,
+    cantidadRepetidas: 1,
+  }));
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
 
 export function Album() {
-  const handleOpenPack = () => {
-    alert('Opening pack animation would go here!');
-  };
+  const [tab,     setTab]     = useState<Tab>('album');
+  const [laminas, setLaminas] = useState<LaminaAlbum[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState<string | null>(null);
+
+  const [coins, setCoins]     = useState(loadCoins);
+  const [packs, setPacks]     = useState(loadPacks);
+
+  const [packOpen,     setPackOpen]     = useState(false);
+  const [newStickers,  setNewStickers]  = useState<LaminaAlbum[]>([]);
+  const [openingPack,  setOpeningPack]  = useState(false);
+
+  const [freeReady,    setFreeReady]    = useState(false);
+  const [countdown,    setCountdown]    = useState('');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // ── Load laminas ──
+  const loadLaminas = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await fetchLaminas();
+      setLaminas(data);
+    } catch {
+      // Use empty array; API may not be running
+      setLaminas([]);
+      setError(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { void loadLaminas(); }, [loadLaminas]);
+
+  // ── Free pack countdown ──
+  useEffect(() => {
+    const tick = () => {
+      const last = parseInt(localStorage.getItem(LS_LAST_FREE) ?? '0', 10);
+      const remaining = FREE_COOLDOWN_MS - (Date.now() - last);
+      if (remaining <= 0) {
+        setFreeReady(true);
+        setCountdown('');
+      } else {
+        setFreeReady(false);
+        setCountdown(formatCountdown(remaining));
+      }
+    };
+    tick();
+    timerRef.current = setInterval(tick, 1000);
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  }, []);
+
+  // ── Sync to localStorage ──
+  useEffect(() => { saveCoins(coins); }, [coins]);
+  useEffect(() => { savePacks(packs); }, [packs]);
+
+  // ── Open pack ──
+  const handleOpenPack = useCallback(async (free = false) => {
+    if (openingPack) return;
+    if (!free && packs < 1) return;
+    if (free && !freeReady) return;
+
+    setOpeningPack(true);
+    try {
+      if (free) localStorage.setItem(LS_LAST_FREE, String(Date.now()));
+      else setPacks(p => p - 1);
+
+      const ids = await abrirPaquete();
+      const stickers = ids.length > 0 ? makeMockStickers(ids) : makeMockStickers([1,2,3,4,5]);
+      setNewStickers(stickers);
+      setPackOpen(true);
+      // Refresh laminas after opening
+      void loadLaminas();
+    } catch {
+      // Fallback: show mock stickers so the ceremony still works
+      setNewStickers(makeMockStickers([1,2,3,4,5]));
+      setPackOpen(true);
+    } finally {
+      setOpeningPack(false);
+    }
+  }, [openingPack, packs, freeReady, loadLaminas]);
+
+  // ── Pegar lamina ──
+  const handlePegar = useCallback(async (laminaId: number) => {
+    // Optimistic update
+    setLaminas(prev => prev.map(l => l.idLamina === laminaId ? { ...l, estaPegada: true } : l));
+    try {
+      await pegarLamina(laminaId);
+    } catch {
+      // Revert on error
+      setLaminas(prev => prev.map(l => l.idLamina === laminaId ? { ...l, estaPegada: false } : l));
+    }
+  }, []);
+
+  // ── Vender repetida ──
+  const handleVender = useCallback((laminaId: number) => {
+    setLaminas(prev => prev.map(l =>
+      l.idLamina === laminaId && l.cantidadRepetidas > 1
+        ? { ...l, cantidadRepetidas: l.cantidadRepetidas - 1 }
+        : l
+    ));
+    setCoins(c => c + 10);
+  }, []);
+
+  // ── Trade accepted ──
+  const handleTradeAccept = useCallback((giveId: number, receive: LaminaAlbum) => {
+    setLaminas(prev => {
+      const next = prev.map(l =>
+        l.idLamina === giveId && l.cantidadRepetidas > 1
+          ? { ...l, cantidadRepetidas: l.cantidadRepetidas - 1 }
+          : l
+      );
+      // Add received sticker if not already owned
+      const existing = next.find(l => l.idLamina === receive.idLamina);
+      if (existing) {
+        return next.map(l => l.idLamina === receive.idLamina ? { ...l, cantidadRepetidas: l.cantidadRepetidas + 1 } : l);
+      }
+      return [...next, receive];
+    });
+  }, []);
+
+  // ── Claim mission reward ──
+  const handleClaimMission = useCallback((reward: number) => {
+    setCoins(c => c + reward);
+  }, []);
+
+  // ── Buy extra pack with coins ──
+  const handleBuyPack = useCallback(() => {
+    if (coins < PACK_COST) return;
+    setCoins(c => c - PACK_COST);
+    setPacks(p => p + 1);
+  }, [coins]);
+
+  // ── Album progress stats ──
+  const totalStickers = laminas.length;
+  const pastedCount   = laminas.filter(l => l.estaPegada).length;
+  const pct           = Math.round((pastedCount / (32 * 10)) * 100);
+
+  // ── Tab nav ──
+  const tabs: { id: Tab; label: string; icon: string }[] = [
+    { id: 'album',        label: 'Álbum',        icon: '📖' },
+    { id: 'cromos',       label: 'Cromos',        icon: '🃏' },
+    { id: 'intercambios', label: 'Intercambios',  icon: '🔄' },
+    { id: 'misiones',     label: 'Misiones',      icon: '🎯' },
+  ];
 
   return (
-    <main className="pt-20 md:pt-24 pb-28 md:pb-12 max-w-screen-xl mx-auto w-full px-4 md:px-6 flex flex-col gap-10 overflow-x-hidden flex-1">
-      {/* Hero & Progress */}
-      <section className="flex flex-col md:flex-row gap-10 items-end justify-between card-base p-8 lg:p-12 relative overflow-hidden animate-fade-in-up">
-        <div className="absolute top-[-20%] left-[-10%] w-96 h-96 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
-        <div className="flex-1 z-10 w-full">
-          <span className="badge badge-secondary mb-3">Season 2026</span>
-          <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-8">
-            <span className="gradient-text">The Collection</span>
-          </h1>
-          <div className="flex flex-col gap-4 max-w-md">
-            <div className="flex justify-between items-baseline">
-              <span className="font-headline text-2xl font-bold text-text-primary">
-                {mockAlbum.completionPercentage}% Complete
-              </span>
-              <span className="text-sm text-text-muted">
-                {mockAlbum.ownedStickers} / {mockAlbum.totalStickers} Stickers
-              </span>
-            </div>
-            <ProgressBar
-              value={0}
-              segments={mockAlbum.progressByCountry.map((c) => ({
-                percentage: c.percentage,
-                color: c.color,
-              }))}
-              height="h-3"
-            />
-            <div className="flex gap-4 mt-1">
-              {mockAlbum.progressByCountry.map((c) => (
-                <div key={c.country} className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: c.color }} />
-                  <span className="text-xs text-text-muted">{c.country}</span>
+    <>
+      {/* ── Pack opener modal ── */}
+      {packOpen && (
+        <PackOpener
+          newStickers={newStickers}
+          onClose={() => setPackOpen(false)}
+          onPegar={handlePegar}
+        />
+      )}
+
+      <main className="pt-20 md:pt-24 pb-28 md:pb-12 max-w-screen-xl mx-auto w-full px-4 md:px-6 flex flex-col gap-6 overflow-x-hidden flex-1">
+
+        {/* ── Top header: progress + coins + pack buttons ── */}
+        <section className="card-base p-6 animate-fade-in-up">
+          <div className="flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
+            {/* Left: title + progress */}
+            <div className="flex-1">
+              <span className="badge badge-secondary mb-2">FIFA World Cup 2026</span>
+              <h1 className="font-headline text-3xl md:text-4xl font-extrabold tracking-tight mb-4">
+                <span className="gradient-text">Mi Álbum</span>
+              </h1>
+              <div className="flex flex-col gap-2 max-w-sm">
+                <div className="flex justify-between items-baseline text-sm">
+                  <span className="font-bold text-text-primary">{pct}% completado</span>
+                  <span className="text-text-muted">{pastedCount} / {32 * 10} pegados · {totalStickers} obtenidos</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="z-10 flex flex-col items-center justify-center p-6 bg-bg-elevated rounded-2xl border border-border min-w-[180px]">
-          <Star className="w-10 h-10 text-accent mb-2 fill-accent" />
-          <span className="font-headline text-3xl font-bold gradient-text-gold">
-            {mockAlbum.goldenStickers}
-          </span>
-          <span className="text-xs uppercase tracking-wider text-text-muted mt-1">
-            Golden Stickers
-          </span>
-        </div>
-      </section>
-
-      {/* Pack Opening */}
-      <section className="relative rounded-3xl p-10 lg:p-16 flex flex-col items-center justify-center min-h-[400px] overflow-visible bg-bg-surface border border-border animate-fade-in-up delay-100">
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="w-[300px] h-[300px] bg-primary/10 blur-[60px] rounded-full" />
-        </div>
-        <div className="relative z-10 flex flex-col items-center w-full">
-          <div className="flex justify-center items-center h-80 w-full relative">
-            <div className="absolute w-40 h-56 bg-gradient-to-br from-secondary-dim to-secondary rounded-xl shadow-lg transform rotate-[-12deg] translate-x-[-40px] translate-y-[10px] scale-90 opacity-50 transition-transform hover:translate-y-0">
-              <div className="absolute inset-0 border-[3px] border-white/10 rounded-xl m-2" />
-            </div>
-            <div className="absolute w-40 h-56 bg-gradient-to-br from-accent-dim to-accent rounded-xl shadow-lg transform rotate-[15deg] translate-x-[50px] translate-y-[20px] scale-[0.85] opacity-40 transition-transform hover:translate-y-[10px]">
-              <div className="absolute inset-0 border-[3px] border-white/10 rounded-xl m-2" />
-            </div>
-            <div className="absolute w-48 h-64 gradient-primary rounded-xl shadow-xl transform hover:scale-105 hover:translate-y-[-10px] transition-all duration-500 cursor-pointer flex flex-col items-center justify-center p-4 border border-white/10 z-20 glow-pulse">
-              <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mb-4">
-                <Globe className="w-12 h-12 text-white/50" />
+                <div className="w-full h-2.5 rounded-full bg-bg-hover overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${pct}%`, background: 'linear-gradient(90deg,#1d4ed8,#15803d)' }}
+                  />
+                </div>
               </div>
-              <span className="font-headline text-white font-bold text-xl tracking-wide uppercase">
-                Standard
-              </span>
-              <span className="text-primary-light text-xs tracking-widest uppercase mt-1">
-                5 Stickers
-              </span>
-              <div className="absolute top-6 left-0 w-full h-[1px] bg-white/20 border-b border-black/10 border-dashed" />
+            </div>
+
+            {/* Right: coins + pack actions */}
+            <div className="flex flex-col gap-3 min-w-[200px]">
+              {/* Coins */}
+              <div className="flex items-center justify-between p-3 rounded-xl bg-bg-elevated border border-border">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🪙</span>
+                  <div>
+                    <p className="text-xs text-text-muted font-medium">Monedas</p>
+                    <p className="font-headline text-xl font-bold text-text-primary">{coins}</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleBuyPack}
+                  disabled={coins < PACK_COST}
+                  className="text-xs font-bold px-3 py-1.5 rounded-lg transition-all"
+                  style={{
+                    background: coins >= PACK_COST ? 'rgba(29,78,216,0.12)' : 'rgba(0,0,0,0.04)',
+                    color: coins >= PACK_COST ? '#1d4ed8' : '#94a3b8',
+                    border: `1px solid ${coins >= PACK_COST ? 'rgba(29,78,216,0.25)' : 'rgba(0,0,0,0.08)'}`,
+                    cursor: coins >= PACK_COST ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  +1 Sobre ({PACK_COST}🪙)
+                </button>
+              </div>
+
+              {/* Pack count */}
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 flex-1 p-2.5 rounded-xl bg-bg-elevated border border-border">
+                  <span className="text-lg">📦</span>
+                  <span className="font-bold text-text-primary">{packs}</span>
+                  <span className="text-xs text-text-muted">sobres</span>
+                </div>
+                <button
+                  onClick={() => void handleOpenPack(false)}
+                  disabled={packs < 1 || openingPack}
+                  className="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all"
+                  style={{
+                    background: packs > 0 ? 'linear-gradient(135deg,#1e3a8a,#1d4ed8)' : '#f1f5f9',
+                    color: packs > 0 ? '#fff' : '#94a3b8',
+                    border: 'none',
+                    cursor: packs > 0 ? 'pointer' : 'not-allowed',
+                    boxShadow: packs > 0 ? '0 4px 16px rgba(29,78,216,0.35)' : 'none',
+                    fontFamily: 'Oswald, sans-serif',
+                    letterSpacing: 1,
+                    textTransform: 'uppercase',
+                    opacity: openingPack ? 0.6 : 1,
+                  }}
+                >
+                  {openingPack ? 'Abriendo…' : 'Abrir sobre'}
+                </button>
+              </div>
+
+              {/* Free pack */}
+              <button
+                onClick={() => void handleOpenPack(true)}
+                disabled={!freeReady || openingPack}
+                className="w-full py-2 rounded-xl text-xs font-bold transition-all"
+                style={{
+                  background: freeReady ? 'rgba(21,128,61,0.12)' : 'transparent',
+                  color: freeReady ? '#15803d' : '#94a3b8',
+                  border: `1px solid ${freeReady ? 'rgba(21,128,61,0.3)' : 'rgba(0,0,0,0.06)'}`,
+                  cursor: freeReady ? 'pointer' : 'not-allowed',
+                  fontFamily: 'Inter, sans-serif',
+                }}
+              >
+                {freeReady ? '🎁 Sobre diario gratis' : `⏳ Próximo gratis: ${countdown}`}
+              </button>
             </div>
           </div>
-          <div className="mt-12 flex flex-col items-center gap-4">
-            <Button variant="primary" size="lg" onClick={handleOpenPack}>
-              Open 3 Packs
-            </Button>
-            <p className="text-sm text-text-muted">You have {mockAlbum.packs} unopened packs</p>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Gallery */}
-      <section className="flex flex-col gap-6 animate-fade-in-up delay-200">
-        <div className="flex justify-between items-end">
-          <div>
-            <h2 className="font-headline text-2xl md:text-3xl font-extrabold text-text-primary">
-              Recent Acquisitions
-            </h2>
-            <p className="text-text-muted mt-1">Sorted by rarity and date added.</p>
+        {/* ── Tab bar ── */}
+        <div className="flex gap-1 p-1 rounded-xl bg-bg-elevated border border-border w-fit">
+          {tabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition-all"
+              style={{
+                background: tab === t.id ? '#fff' : 'transparent',
+                color: tab === t.id ? '#0f172a' : '#64748b',
+                border: 'none', cursor: 'pointer',
+                boxShadow: tab === t.id ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
+                fontFamily: 'Inter, sans-serif',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {t.icon} {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Tab content ── */}
+        {loading ? (
+          <div className="flex items-center justify-center py-24">
+            <div style={{ width: 40, height: 40, border: '3px solid #e2e8f0', borderTopColor: '#1d4ed8', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
           </div>
-          <Button variant="ghost" icon={ArrowRight} size="sm" className="hidden md:flex">
-            View All Gallery
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 lg:gap-5">
-          <StickerCard
-            isLarge
-            name="Mexico City Arena"
-            subtitle="Host Venue"
-            labelBadge="Estadio Azteca"
-            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAsdR0Aw7Ydh9rW1zEmbye6VZYtBbGvGJHed5bY5Ab-2YihAsiFMuhIJvG-KwIzKi74aYf4SgW7BOnrBTosw1crVO5_SP2nUoLeKAp9O66WBQI7EK72g8jYBUUrnT2qP_cHlnwul0QuHlCgyxT3CroN-DjbL2Eq-HXUaSt7kzS5MMvbuf4lO7tLGHbpLo-rS7s-PkmCANZzqjgC0Nrbz0FllvIaGB4cTPyYbo2zR4Nxy61pztSDXhLQAjbbYllTNcUKgSEcckWpJD4"
-          />
-          <StickerCard
-            name="Player Name"
-            subtitle="MEX - FW"
-            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuDeCl4b6yopJ6OYkeSN3oVCHnuLRf5WoL8ZdYouSk2wQYj9UGalpU_iNXrx00MTyWUnSg_9G3nEzmoE2KB17Qo_IYZVz5crFnPu9t-xWfLvkYiPaorIcLwvIousPZU5Lhjn1kmp1HZr0CNhDX-XyJvc1YeRw-oHpSWEl-oGJG7iX4w3OJHYus6HNOzjF-yqa1Q3LQLYhdUU7Mbg0o9e656sTLKGUYXCp4PsZ7PJ7UfnrdLWG7Q61pTsLjaK3Re49xCaVjMmya90gkY"
-          />
-          <StickerCard
-            name="Official Match Ball"
-            subtitle="Equipment"
-            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuA_b91PzwkBb2DY569mCgJ2LhwrzkSYHRHZj5COOfsbQSXnbrvpzs4a2_PaKSgdrhI5yTNxRb7A7vtPTswMoKvqcnwKhytk0wVoZfI_sa2ZT-AfgX_nXiYLJEWXRT6gxfytsFycDaSzA5vUUszv-xihvL-wh2U3J4bnf1sppNGg6QAVqa3wjAH4IxCXwDkuMVwWq8jwkWfDV_bjyTLnprvZjCwcsHcBU5DU1wQnae8kFfyTNASniEa1JHEgbxsnZB3Ji9zQ6kmQsZ8"
-          />
-          <StickerCard isIcon name="USA National Team" subtitle="Emblem" icon={Shield} />
-          <StickerCard
-            name="Head Coach"
-            subtitle="CAN - Staff"
-            imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuCpZCFasBRhyyvD6bIcOw55iTN8m1a20-1KTUad1_S5Au_wqrPEqX4P2kP2EQvwpgrVXd0NQFPDU5ZPUI6nag418rybOURqhNVaKJpG1DHqYBbNmASQqWVySVoHauP3LLlASzmu9wKqAEGZaIc0WIPQkW9DxS0qNoR2W12pLzRUB4zNOImUPo9W2YfePGFjxTcd2MN9xjxafOVrC57I6ZfcdpFoAlzsJn8u55fzTfV6Wa4zlZwlFXl6tMb6SaQs8kaxpj7O6Efm7vI"
-          />
-        </div>
-        <Button variant="outline" icon={ChevronDown} className="md:hidden w-full">
-          Load More
-        </Button>
-      </section>
-    </main>
+        ) : error ? (
+          <div className="card-base p-8 text-center">
+            <p className="text-accent font-semibold">{error}</p>
+            <button onClick={loadLaminas} className="mt-4 text-primary text-sm underline">Reintentar</button>
+          </div>
+        ) : (
+          <>
+            {tab === 'album' && (
+              <section className="animate-fade-in">
+                <AlbumBook laminas={laminas} onPegar={handlePegar} />
+              </section>
+            )}
+
+            {tab === 'cromos' && (
+              <section className="card-base p-6 animate-fade-in" style={{ background: '#0f172a' }}>
+                <Inventory laminas={laminas} onPegar={handlePegar} onVender={handleVender} />
+              </section>
+            )}
+
+            {tab === 'intercambios' && (
+              <section className="card-base p-6 animate-fade-in" style={{ background: '#0f172a' }}>
+                <Trades laminas={laminas} onAccept={handleTradeAccept} />
+              </section>
+            )}
+
+            {tab === 'misiones' && (
+              <section className="card-base p-6 animate-fade-in" style={{ background: '#0f172a' }}>
+                <Missions laminas={laminas} coins={coins} onClaim={handleClaimMission} />
+              </section>
+            )}
+          </>
+        )}
+      </main>
+    </>
   );
 }
