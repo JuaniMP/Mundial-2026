@@ -6,6 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
+  rol?: string;
   seleccionFavorita?: string;
 }
 
@@ -54,11 +55,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const { data } = response.data;
-      const { token, email: userEmail, nombre } = data;
+      const {
+        token,
+        email: userEmail,
+        nombre,
+        rol,
+      } = data as {
+        token: string;
+        email: string;
+        nombre: string;
+        rol: string;
+      };
       const user: User = {
         id: userEmail,
         email: userEmail,
         name: nombre,
+        rol,
       };
       setToken(token);
       setUser(user);
@@ -95,11 +107,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const { data } = response.data;
-      const { token, email: userEmail, nombre } = data;
+      const {
+        token,
+        email: userEmail,
+        nombre,
+        rol,
+      } = data as {
+        token: string;
+        email: string;
+        nombre: string;
+        rol: string;
+      };
       const user: User = {
         id: userEmail,
         email: userEmail,
         name: nombre,
+        rol,
         seleccionFavorita: seleccionFavorita ?? undefined,
       };
       setToken(token);
