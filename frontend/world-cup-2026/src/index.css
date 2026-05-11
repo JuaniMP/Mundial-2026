@@ -437,6 +437,31 @@
   }
 }
 
+/* ─── Pack Opening: Confetti fall ─── */
+@keyframes confettiFall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ─── Card shimmer for foil rarities ─── */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 /* ─── Noise Texture Overlay (subtle) ─── */
 .noise::after {
   content: '';
