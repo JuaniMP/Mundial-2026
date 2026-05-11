@@ -18,5 +18,6 @@ public class JugadorRequest {
     private LocalDate fechaNacimiento;
     private String nacionalidad;
     private String fotoUrl;
+    private Integer popularidad;
     private Integer idSeleccion;
 }

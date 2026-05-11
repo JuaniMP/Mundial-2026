@@ -60,6 +60,7 @@ public class JugadorService {
                 .minutosJugados(0)
                 .goles(0)
                 .fotoUrl(request.getFotoUrl())
+                .popularidad(request.getPopularidad() != null ? request.getPopularidad() : 50)
                 .seleccion(seleccion)
                 .build();
 
@@ -78,6 +79,7 @@ public class JugadorService {
         if (request.getFechaNacimiento() != null) jugador.setFechaNacimiento(request.getFechaNacimiento());
         if (request.getNacionalidad() != null) jugador.setNacionalidad(request.getNacionalidad());
         if (request.getFotoUrl() != null) jugador.setFotoUrl(request.getFotoUrl());
+        if (request.getPopularidad() != null) jugador.setPopularidad(request.getPopularidad());
 
         if (request.getIdSeleccion() != null) {
             Seleccion seleccion = seleccionRepository.findById(request.getIdSeleccion())
@@ -124,6 +126,7 @@ public class JugadorService {
                 .minutosJugados(jugador.getMinutosJugados())
                 .goles(jugador.getGoles())
                 .fotoUrl(jugador.getFotoUrl())
+                .popularidad(jugador.getPopularidad())
                 .idSeleccion(jugador.getSeleccion().getId())
                 .pais(jugador.getSeleccion().getPais())
                 .build();

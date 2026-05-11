@@ -54,6 +54,28 @@ public class PartidoService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<PartidoResponse> getPartidosBySeleccion(Integer seleccionId) {
+        // Verify seleccion exists
+        seleccionRepository.findById(seleccionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Selección no encontrada con ID: " + seleccionId));
+        
+        return partidoRepository.findBySeleccion(seleccionId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PartidoResponse> getProximosPartidosBySeleccion(Integer seleccionId) {
+        // Verify seleccion exists
+        seleccionRepository.findById(seleccionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Selección no encontrada con ID: " + seleccionId));
+        
+        return partidoRepository.findProximosPartidosBySeleccion(seleccionId).stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public PartidoResponse createPartido(PartidoRequest request) {
         Estadio estadio = estadioRepository.findById(request.getIdEstadio())

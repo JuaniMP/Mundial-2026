@@ -42,6 +42,18 @@ public class PartidoController {
         return ResponseEntity.ok(ApiResponse.success(partidos, "Partidos por ronda"));
     }
 
+    @GetMapping("/seleccion/{seleccionId}")
+    public ResponseEntity<ApiResponse<List<PartidoResponse>>> getPartidosBySeleccion(@PathVariable Integer seleccionId) {
+        List<PartidoResponse> partidos = partidoService.getPartidosBySeleccion(seleccionId);
+        return ResponseEntity.ok(ApiResponse.success(partidos, "Partidos de la selección"));
+    }
+
+    @GetMapping("/seleccion/{seleccionId}/proximos")
+    public ResponseEntity<ApiResponse<List<PartidoResponse>>> getProximosPartidosBySeleccion(@PathVariable Integer seleccionId) {
+        List<PartidoResponse> partidos = partidoService.getProximosPartidosBySeleccion(seleccionId);
+        return ResponseEntity.ok(ApiResponse.success(partidos, "Próximos partidos de la selección"));
+    }
+
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'OPERADOR')")
     public ResponseEntity<ApiResponse<PartidoResponse>> createPartido(@RequestBody PartidoRequest request) {

@@ -2,6 +2,8 @@ package co.edu.unbosque.controller;
 
 import co.edu.unbosque.dto.*;
 import co.edu.unbosque.service.SeleccionService;
+import co.edu.unbosque.service.JugadorService;
+import co.edu.unbosque.service.PartidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import java.util.List;
 public class SeleccionController {
 
     private final SeleccionService seleccionService;
+    private final JugadorService jugadorService;
+    private final PartidoService partidoService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<SeleccionResponse>>> getAllSelecciones() {
@@ -39,6 +43,24 @@ public class SeleccionController {
     public ResponseEntity<ApiResponse<List<SeleccionResponse>>> getSeleccionesByGrupo(@PathVariable String grupo) {
         List<SeleccionResponse> selecciones = seleccionService.getSeleccionesByGrupo(grupo);
         return ResponseEntity.ok(ApiResponse.success(selecciones, "Selecciones del grupo"));
+    }
+
+    @GetMapping("/{id}/jugadores")
+    public ResponseEntity<ApiResponse<List<JugadorResponse>>> getJugadoresBySeleccion(@PathVariable Integer id) {
+        List<JugadorResponse> jugadores = jugadorService.getJugadoresBySeleccion(id);
+        return ResponseEntity.ok(ApiResponse.success(jugadores, "Jugadores de la selección"));
+    }
+
+    @GetMapping("/{id}/partidos")
+    public ResponseEntity<ApiResponse<List<PartidoResponse>>> getPartidosBySeleccion(@PathVariable Integer id) {
+        List<PartidoResponse> partidos = partidoService.getPartidosBySeleccion(id);
+        return ResponseEntity.ok(ApiResponse.success(partidos, "Partidos de la selección"));
+    }
+
+    @GetMapping("/{id}/partidos/proximos")
+    public ResponseEntity<ApiResponse<List<PartidoResponse>>> getProximosPartidosBySeleccion(@PathVariable Integer id) {
+        List<PartidoResponse> partidos = partidoService.getProximosPartidosBySeleccion(id);
+        return ResponseEntity.ok(ApiResponse.success(partidos, "Próximos partidos de la selección"));
     }
 
     @PostMapping
