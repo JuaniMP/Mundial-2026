@@ -1,6 +1,5 @@
 # Normalize line endings
 * text=auto eol=lf
-
 # Binary
 *.png binary
 *.jpg binary
@@ -14,7 +13,7 @@
 *.woff2 binary
 *.ttf binary
 *.otf binary
-
 # Linguist overrides — design-source mockups no cuentan como código del proyecto
 docs/design-source/** linguist-vendored
 docs/design-source/**/*.html linguist-vendored
+*.glb filter=lfs diff=lfs merge=lfs -text

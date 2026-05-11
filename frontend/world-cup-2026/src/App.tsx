@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { PrivateRoute } from './components/PrivateRoute';
+import { RoleRoute } from './components/RoleRoute';
 import { Layout } from './components/layout/Layout';
 import { Navbar } from './components/layout/Navbar';
 import { Dashboard } from './pages/Dashboard';
@@ -12,6 +13,8 @@ import { Album } from './pages/Album';
 import { Tickets } from './pages/Tickets';
 import { Teams } from './pages/Teams';
 import { PackOpening } from './pages/PackOpening';
+import { Admin } from './pages/Admin';
+import { Agentes } from './pages/Agentes';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -43,6 +46,22 @@ function App() {
                     <Route path="/tickets" element={<Tickets />} />
                     <Route path="/teams" element={<Teams />} />
                     <Route path="/pack-opening" element={<PackOpening />} />
+                    <Route
+                      path="/admin"
+                      element={
+                        <RoleRoute allowedRoles={['ADMIN']}>
+                          <Admin />
+                        </RoleRoute>
+                      }
+                    />
+                    <Route
+                      path="/agentes"
+                      element={
+                        <RoleRoute allowedRoles={['ADMIN', 'SOPORTE', 'OPERADOR']}>
+                          <Agentes />
+                        </RoleRoute>
+                      }
+                    />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
