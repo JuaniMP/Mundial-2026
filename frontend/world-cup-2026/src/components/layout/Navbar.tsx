@@ -12,11 +12,13 @@ import {
   Compass,
   Users,
   Package,
+  Shield,
+  Headphones,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
-const navItems = [
+const BASE_NAV = [
   { to: '/', label: 'Inicio', icon: Compass, exact: true },
   { to: '/matches', label: 'Partidos', icon: CalendarDays, exact: false },
   { to: '/standings', label: 'Tabla', icon: BarChart3, exact: false },
@@ -26,7 +28,7 @@ const navItems = [
   { to: '/album', label: 'Álbum', icon: BookOpen, exact: false },
   { to: '/teams', label: 'Selecciones', icon: Users, exact: false },
   { to: '/pack-opening', label: 'Sobre', icon: Package, exact: false },
-];
+] as const;
 
 const TICKER_ITEMS = [
   'Faltan 31 días para el saque inicial',
@@ -43,6 +45,16 @@ export function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
+
+  const navItems = [
+    ...BASE_NAV,
+    ...(user?.rol === 'SOPORTE' || user?.rol === 'ADMIN' || user?.rol === 'OPERADOR'
+      ? [{ to: '/agentes', label: 'Soporte', icon: Headphones, exact: false } as const]
+      : []),
+    ...(user?.rol === 'ADMIN'
+      ? [{ to: '/admin', label: 'Admin', icon: Shield, exact: false } as const]
+      : []),
+  ];
 
   const handleLogout = () => {
     logout();
@@ -350,10 +362,11 @@ export function Navbar() {
       >
         <div className="flex justify-around items-center px-2 pt-2 pb-7">
           {navItems.slice(0, 7).map((item) => {
+            const itemTo = item.to as string;
             const isActive = item.exact
-              ? location.pathname === item.to
-              : item.to !== '/' && location.pathname.startsWith(item.to);
-            const isHome = item.to === '/' && location.pathname === '/';
+              ? location.pathname === itemTo
+              : itemTo !== '/' && location.pathname.startsWith(itemTo);
+            const isHome = itemTo === '/' && location.pathname === '/';
             const active = isActive || isHome;
 
             return (
