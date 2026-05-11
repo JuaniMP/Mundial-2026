@@ -142,6 +142,33 @@ export interface PartidoApi {
   seleccionVisitante: string;
 }
 
+// ── Seleccion / Team types (backend) ─────────────────────────────────────────
+
+export interface SeleccionResponse {
+  id: number;
+  pais: string;
+  codigoFifa: string;
+  confederacion: string;
+  grupo: string;
+  historial?: string;
+  banderaUrl?: string;
+}
+
+export interface JugadorResponse {
+  id: number;
+  nombreCompleto: string;
+  posicion: string;
+  dorsal: number;
+  fechaNacimiento?: string;
+  nacionalidad?: string;
+  minutosJugados?: number;
+  goles?: number;
+  fotoUrl?: string;
+  popularidad?: number;
+  idSeleccion: number;
+  pais?: string;
+}
+
 // ── Prediction types ─────────────────────────────────────────────────────────
 
 export interface Prediction {
