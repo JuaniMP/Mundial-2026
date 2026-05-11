@@ -154,7 +154,7 @@ export function Dashboard() {
             textAlign: 'center',
           }}
         >
-          <p
+          <div
             style={{
               color: 'rgba(255,255,255,0.45)',
               fontFamily: 'Inter, sans-serif',
