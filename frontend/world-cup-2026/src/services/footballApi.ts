@@ -1,8 +1,15 @@
 import axios from 'axios';
-import type { FdMatch, FdStandingsGroup, EstadioApi } from '../types';
+import type {
+  FdMatch,
+  FdStandingsGroup,
+  EstadioApi,
+  SeleccionResponse,
+  JugadorResponse,
+} from '../types';
 
 const API_BASE = 'http://localhost:8082/api/v1/football';
 const ESTADIOS_BASE = 'http://localhost:8082/api/v1/estadios';
+const BACKEND_BASE = 'http://localhost:8082/api/v1';
 
 // ── helper ───────────────────────────────────────────────────────────────────
 
@@ -46,6 +53,33 @@ export async function fetchStandings(): Promise<FdStandingsGroup[]> {
 export async function fetchEstadios(): Promise<EstadioApi[]> {
   const { data } = await axios.get(ESTADIOS_BASE);
   return data?.data ?? [];
+}
+
+// ── Selecciones ───────────────────────────────────────────────────────────────
+
+export async function fetchSelecciones(): Promise<SeleccionResponse[]> {
+  const { data } = await axios.get(`${BACKEND_BASE}/selecciones`, {
+    headers: getAuthHeaders(),
+  });
+  return (data?.data as SeleccionResponse[]) ?? [];
+}
+
+export async function fetchSeleccionByCode(code: string): Promise<SeleccionResponse | null> {
+  try {
+    const { data } = await axios.get(`${BACKEND_BASE}/selecciones/codigo/${code}`, {
+      headers: getAuthHeaders(),
+    });
+    return (data?.data as SeleccionResponse) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResponse[]> {
+  const { data } = await axios.get(`${BACKEND_BASE}/selecciones/${id}/jugadores`, {
+    headers: getAuthHeaders(),
+  });
+  return (data?.data as JugadorResponse[]) ?? [];
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────

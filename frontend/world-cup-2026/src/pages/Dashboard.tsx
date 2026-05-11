@@ -1,19 +1,62 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { matches } from '../data/mockData';
 import { MatchCard } from '../components/features/MatchCard';
 import { FeatureCard } from '../components/features/FeatureCard';
 import { Badge, Button } from '../components/ui';
-import { ArrowRight, Play, Landmark, Trophy, BookOpen, Bell, BellOff, X } from 'lucide-react';
+import {
+  ArrowRight,
+  Play,
+  Landmark,
+  Trophy,
+  BookOpen,
+  Bell,
+  BellOff,
+  X,
+  Users,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFcm } from '../hooks/useFcm';
+import { MascotAnimation } from '../components/features/MascotAnimation';
+import type { PartidoApi } from '../types';
+import { fetchSeleccionByCode } from '../services/footballApi';
+import { getTeamByShortName } from '../components/album/teamColors';
 
 export function Dashboard() {
   const nextMatch = matches[0];
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   const { permission, registered, foregroundMessage, isConfigured, requestAndRegister, disable } =
     useFcm(token);
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // User's favourite team code (e.g. 'ARG', 'BRA', 'COL', …)
+  const favCode = (user as { seleccionFavorita?: string } | null)?.seleccionFavorita ?? null;
+  const favTeam = favCode ? (getTeamByShortName(favCode) ?? null) : null;
+
+  // Next match for the favourite team
+  const [nextFavMatch, setNextFavMatch] = useState<PartidoApi | null>(null);
+
+  useEffect(() => {
+    if (!favCode || !token) return;
+    let cancelled = false;
+    fetchSeleccionByCode(favCode)
+      .then((seleccion) => {
+        if (!seleccion || cancelled) return;
+        const authHeader = { Authorization: `Bearer ${token}` };
+        const url =
+          `http://localhost:8082/api/v1/selecciones/` + `${seleccion.id}/partidos/proximos`;
+        return fetch(url, { headers: authHeader })
+          .then((r) => r.json() as Promise<{ data: PartidoApi[] }>)
+          .then((body) => {
+            if (!cancelled) setNextFavMatch(body.data?.[0] ?? null);
+          });
+      })
+      .catch(() => null);
+    return () => {
+      cancelled = true;
+    };
+  }, [favCode, token]);
 
   const showBanner =
     isConfigured &&
@@ -100,6 +143,144 @@ export function Dashboard() {
         </div>
       )}
 
+      {/* ══════ Mascot Banner ══════ */}
+      <section className="mb-10 animate-fade-in-up">
+        <div
+          style={{
+            background: 'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(37,99,235,0.12))',
+            border: '1px solid rgba(124,58,237,0.2)',
+            borderRadius: 20,
+            padding: '24px 16px',
+            textAlign: 'center',
+          }}
+        >
+          <p
+            style={{
+              color: 'rgba(255,255,255,0.45)',
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 11,
+              textTransform: 'uppercase',
+              letterSpacing: 3,
+              margin: '0 0 18px',
+            }}
+          >
+            Mascotas Oficiales • Mundial 2026
+          </p>
+          <MascotAnimation size="md" />
+        </div>
+      </section>
+
+      {/* ══════ Favourite Team Section (any team) ══════ */}
+      {favTeam && (
+        <section className="mb-10 animate-fade-in-up">
+          <div
+            style={{
+              background: `linear-gradient(135deg,${favTeam.primary}22,${favTeam.secondary}18)`,
+              border: `1.5px solid ${favTeam.primary}55`,
+              borderRadius: 20,
+              padding: '20px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 20,
+              flexWrap: 'wrap' as const,
+            }}
+          >
+            {/* Flag */}
+            <span style={{ fontSize: 48, lineHeight: 1 }}>{favTeam.flag}</span>
+
+            {/* Team info */}
+            <div style={{ flex: 1, minWidth: 180 }}>
+              <p
+                style={{
+                  color: favTeam.primary,
+                  fontFamily: 'Oswald, sans-serif',
+                  fontSize: 20,
+                  fontWeight: 800,
+                  margin: '0 0 4px',
+                  letterSpacing: 1,
+                  textTransform: 'uppercase',
+                }}
+              >
+                ¡Vamos {favTeam.name}!
+              </p>
+
+              {nextFavMatch ? (
+                <p
+                  style={{
+                    color: 'rgba(255,255,255,0.65)',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 13,
+                    margin: 0,
+                  }}
+                >
+                  Próximo:{' '}
+                  <strong style={{ color: '#fff' }}>
+                    {nextFavMatch.seleccionLocal} vs {nextFavMatch.seleccionVisitante}
+                  </strong>{' '}
+                  — {nextFavMatch.estadioNombre}
+                </p>
+              ) : (
+                <p
+                  style={{
+                    color: 'rgba(255,255,255,0.4)',
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 13,
+                    margin: 0,
+                  }}
+                >
+                  Grupo {favTeam.group} · FIFA World Cup 2026
+                </p>
+              )}
+            </div>
+
+            {/* CTAs */}
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column' as const,
+                gap: 8,
+              }}
+            >
+              <Link
+                to="/album"
+                style={{
+                  padding: '10px 22px',
+                  borderRadius: 999,
+                  background: `linear-gradient(135deg,${favTeam.primary},${favTeam.secondary})`,
+                  color: favTeam.text,
+                  fontFamily: 'Oswald, sans-serif',
+                  fontSize: 13,
+                  fontWeight: 800,
+                  letterSpacing: 1,
+                  textDecoration: 'none',
+                  textTransform: 'uppercase' as const,
+                  whiteSpace: 'nowrap' as const,
+                  textAlign: 'center' as const,
+                }}
+              >
+                📔 Ir al Álbum
+              </Link>
+              <Link
+                to="/teams"
+                style={{
+                  padding: '8px 22px',
+                  borderRadius: 999,
+                  background: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: 12,
+                  textDecoration: 'none',
+                  textAlign: 'center' as const,
+                }}
+              >
+                Ver plantel 🏴
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ══════ Hero Section: Next Match ══════ */}
       <section className="mb-12 md:mb-16 relative rounded-3xl overflow-hidden group animate-fade-in-up">
         {/* Background */}
@@ -174,6 +355,22 @@ export function Dashboard() {
           variant="solid"
           progress={{ value: 45, label: '45%' }}
           className="animate-fade-in-up delay-400 bg-bg-surface"
+        />
+        <FeatureCard
+          to="/teams"
+          title="Selecciones"
+          description="Explora las 32 selecciones y sus plantillas completas."
+          icon={Users}
+          variant="accent"
+          className="animate-fade-in-up delay-500 bg-bg-surface"
+        />
+        <FeatureCard
+          to="/pack-opening"
+          title="Abrir Sobre"
+          description="Abre sobres y descubre nuevos cromos para tu álbum."
+          icon={BookOpen}
+          variant="solid"
+          className="animate-fade-in-up delay-600 bg-bg-surface"
         />
       </section>
 
