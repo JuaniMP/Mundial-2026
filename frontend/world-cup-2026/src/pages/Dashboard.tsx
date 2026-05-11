@@ -20,6 +20,7 @@ import { useFcm } from '../hooks/useFcm';
 import { MascotAnimation } from '../components/features/MascotAnimation';
 import type { PartidoApi } from '../types';
 import { fetchSeleccionByCode } from '../services/footballApi';
+import { getTeamByShortName } from '../components/album/teamColors';
 
 export function Dashboard() {
   const nextMatch = matches[0];
@@ -29,17 +30,17 @@ export function Dashboard() {
   const [bannerDismissed, setBannerDismissed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Next Colombia match (for Colombia fans)
-  const [nextColMatch, setNextColMatch] = useState<PartidoApi | null>(null);
+  // User's favourite team code (e.g. 'ARG', 'BRA', 'COL', …)
+  const favCode = (user as { seleccionFavorita?: string } | null)?.seleccionFavorita ?? null;
+  const favTeam = favCode ? (getTeamByShortName(favCode) ?? null) : null;
 
-  // Check if user's favourite team is Colombia
-  const isColombiaFan =
-    (user as { seleccionFavorita?: string } | null)?.seleccionFavorita === 'COL';
+  // Next match for the favourite team
+  const [nextFavMatch, setNextFavMatch] = useState<PartidoApi | null>(null);
 
   useEffect(() => {
-    if (!isColombiaFan || !token) return;
+    if (!favCode || !token) return;
     let cancelled = false;
-    fetchSeleccionByCode('COL')
+    fetchSeleccionByCode(favCode)
       .then((seleccion) => {
         if (!seleccion || cancelled) return;
         const authHeader = { Authorization: `Bearer ${token}` };
@@ -48,14 +49,14 @@ export function Dashboard() {
         return fetch(url, { headers: authHeader })
           .then((r) => r.json() as Promise<{ data: PartidoApi[] }>)
           .then((body) => {
-            if (!cancelled) setNextColMatch(body.data?.[0] ?? null);
+            if (!cancelled) setNextFavMatch(body.data?.[0] ?? null);
           });
       })
       .catch(() => null);
     return () => {
       cancelled = true;
     };
-  }, [isColombiaFan, token]);
+  }, [favCode, token]);
 
   const showBanner =
     isConfigured &&
@@ -169,13 +170,13 @@ export function Dashboard() {
         </div>
       </section>
 
-      {/* ══════ Colombia Fan Section ══════ */}
-      {isColombiaFan && (
+      {/* ══════ Favourite Team Section (any team) ══════ */}
+      {favTeam && (
         <section className="mb-10 animate-fade-in-up">
           <div
             style={{
-              background: 'linear-gradient(135deg,rgba(200,150,44,0.14),rgba(0,48,135,0.14))',
-              border: '1.5px solid rgba(200,150,44,0.3)',
+              background: `linear-gradient(135deg,${favTeam.primary}22,${favTeam.secondary}18)`,
+              border: `1.5px solid ${favTeam.primary}55`,
               borderRadius: 20,
               padding: '20px 24px',
               display: 'flex',
@@ -184,22 +185,26 @@ export function Dashboard() {
               flexWrap: 'wrap' as const,
             }}
           >
-            <span style={{ fontSize: 44 }}>🇨🇴</span>
-            <div style={{ flex: 1, minWidth: 200 }}>
+            {/* Flag */}
+            <span style={{ fontSize: 48, lineHeight: 1 }}>{favTeam.flag}</span>
+
+            {/* Team info */}
+            <div style={{ flex: 1, minWidth: 180 }}>
               <p
                 style={{
-                  color: '#C8962C',
+                  color: favTeam.primary,
                   fontFamily: 'Oswald, sans-serif',
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: 800,
                   margin: '0 0 4px',
                   letterSpacing: 1,
                   textTransform: 'uppercase',
                 }}
               >
-                ¡Vamos Colombia!
+                ¡Vamos {favTeam.name}!
               </p>
-              {nextColMatch ? (
+
+              {nextFavMatch ? (
                 <p
                   style={{
                     color: 'rgba(255,255,255,0.65)',
@@ -210,23 +215,25 @@ export function Dashboard() {
                 >
                   Próximo:{' '}
                   <strong style={{ color: '#fff' }}>
-                    {nextColMatch.seleccionLocal} vs {nextColMatch.seleccionVisitante}
+                    {nextFavMatch.seleccionLocal} vs {nextFavMatch.seleccionVisitante}
                   </strong>{' '}
-                  — {nextColMatch.estadioNombre}
+                  — {nextFavMatch.estadioNombre}
                 </p>
               ) : (
                 <p
                   style={{
-                    color: 'rgba(255,255,255,0.45)',
+                    color: 'rgba(255,255,255,0.4)',
                     fontFamily: 'Inter, sans-serif',
                     fontSize: 13,
                     margin: 0,
                   }}
                 >
-                  Grupo E · FIFA World Cup 2026
+                  Grupo {favTeam.group} · FIFA World Cup 2026
                 </p>
               )}
             </div>
+
+            {/* CTAs */}
             <div
               style={{
                 display: 'flex',
@@ -239,8 +246,8 @@ export function Dashboard() {
                 style={{
                   padding: '10px 22px',
                   borderRadius: 999,
-                  background: 'linear-gradient(135deg,#C8962C,#f59e0b)',
-                  color: '#000',
+                  background: `linear-gradient(135deg,${favTeam.primary},${favTeam.secondary})`,
+                  color: favTeam.text,
                   fontFamily: 'Oswald, sans-serif',
                   fontSize: 13,
                   fontWeight: 800,
@@ -248,6 +255,7 @@ export function Dashboard() {
                   textDecoration: 'none',
                   textTransform: 'uppercase' as const,
                   whiteSpace: 'nowrap' as const,
+                  textAlign: 'center' as const,
                 }}
               >
                 📔 Ir al Álbum
