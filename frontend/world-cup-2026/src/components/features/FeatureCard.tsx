@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
-import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 interface FeatureCardProps {
   to: string;
   title: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   imageUrl?: string;
   badge?: string;
   stat?: { label: string; value: string };

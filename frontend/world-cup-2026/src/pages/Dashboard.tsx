@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFcm } from '../hooks/useFcm';
-import { MascotAnimation } from '../components/features/MascotAnimation';
+import { Hero3D } from '../components/features/Hero3D';
 import type { PartidoApi } from '../types';
 import { fetchSeleccionByCode } from '../services/footballApi';
 import { getTeamByShortName } from '../components/album/teamColors';
@@ -556,7 +556,7 @@ export function Dashboard() {
               minHeight: 560,
             }}
           >
-            <MascotAnimation size="md" rotateSpeed={5} />
+            <Hero3D />
           </div>
         </div>
       </section>

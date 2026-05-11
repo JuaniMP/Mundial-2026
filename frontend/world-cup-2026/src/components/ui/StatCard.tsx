@@ -1,10 +1,10 @@
-import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 import { ProgressBar } from './ProgressBar';
 
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon?: React.ElementType;
+  icon?: LucideIcon;
   iconColor?: string;
   progress?: number;
   progressColor?: string;
