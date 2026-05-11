@@ -203,11 +203,14 @@ export function PackOpening() {
     <main
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at 50% 0%, #1e1b4b, #0a0a14)',
+        background: 'var(--color-bg-deep)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        padding: '80px 16px 40px',
+        paddingTop: 115,
+        paddingBottom: 60,
+        paddingLeft: 16,
+        paddingRight: 16,
         position: 'relative',
         overflow: 'hidden',
       }}
@@ -234,48 +237,113 @@ export function PackOpening() {
         ))}
 
       {/* ── header ── */}
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
+      <div
+        style={{
+          width: '100%',
+          maxWidth: 720,
+          borderBottom: '1.5px solid var(--color-ink)',
+          paddingBottom: 20,
+          marginBottom: 40,
+          textAlign: 'center',
+        }}
+      >
+        <div
+          style={{
+            fontFamily: 'Archivo, sans-serif',
+            fontSize: 11,
+            letterSpacing: '0.25em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+            marginBottom: 8,
+          }}
+        >
+          ◆ FIFA World Cup 2026
+        </div>
         <h1
           style={{
-            fontFamily: 'Oswald, sans-serif',
-            fontSize: 36,
-            fontWeight: 900,
-            color: '#fff',
-            margin: 0,
-            letterSpacing: 2,
+            fontFamily: 'Anton, sans-serif',
+            fontSize: 'clamp(42px,6vw,80px)',
+            lineHeight: 0.9,
+            color: 'var(--color-ink)',
+            margin: '0 0 16px',
+            letterSpacing: '0.02em',
             textTransform: 'uppercase',
           }}
         >
-          🎴 Abrir Sobre
+          ABRIR{' '}
+          <span
+            style={{
+              fontFamily: 'DM Serif Display, serif',
+              fontStyle: 'italic',
+              color: 'var(--color-secondary)',
+              textTransform: 'none',
+              fontSize: '0.82em',
+            }}
+          >
+            sobre
+          </span>
         </h1>
         <div
           style={{
             display: 'flex',
-            gap: 16,
+            gap: 14,
             justifyContent: 'center',
-            marginTop: 12,
           }}
         >
-          <span
+          <div
             style={{
-              color: '#fbbf24',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 14,
-              fontWeight: 600,
+              padding: '10px 18px',
+              border: '1.5px solid var(--color-ink)',
+              background: 'var(--color-primary)',
+              color: 'var(--color-ink)',
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 18,
+              letterSpacing: '0.04em',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
             }}
           >
-            {coins} 🪙 monedas
-          </span>
-          <span
+            <span>{coins}</span>
+            <span
+              style={{
+                fontFamily: 'Archivo, sans-serif',
+                fontSize: 9,
+                letterSpacing: '0.2em',
+                opacity: 0.7,
+              }}
+            >
+              MONEDAS
+            </span>
+          </div>
+          <div
             style={{
-              color: '#60a5fa',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 14,
-              fontWeight: 600,
+              padding: '10px 18px',
+              border: '1.5px solid var(--color-ink)',
+              background: 'var(--color-secondary)',
+              color: 'var(--color-text-inverse)',
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 18,
+              letterSpacing: '0.04em',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
             }}
           >
-            {packs} 📦 sobres
-          </span>
+            <span>{packs}</span>
+            <span
+              style={{
+                fontFamily: 'Archivo, sans-serif',
+                fontSize: 9,
+                letterSpacing: '0.2em',
+                opacity: 0.75,
+              }}
+            >
+              SOBRES
+            </span>
+          </div>
         </div>
       </div>
 
@@ -300,10 +368,9 @@ export function PackOpening() {
                 style={{
                   width: 180,
                   height: 260,
-                  borderRadius: 18,
-                  background: 'linear-gradient(160deg,#7c3aed,#2563eb,#0891b2)',
-                  border: '3px solid rgba(255,255,255,0.25)',
-                  boxShadow: '0 0 60px rgba(124,58,237,0.6), 0 20px 40px rgba(0,0,0,0.5)',
+                  background: 'var(--color-ink)',
+                  border: '3px solid var(--color-primary)',
+                  boxShadow: '10px 10px 0 var(--color-primary)',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -311,29 +378,43 @@ export function PackOpening() {
                   gap: 8,
                   cursor: canOpen ? 'pointer' : 'not-allowed',
                   userSelect: 'none',
+                  position: 'relative',
+                  overflow: 'hidden',
                 }}
                 onClick={canOpen ? () => void handleOpen() : undefined}
               >
-                <span style={{ fontSize: 52 }}>🎴</span>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'repeating-linear-gradient(45deg, transparent 0 8px, rgba(229,180,73,.06) 8px 16px)',
+                  }}
+                />
+                <span style={{ fontSize: 48, position: 'relative', zIndex: 1 }}>🎴</span>
                 <p
                   style={{
-                    color: '#fff',
-                    fontFamily: 'Oswald, sans-serif',
-                    fontSize: 18,
-                    fontWeight: 800,
+                    color: 'var(--color-primary)',
+                    fontFamily: 'Anton, sans-serif',
+                    fontSize: 16,
                     margin: 0,
-                    letterSpacing: 2,
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
                   WC 2026
                 </p>
                 <p
                   style={{
-                    color: 'rgba(255,255,255,0.5)',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 11,
+                    color: 'rgba(246,239,226,.45)',
+                    fontFamily: 'Archivo, sans-serif',
+                    fontSize: 10,
                     margin: 0,
+                    letterSpacing: '0.15em',
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
                   {canOpen ? 'Click para abrir' : 'Sin sobres'}
@@ -349,17 +430,26 @@ export function PackOpening() {
                 style={{
                   width: 180,
                   height: 260,
-                  borderRadius: 18,
-                  background: 'linear-gradient(160deg,#7c3aed,#2563eb,#0891b2)',
-                  border: '3px solid rgba(255,255,255,0.35)',
-                  boxShadow: '0 0 80px rgba(124,58,237,0.8), 0 20px 40px rgba(0,0,0,0.5)',
+                  background: 'var(--color-ink)',
+                  border: '3px solid var(--color-primary)',
+                  boxShadow: '0 0 40px rgba(229,180,73,.45)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 52,
+                  overflow: 'hidden',
+                  position: 'relative',
                 }}
               >
-                🎴
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background:
+                      'repeating-linear-gradient(45deg, transparent 0 8px, rgba(229,180,73,.06) 8px 16px)',
+                  }}
+                />
+                <span style={{ position: 'relative', zIndex: 1 }}>🎴</span>
               </motion.div>
             )}
 
@@ -371,8 +461,8 @@ export function PackOpening() {
                 style={{
                   width: 180,
                   height: 260,
-                  borderRadius: 18,
-                  background: 'linear-gradient(160deg,#fbbf24,#f59e0b,#d97706)',
+                  background: 'var(--color-primary)',
+                  border: '3px solid var(--color-ink)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -385,23 +475,32 @@ export function PackOpening() {
           </AnimatePresence>
 
           {phase === 'idle' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}
+            >
               {canOpen && (
                 <button
                   onClick={() => void handleOpen()}
                   style={{
-                    padding: '14px 40px',
-                    borderRadius: 999,
-                    background: 'linear-gradient(135deg,#7c3aed,#2563eb)',
-                    border: 'none',
-                    color: '#fff',
-                    fontSize: 16,
-                    fontFamily: 'Oswald, sans-serif',
-                    fontWeight: 800,
-                    letterSpacing: 2,
+                    padding: '14px 36px',
+                    background: 'var(--color-ink)',
+                    border: '1.5px solid var(--color-ink)',
+                    color: 'var(--color-primary)',
+                    fontSize: 15,
+                    fontFamily: 'Anton, sans-serif',
+                    letterSpacing: '0.08em',
                     textTransform: 'uppercase',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 24px rgba(124,58,237,0.5)',
+                    transition: 'transform 0.15s, box-shadow 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translate(-2px,-2px)';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                      '6px 6px 0 var(--color-primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '';
                   }}
                 >
                   {packs > 0 ? '🎴 Abrir Sobre' : `🪙 Comprar (${PACK_COST})`}
@@ -410,17 +509,25 @@ export function PackOpening() {
               <button
                 onClick={() => navigate('/album')}
                 style={{
-                  padding: '10px 28px',
-                  borderRadius: 999,
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.12)',
-                  color: 'rgba(255,255,255,0.6)',
-                  fontSize: 13,
-                  fontFamily: 'Inter, sans-serif',
+                  padding: '10px 24px',
+                  background: 'transparent',
+                  border: '1.5px solid var(--color-ink)',
+                  color: 'var(--color-text-muted)',
+                  fontSize: 12,
+                  fontFamily: 'Archivo, sans-serif',
+                  letterSpacing: '0.1em',
                   cursor: 'pointer',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background =
+                    'var(--color-bg-elevated)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
                 }}
               >
-                Ver álbum
+                Ver álbum →
               </button>
             </div>
           )}
@@ -441,15 +548,16 @@ export function PackOpening() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             style={{
-              fontFamily: 'Oswald, sans-serif',
-              fontSize: 24,
-              color: '#fbbf24',
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 'clamp(28px,4vw,52px)',
+              color: 'var(--color-ink)',
               margin: 0,
               textTransform: 'uppercase',
-              letterSpacing: 2,
+              letterSpacing: '0.04em',
+              lineHeight: 0.9,
             }}
           >
-            ✨ {cards.length} Cromos conseguidos!
+            ✨ <span style={{ color: 'var(--color-secondary)' }}>{cards.length}</span> CROMOS
           </motion.h2>
 
           <div
@@ -490,15 +598,14 @@ export function PackOpening() {
                       onClick={() => void handlePegar(card.idLamina)}
                       style={{
                         padding: '6px 18px',
-                        borderRadius: 999,
-                        background: 'linear-gradient(135deg,#059669,#34d399)',
-                        border: 'none',
-                        color: '#fff',
-                        fontSize: 12,
-                        fontFamily: 'Oswald, sans-serif',
-                        fontWeight: 700,
+                        background: 'var(--color-secondary)',
+                        border: '1.5px solid var(--color-ink)',
+                        color: 'var(--color-text-inverse)',
+                        fontSize: 11,
+                        fontFamily: 'Anton, sans-serif',
+                        letterSpacing: '0.08em',
+                        textTransform: 'uppercase',
                         cursor: 'pointer',
-                        letterSpacing: 1,
                       }}
                     >
                       📌 Pegar
@@ -507,12 +614,13 @@ export function PackOpening() {
                   {(pastedIds.has(card.idLamina) || card.estaPegada) && (
                     <span
                       style={{
-                        color: '#34d399',
-                        fontSize: 12,
-                        fontFamily: 'Inter, sans-serif',
+                        color: 'var(--color-secondary)',
+                        fontSize: 11,
+                        fontFamily: 'Anton, sans-serif',
+                        letterSpacing: '0.08em',
                       }}
                     >
-                      ✅ Pegado
+                      ✅ PEGADO
                     </span>
                   )}
                 </motion.div>
@@ -520,23 +628,30 @@ export function PackOpening() {
             })}
           </div>
 
-          <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', justifyContent: 'center' }}>
             {canOpen && (
               <button
                 onClick={handleReset}
                 style={{
-                  padding: '12px 32px',
-                  borderRadius: 999,
-                  background: 'linear-gradient(135deg,#7c3aed,#2563eb)',
-                  border: 'none',
-                  color: '#fff',
+                  padding: '14px 32px',
+                  background: 'var(--color-ink)',
+                  border: '1.5px solid var(--color-ink)',
+                  color: 'var(--color-primary)',
                   fontSize: 14,
-                  fontFamily: 'Oswald, sans-serif',
-                  fontWeight: 800,
-                  letterSpacing: 1.5,
+                  fontFamily: 'Anton, sans-serif',
+                  letterSpacing: '0.08em',
                   textTransform: 'uppercase',
                   cursor: 'pointer',
-                  boxShadow: '0 4px 20px rgba(124,58,237,0.4)',
+                  transition: 'transform 0.15s, box-shadow 0.15s',
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.transform = 'translate(-2px,-2px)';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow =
+                    '6px 6px 0 var(--color-primary)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.transform = '';
+                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '';
                 }}
               >
                 🎴 Otro sobre
@@ -545,17 +660,17 @@ export function PackOpening() {
             <button
               onClick={() => navigate('/album')}
               style={{
-                padding: '12px 28px',
-                borderRadius: 999,
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                color: 'rgba(255,255,255,0.7)',
-                fontSize: 14,
-                fontFamily: 'Inter, sans-serif',
+                padding: '14px 28px',
+                background: 'transparent',
+                border: '1.5px solid var(--color-ink)',
+                color: 'var(--color-text-muted)',
+                fontSize: 12,
+                fontFamily: 'Archivo, sans-serif',
+                letterSpacing: '0.1em',
                 cursor: 'pointer',
               }}
             >
-              Ver álbum
+              Ver álbum →
             </button>
           </div>
         </div>
@@ -564,11 +679,14 @@ export function PackOpening() {
       {err && (
         <p
           style={{
-            color: '#f87171',
-            fontFamily: 'Inter, sans-serif',
+            color: 'var(--color-danger)',
+            fontFamily: 'Archivo, sans-serif',
             fontSize: 13,
             marginTop: 16,
             textAlign: 'center',
+            border: '1.5px solid var(--color-danger)',
+            padding: '10px 20px',
+            letterSpacing: '0.05em',
           }}
         >
           {err}

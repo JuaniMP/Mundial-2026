@@ -1,6 +1,4 @@
 import type { Match } from '../../types';
-import { Badge } from '../ui/Badge';
-import { Calendar, Clock } from 'lucide-react';
 
 interface MatchCardProps {
   match: Match;
@@ -9,63 +7,183 @@ interface MatchCardProps {
 
 export function MatchCard({ match, className = '' }: MatchCardProps) {
   return (
-    <div className={`glass rounded-2xl p-6 md:p-8 ${className}`}>
+    <article
+      className={`bg-bg-card border-[1.5px] border-ink relative overflow-hidden
+        transition-all duration-200 hover:-translate-x-[3px] hover:-translate-y-[3px]
+        hover:shadow-[8px_8px_0_#0e1a2b] ${className}`}
+    >
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <Badge variant="secondary">
-          Matchday {match.matchday} • Group {match.group}
-        </Badge>
-        <Badge variant="primary" dot>
+      <div className="flex items-center justify-between px-[18px] py-[14px] border-b-[1.5px] border-ink bg-bg-elevated">
+        <span
+          style={{
+            fontFamily: 'Anton, sans-serif',
+            fontSize: 12,
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Matchday {match.matchday} · Grupo {match.group}
+        </span>
+        <span
+          className="flex items-center gap-1.5"
+          style={{
+            fontFamily: 'Archivo, sans-serif',
+            fontSize: 11,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: 'var(--color-primary)',
+              display: 'inline-block',
+            }}
+          />
           {match.date}
-        </Badge>
+        </span>
       </div>
 
       {/* Teams */}
-      <div className="flex items-center justify-between gap-4 md:gap-8 mb-6">
-        {/* Home Team */}
-        <div className="flex flex-col items-center gap-3 flex-1">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full gradient-primary flex items-center justify-center shadow-lg glow-pulse">
-            <span className="font-headline font-black text-xl md:text-2xl text-text-inverse">
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr auto 1fr',
+          gap: 16,
+          alignItems: 'center',
+          padding: '28px 24px',
+        }}
+      >
+        {/* Home */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              border: '2px solid var(--color-ink)',
+              background: 'var(--color-bg-elevated)',
+              display: 'grid',
+              placeItems: 'center',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: 'Anton, sans-serif',
+                fontSize: 18,
+                letterSpacing: '0.04em',
+                color: 'var(--color-ink)',
+              }}
+            >
               {match.homeTeam.code}
             </span>
           </div>
-          <span className="font-headline font-bold text-base md:text-lg tracking-tight text-text-primary text-center">
+          <span
+            style={{
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 18,
+              letterSpacing: '0.03em',
+              textAlign: 'center',
+            }}
+          >
             {match.homeTeam.name}
           </span>
         </div>
 
         {/* VS */}
-        <div className="flex flex-col items-center shrink-0">
-          <span className="font-headline text-3xl md:text-4xl font-black gradient-text">VS</span>
-          <span className="text-[0.65rem] uppercase text-text-muted mt-1 tracking-wider text-center max-w-[120px]">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+          <span
+            style={{
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 36,
+              color: 'var(--color-ink)',
+            }}
+          >
+            VS
+          </span>
+          <span
+            style={{
+              fontFamily: 'Archivo, sans-serif',
+              fontSize: 10,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: 'var(--color-text-muted)',
+              whiteSpace: 'nowrap',
+              textAlign: 'center',
+            }}
+          >
             {match.venue}
           </span>
         </div>
 
-        {/* Away Team */}
-        <div className="flex flex-col items-center gap-3 flex-1">
-          <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-bg-elevated flex items-center justify-center shadow-lg border border-border">
-            <span className="font-headline font-black text-xl md:text-2xl text-secondary">
+        {/* Away */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              border: '2px solid var(--color-ink)',
+              background: 'var(--color-bg-elevated)',
+              display: 'grid',
+              placeItems: 'center',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: 'Anton, sans-serif',
+                fontSize: 18,
+                letterSpacing: '0.04em',
+                color: 'var(--color-secondary)',
+              }}
+            >
               {match.awayTeam.code}
             </span>
           </div>
-          <span className="font-headline font-bold text-base md:text-lg tracking-tight text-text-primary text-center">
+          <span
+            style={{
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 18,
+              letterSpacing: '0.03em',
+              textAlign: 'center',
+            }}
+          >
             {match.awayTeam.name}
           </span>
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="pt-5 border-t border-border flex justify-center gap-8">
-        <div className="flex items-center gap-2 text-text-secondary">
-          <Calendar className="text-primary w-5 h-5" />
-          <span className="text-sm font-medium">{match.date}</span>
+      {/* Footer */}
+      <div className="border-t-[1.5px] border-ink flex">
+        <div
+          className="flex-1 border-r-[1.5px] border-ink px-[18px] py-[12px]"
+          style={{
+            fontFamily: 'Archivo, sans-serif',
+            fontSize: 12,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--color-primary-dim)',
+            fontWeight: 700,
+          }}
+        >
+          🏟 {match.time}
         </div>
-        <div className="flex items-center gap-2 text-text-secondary">
-          <Clock className="text-primary w-5 h-5" />
-          <span className="text-sm font-medium">{match.time}</span>
+        <div
+          className="flex-1 px-[18px] py-[12px]"
+          style={{
+            fontFamily: 'Archivo, sans-serif',
+            fontSize: 12,
+            letterSpacing: '0.08em',
+            textTransform: 'uppercase',
+            color: 'var(--color-text-muted)',
+          }}
+        >
+          Ver detalles →
         </div>
       </div>
-    </div>
+    </article>
   );
 }

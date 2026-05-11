@@ -8,17 +8,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
 }
 
-const variants = {
+const variants: Record<string, string> = {
   primary:
-    'gradient-primary text-text-inverse font-bold shadow-lg hover:shadow-xl hover:brightness-110',
-  secondary:
-    'bg-bg-elevated text-text-primary border border-border hover:border-border-hover hover:bg-bg-hover',
-  ghost: 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-bg-elevated',
+    'bg-primary text-ink border-[1.5px] border-ink hover:bg-primary-light active:translate-x-[2px] active:translate-y-[2px]',
+  secondary: 'bg-bg-card text-text-primary border-[1.5px] border-ink hover:bg-bg-elevated',
+  ghost:
+    'bg-transparent text-text-secondary border-[1.5px] border-transparent hover:border-ink hover:text-text-primary',
   outline:
-    'bg-transparent text-primary border border-primary/30 hover:bg-primary-subtle hover:border-primary/50',
+    'bg-transparent text-primary border-[1.5px] border-primary hover:bg-primary hover:text-ink',
 };
 
-const sizes = {
+const sizes: Record<string, string> = {
   sm: 'px-4 py-2 text-xs',
   md: 'px-6 py-3 text-sm',
   lg: 'px-8 py-4 text-base',
@@ -36,15 +36,16 @@ export function Button({
   return (
     <button
       className={`
-        inline-flex items-center justify-center gap-2 rounded-lg font-headline font-semibold
-        transition-all duration-300 active:scale-[0.97] focus-ring cursor-pointer
+        inline-flex items-center justify-center gap-2
+        font-headline tracking-widest uppercase
+        transition-all duration-150 cursor-pointer focus-ring
         ${variants[variant]} ${sizes[size]} ${className}
       `}
       {...props}
     >
-      {Icon && iconPosition === 'left' && <Icon className="w-5 h-5" />}
+      {Icon && iconPosition === 'left' && <Icon className="w-4 h-4" />}
       {children}
-      {Icon && iconPosition === 'right' && <Icon className="w-5 h-5" />}
+      {Icon && iconPosition === 'right' && <Icon className="w-4 h-4" />}
     </button>
   );
 }

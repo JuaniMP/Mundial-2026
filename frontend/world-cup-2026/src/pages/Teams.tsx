@@ -9,7 +9,6 @@ import { ArrowLeft, Loader } from 'lucide-react';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-/** Best-effort match from codigoFifa → local Team colors */
 function resolveTeam(s: SeleccionResponse): Team {
   const found = getTeamByShortName(s.codigoFifa);
   if (found) return found;
@@ -24,7 +23,6 @@ function resolveTeam(s: SeleccionResponse): Team {
   };
 }
 
-/** Rarity by popularidad tier */
 function popularidadToRareza(p = 50): string {
   if (p >= 90) return 'LEGENDARIO';
   if (p >= 75) return 'EPICO';
@@ -45,54 +43,64 @@ function TeamCard({ seleccion, onClick }: TeamCardProps) {
     <button
       onClick={onClick}
       style={{
-        background: `linear-gradient(135deg, ${team.primary}ee, ${team.secondary}cc)`,
-        border: `1.5px solid ${team.primary}88`,
-        borderRadius: 14,
+        background: 'var(--color-bg-deep)',
+        border: '1.5px solid var(--color-ink)',
         padding: '14px 10px',
         cursor: 'pointer',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         gap: 6,
-        transition: 'transform 0.15s, box-shadow 0.15s',
+        transition: 'transform .15s, box-shadow .15s',
         width: '100%',
       }}
       onMouseEnter={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
-        el.style.transform = 'translateY(-4px)';
-        el.style.boxShadow = `0 8px 24px ${team.primary}66`;
+        el.style.transform = 'translate(-3px,-3px)';
+        el.style.boxShadow = '6px 6px 0 var(--color-ink)';
+        el.style.background = 'var(--color-bg-elevated)';
       }}
       onMouseLeave={(e) => {
         const el = e.currentTarget as HTMLButtonElement;
-        el.style.transform = 'translateY(0)';
-        el.style.boxShadow = 'none';
+        el.style.transform = '';
+        el.style.boxShadow = '';
+        el.style.background = 'var(--color-bg-deep)';
       }}
     >
-      <span style={{ fontSize: 32 }}>{team.flag}</span>
+      <span style={{ fontSize: 28 }}>{team.flag}</span>
       <p
         style={{
-          color: '#fff',
-          fontFamily: 'Oswald, sans-serif',
+          color: 'var(--color-ink)',
+          fontFamily: 'Anton, sans-serif',
           fontSize: 13,
           fontWeight: 700,
           margin: 0,
           textAlign: 'center',
           textTransform: 'uppercase',
-          letterSpacing: 0.5,
+          letterSpacing: '0.05em',
         }}
       >
         {team.shortName}
       </p>
       <p
         style={{
-          color: 'rgba(255,255,255,0.55)',
-          fontFamily: 'Inter, sans-serif',
+          color: 'var(--color-text-muted)',
+          fontFamily: 'Archivo, sans-serif',
           fontSize: 10,
           margin: 0,
+          letterSpacing: '0.1em',
         }}
       >
-        Grupo {seleccion.grupo}
+        GRP {seleccion.grupo}
       </p>
+      <div
+        style={{
+          width: 24,
+          height: 3,
+          background: team.primary,
+          marginTop: 2,
+        }}
+      />
     </button>
   );
 }
@@ -103,7 +111,6 @@ export function Teams() {
   const [selecciones, setSelecciones] = useState<SeleccionResponse[]>([]);
   const [selected, setSelected] = useState<SeleccionResponse | null>(null);
   const [jugadores, setJugadores] = useState<JugadorResponse[]>([]);
-  // loadingTeams starts true — no synchronous setState inside the effect
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [loadingPlayers, setLoadingPlayers] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -130,7 +137,6 @@ export function Teams() {
     setJugadores([]);
   }, []);
 
-  // Group teams by group letter
   const groups = selecciones.reduce<Record<string, SeleccionResponse[]>>((acc, s) => {
     const g = s.grupo ?? 'X';
     return { ...acc, [g]: [...(acc[g] ?? []), s] };
@@ -140,106 +146,198 @@ export function Teams() {
     <main
       style={{
         minHeight: '100vh',
-        background: '#0a0a14',
-        padding: '80px 16px 40px',
+        background: 'var(--color-bg-deep)',
+        paddingTop: 115,
       }}
     >
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
-        {/* ── Header ── */}
+      {/* ── Page Hero ── */}
+      <section
+        style={{ borderBottom: '1.5px solid var(--color-ink)', background: 'var(--color-bg-deep)' }}
+      >
         <div
           style={{
+            maxWidth: 1440,
+            margin: '0 auto',
+            padding: '48px 36px 32px',
             display: 'flex',
-            alignItems: 'center',
-            gap: 12,
-            marginBottom: 32,
+            alignItems: 'flex-end',
+            justifyContent: 'space-between',
+            gap: 24,
+            flexWrap: 'wrap',
           }}
         >
-          {selected && (
-            <button
-              onClick={handleBack}
+          <div>
+            <div
               style={{
-                background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: 10,
-                padding: '8px 12px',
-                cursor: 'pointer',
-                color: '#fff',
+                fontFamily: 'Archivo, sans-serif',
+                fontSize: 11,
+                letterSpacing: '0.25em',
+                textTransform: 'uppercase',
+                color: 'var(--color-text-muted)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 10,
+                marginBottom: 10,
               }}
             >
-              <ArrowLeft size={16} />
-            </button>
-          )}
-          <div>
-            <h1
-              style={{
-                fontFamily: 'Oswald, sans-serif',
-                fontSize: 32,
-                fontWeight: 800,
-                color: '#fff',
-                margin: 0,
-                letterSpacing: 1,
-                textTransform: 'uppercase',
-              }}
-            >
-              {selected ? `🏴 ${resolveTeam(selected).name}` : '🌍 32 Selecciones'}
-            </h1>
-            <p
-              style={{
-                color: 'rgba(255,255,255,0.4)',
-                fontFamily: 'Inter, sans-serif',
-                fontSize: 13,
-                margin: '4px 0 0',
-              }}
-            >
-              {selected ? `Jugadores — Grupo ${selected.grupo}` : 'FIFA World Cup 2026'}
-            </p>
+              <span
+                style={{
+                  width: 24,
+                  height: 2,
+                  background: 'var(--color-primary)',
+                  display: 'inline-block',
+                }}
+              />
+              {selected
+                ? `Jugadores · Grupo ${selected.grupo}`
+                : '48 equipos · FIFA World Cup 2026'}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              {selected && (
+                <button
+                  onClick={handleBack}
+                  style={{
+                    background: 'transparent',
+                    border: '1.5px solid var(--color-ink)',
+                    padding: '8px 12px',
+                    cursor: 'pointer',
+                    color: 'var(--color-ink)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    transition: 'background 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'var(--color-ink)';
+                    (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-primary)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLButtonElement).style.color = 'var(--color-ink)';
+                  }}
+                >
+                  <ArrowLeft size={14} />
+                </button>
+              )}
+              <h1
+                style={{
+                  fontFamily: 'Anton, sans-serif',
+                  fontSize: 'clamp(42px,6vw,96px)',
+                  lineHeight: 0.9,
+                  margin: 0,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {selected ? (
+                  <>
+                    {resolveTeam(selected).flag}{' '}
+                    <span
+                      style={{
+                        fontFamily: 'DM Serif Display, serif',
+                        fontStyle: 'italic',
+                        fontSize: '0.82em',
+                        color: 'var(--color-secondary)',
+                      }}
+                    >
+                      {resolveTeam(selected).name}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    🌍{' '}
+                    <span
+                      style={{
+                        fontFamily: 'DM Serif Display, serif',
+                        fontStyle: 'italic',
+                        fontSize: '0.82em',
+                        color: 'var(--color-secondary)',
+                      }}
+                    >
+                      32
+                    </span>{' '}
+                    SELECCIONES
+                  </>
+                )}
+              </h1>
+            </div>
           </div>
         </div>
+      </section>
 
+      <div style={{ maxWidth: 1440, margin: '0 auto', padding: '48px 36px' }}>
         {/* ── Error ── */}
         {error && (
           <p
             style={{
-              color: '#f87171',
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'Anton, sans-serif',
+              color: 'var(--color-danger)',
               textAlign: 'center',
               marginTop: 60,
+              fontSize: 18,
+              letterSpacing: '0.08em',
             }}
           >
             {error}
           </p>
         )}
 
-        {/* ── Teams list ── */}
-        {!selected && !loadingTeams && (
+        {/* ── Loading teams ── */}
+        {loadingTeams && (
           <div
             style={{
               display: 'flex',
-              flexDirection: 'column',
-              gap: 32,
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 200,
+              gap: 12,
+              color: 'var(--color-text-muted)',
             }}
           >
+            <Loader size={20} className="animate-spin" />
+            <span
+              style={{ fontFamily: 'Archivo, sans-serif', fontSize: 14, letterSpacing: '0.1em' }}
+            >
+              Cargando selecciones…
+            </span>
+          </div>
+        )}
+
+        {/* ── Teams list ── */}
+        {!selected && !loadingTeams && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 40 }}>
             {Object.keys(groups)
               .sort()
               .map((g) => (
                 <section key={g}>
                   <h2
                     style={{
-                      color: '#60a5fa',
-                      fontFamily: 'Oswald, sans-serif',
-                      fontSize: 16,
+                      fontFamily: 'Anton, sans-serif',
+                      fontSize: 14,
                       fontWeight: 700,
                       textTransform: 'uppercase',
-                      letterSpacing: 2,
+                      letterSpacing: '0.2em',
                       margin: '0 0 14px',
-                      borderBottom: '1px solid rgba(96,165,250,0.2)',
-                      paddingBottom: 6,
+                      borderBottom: '1.5px solid var(--color-ink)',
+                      paddingBottom: 8,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 10,
+                      color: 'var(--color-ink)',
                     }}
                   >
-                    Grupo {g}
+                    <span
+                      style={{
+                        background: 'var(--color-ink)',
+                        color: 'var(--color-primary)',
+                        padding: '3px 10px',
+                        fontFamily: 'Anton, sans-serif',
+                        fontSize: 13,
+                        letterSpacing: '0.15em',
+                      }}
+                    >
+                      GRUPO {g}
+                    </span>
                   </h2>
                   <div
                     style={{
@@ -257,8 +355,8 @@ export function Teams() {
           </div>
         )}
 
-        {/* ── Loading teams ── */}
-        {loadingTeams && (
+        {/* ── Loading players ── */}
+        {loadingPlayers && (
           <div
             style={{
               display: 'flex',
@@ -266,12 +364,14 @@ export function Teams() {
               alignItems: 'center',
               height: 200,
               gap: 12,
-              color: 'rgba(255,255,255,0.4)',
+              color: 'var(--color-text-muted)',
             }}
           >
             <Loader size={20} className="animate-spin" />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14 }}>
-              Cargando selecciones…
+            <span
+              style={{ fontFamily: 'Archivo, sans-serif', fontSize: 14, letterSpacing: '0.1em' }}
+            >
+              Cargando jugadores…
             </span>
           </div>
         )}
@@ -282,10 +382,11 @@ export function Teams() {
             {jugadores.length === 0 ? (
               <p
                 style={{
-                  color: 'rgba(255,255,255,0.35)',
-                  fontFamily: 'Inter, sans-serif',
+                  fontFamily: 'Archivo, sans-serif',
+                  color: 'var(--color-text-muted)',
                   textAlign: 'center',
                   marginTop: 60,
+                  fontSize: 15,
                 }}
               >
                 No hay jugadores registrados aún.
@@ -315,25 +416,6 @@ export function Teams() {
                 ))}
               </div>
             )}
-          </div>
-        )}
-
-        {/* ── Loading players ── */}
-        {loadingPlayers && (
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              height: 200,
-              gap: 12,
-              color: 'rgba(255,255,255,0.4)',
-            }}
-          >
-            <Loader size={20} className="animate-spin" />
-            <span style={{ fontFamily: 'Inter, sans-serif', fontSize: 14 }}>
-              Cargando jugadores…
-            </span>
           </div>
         )}
       </div>
