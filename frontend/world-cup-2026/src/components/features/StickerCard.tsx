@@ -1,4 +1,4 @@
-import React from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 interface StickerCardProps {
   name: string;
@@ -7,7 +7,7 @@ interface StickerCardProps {
   isLarge?: boolean;
   labelBadge?: string;
   isIcon?: boolean;
-  icon?: React.ElementType;
+  icon?: LucideIcon;
   className?: string;
 }
 

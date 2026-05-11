@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useFcm } from '../hooks/useFcm';
-import { MascotAnimation } from '../components/features/MascotAnimation';
+import { Hero3D } from '../components/features/Hero3D';
 import type { PartidoApi } from '../types';
 import { fetchSeleccionByCode } from '../services/footballApi';
 import { getTeamByShortName } from '../components/album/teamColors';
@@ -164,9 +164,239 @@ export function Dashboard() {
               margin: '0 0 18px',
             }}
           >
-            Mascotas Oficiales • Mundial 2026
-          </p>
-          <MascotAnimation size="md" />
+            <div>
+              {/* Eyebrow */}
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  fontFamily: 'Anton, sans-serif',
+                  fontSize: 12,
+                  letterSpacing: '0.25em',
+                  color: 'var(--color-primary)',
+                  paddingBottom: 12,
+                  borderBottom: '1px solid rgba(229,180,73,.35)',
+                  marginBottom: 24,
+                }}
+              >
+                <span
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    background: 'var(--color-danger)',
+                    animation: 'pulse 1.6s infinite',
+                    display: 'inline-block',
+                  }}
+                />
+                EN VIVO · TEMPORADA 2026
+              </span>
+
+              {/* Title */}
+              <h1
+                style={{
+                  fontFamily: 'Anton, sans-serif',
+                  letterSpacing: '0.005em',
+                  lineHeight: 0.85,
+                  textTransform: 'uppercase',
+                  margin: '0 0 20px',
+                }}
+              >
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 'clamp(80px,10vw,148px)',
+                    color: 'var(--color-bg-base)',
+                  }}
+                >
+                  EL{' '}
+                  <span
+                    style={{
+                      fontFamily: 'DM Serif Display, serif',
+                      fontStyle: 'italic',
+                      textTransform: 'none',
+                      color: 'var(--color-primary)',
+                      fontSize: '0.82em',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    gran
+                  </span>
+                </span>
+                <span
+                  style={{
+                    display: 'block',
+                    fontSize: 'clamp(80px,10vw,148px)',
+                    WebkitTextStroke: '2px var(--color-bg-base)',
+                    color: 'transparent',
+                  }}
+                >
+                  MUN
+                  <span style={{ color: 'var(--color-primary)', WebkitTextStroke: '0' }}>·</span>
+                  DIAL
+                </span>
+                <span
+                  style={{
+                    display: 'block',
+                    fontFamily: 'DM Serif Display, serif',
+                    fontStyle: 'italic',
+                    textTransform: 'none',
+                    color: 'var(--color-primary)',
+                    fontSize: 'clamp(40px,5.5vw,80px)',
+                    lineHeight: 1.1,
+                    marginTop: 6,
+                  }}
+                >
+                  vuelve a casa.
+                </span>
+              </h1>
+
+              <p
+                style={{
+                  maxWidth: 500,
+                  fontSize: 15,
+                  lineHeight: 1.55,
+                  color: 'rgba(246,239,226,.78)',
+                  marginBottom: 28,
+                  fontFamily: 'Archivo, sans-serif',
+                }}
+              >
+                Tres países. Dieciséis sedes. Cuarenta y ocho selecciones. Una sola fiebre. Sigue
+                cada gol, cada cromo, cada celebración — desde el saque inicial hasta el trofeo
+                dorado.
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <Link
+                  to="/matches"
+                  style={{
+                    background: 'var(--color-primary)',
+                    color: 'var(--color-ink)',
+                    fontFamily: 'Anton, sans-serif',
+                    letterSpacing: '0.05em',
+                    fontSize: 16,
+                    padding: '14px 26px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    textDecoration: 'none',
+                    transition: 'transform 0.15s, box-shadow 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.transform = 'translate(-2px,-2px)';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '6px 6px 0 #b58523';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.transform = '';
+                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '';
+                  }}
+                >
+                  VIVE EL MUNDIAL <ArrowRight size={16} />
+                </Link>
+                <Link
+                  to="/album"
+                  style={{
+                    background: 'transparent',
+                    color: 'var(--color-bg-base)',
+                    border: '1.5px solid var(--color-bg-base)',
+                    fontFamily: 'Anton, sans-serif',
+                    letterSpacing: '0.05em',
+                    fontSize: 14,
+                    padding: '13px 22px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    textDecoration: 'none',
+                    transition: 'background 0.15s, color 0.15s',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.background =
+                      'var(--color-bg-base)';
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-ink)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-bg-base)';
+                  }}
+                >
+                  <Play size={14} />
+                  VER TRÁILER
+                </Link>
+              </div>
+            </div>
+
+            {/* Stats strip */}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                borderTop: '1px solid rgba(246,239,226,.15)',
+                paddingTop: 20,
+                marginTop: 32,
+              }}
+            >
+              {[
+                { n: '48', l: 'Selecciones' },
+                { n: '16', l: 'Sedes' },
+                { n: '104', l: 'Partidos' },
+                { n: '31', l: 'Días al saque', accent: true },
+              ].map((s) => (
+                <div key={s.l} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                  <span
+                    style={{
+                      fontFamily: 'Anton, sans-serif',
+                      fontSize: 36,
+                      color: 'var(--color-bg-base)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {s.n}
+                    {s.accent && (
+                      <span
+                        style={{
+                          fontFamily: 'DM Serif Display, serif',
+                          fontStyle: 'italic',
+                          color: 'var(--color-primary)',
+                          fontSize: '0.85em',
+                        }}
+                      >
+                        d
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'rgba(246,239,226,.5)',
+                      fontFamily: 'Archivo, sans-serif',
+                    }}
+                  >
+                    {s.l}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT — mascot stage */}
+          <div
+            style={{
+              position: 'relative',
+              zIndex: 2,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: 560,
+            }}
+          >
+            <Hero3D />
+          </div>
         </div>
       </section>
 
