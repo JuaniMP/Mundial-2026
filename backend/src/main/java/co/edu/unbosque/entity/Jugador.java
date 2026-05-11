@@ -40,6 +40,10 @@ public class Jugador {
     @Column(name = "foto_url", length = 255)
     private String fotoUrl;
 
+    @Column(name = "popularidad")
+    @Builder.Default
+    private Integer popularidad = 50;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_seleccion", nullable = false)
     private Seleccion seleccion;

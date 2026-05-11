@@ -2,11 +2,13 @@ package co.edu.unbosque.service;
 
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
+import co.edu.unbosque.util.Wc2026DataProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -104,119 +106,47 @@ public class DataSeederService {
     }
 
     private void seedSelecciones() {
-        String[][] selecciones = {
-            {"Argentina", "ARG", "CONMEBOL", "A"},
-            {"Colombia", "COL", "CONMEBOL", "A"},
-            {"Paraguay", "PAR", "CONMEBOL", "A"},
-            {"Canadá", "CAN", "CONCACAF", "A"},
-            {"Brasil", "BRA", "CONMEBOL", "B"},
-            {"Uruguay", "URU", "CONMEBOL", "B"},
-            {"Bolivia", "BOL", "CONMEBOL", "B"},
-            {"México", "MEX", "CONCACAF", "B"},
-            {"Ecuador", "ECU", "CONMEBOL", "C"},
-            {"Perú", "PER", "CONMEBOL", "C"},
-            {"Venezuela", "VEN", "CONMEBOL", "C"},
-            {"Costa Rica", "CRC", "CONCACAF", "C"},
-            {"Chile", "CHI", "CONMEBOL", "D"},
-            {"Francia", "FRA", "UEFA", "D"},
-            {"Italia", "ITA", "UEFA", "D"},
-            {"Marruecos", "MAR", "CAF", "D"},
-            {"España", "ESP", "UEFA", "E"},
-            {"Alemania", "GER", "UEFA", "E"},
-            {"Japón", "JPN", "AFC", "E"},
-            {"Nigeria", "NGR", "CAF", "E"},
-            {"Portugal", "POR", "UEFA", "F"},
-            {"Países Bajos", "NED", "UEFA", "F"},
-            {"Bélgica", "BEL", "UEFA", "F"},
-            {"Irak", "IRQ", "AFC", "F"},
-            {"Inglaterra", "ENG", "UEFA", "G"},
-            {"Irán", "IRN", "AFC", "G"},
-            {"Türkiye", "TUR", "UEFA", "G"},
-            {"Ghana", "GHA", "CAF", "G"},
-            {"Gales", "WAL", "UEFA", "H"},
-            {"Sudáfrica", "RSA", "CAF", "H"},
-            {"Tailandia", "THA", "AFC", "H"},
-            {"Honduras", "HND", "CONCACAF", "H"}
-        };
-
-        for (String[] sel : selecciones) {
-            if (seleccionRepository.findByCodigoFifa(sel[1]).isEmpty()) {
+        List<Wc2026DataProvider.TeamData> teams = Wc2026DataProvider.getAllTeams();
+        
+        for (Wc2026DataProvider.TeamData teamData : teams) {
+            if (seleccionRepository.findByCodigoFifa(teamData.codigoFifa).isEmpty()) {
                 seleccionRepository.save(Seleccion.builder()
-                        .pais(sel[0])
-                        .codigoFifa(sel[1])
-                        .confederacion(sel[2])
-                        .grupo(sel[3])
+                        .pais(teamData.pais)
+                        .codigoFifa(teamData.codigoFifa)
+                        .confederacion(teamData.confederacion)
+                        .grupo(teamData.grupo)
                         .historial("Equipo del Mundial 2026")
-                        .banderaUrl("https://flagcdn.com/w640/" + sel[1].toLowerCase() + ".png")
+                        .banderaUrl("https://flagcdn.com/w640/" + teamData.codigoFifa.toLowerCase() + ".png")
                         .build());
             }
         }
-        System.out.println("✓ Selecciones cargadas");
+        System.out.println("✓ Selecciones cargadas (" + teams.size() + " equipos)");
     }
 
     private void seedJugadores() {
-        Seleccion argentina = seleccionRepository.findByPais("Argentina").orElse(null);
-        Seleccion colombia = seleccionRepository.findByPais("Colombia").orElse(null);
-        Seleccion brasil = seleccionRepository.findByPais("Brasil").orElse(null);
-
-        if (argentina != null && jugadorRepository.findBySeleccion(argentina).isEmpty()) {
-            String[][] jugadoresArg = {
-                {"Lionel Messi", "Delantero", "10", "1987-06-24"},
-                {"Ángel Di María", "Delantero", "11", "1988-02-14"},
-                {"Gonzalo Montiel", "Defensa", "4", "1997-01-02"}
-            };
-
-            for (String[] jug : jugadoresArg) {
-                jugadorRepository.save(Jugador.builder()
-                        .nombreCompleto(jug[0])
-                        .posicion(jug[1])
-                        .dorsal(Integer.parseInt(jug[2]))
-                        .fechaNacimiento(java.time.LocalDate.parse(jug[3]))
-                        .nacionalidad("Argentina")
-                        .seleccion(argentina)
-                        .build());
+        List<Wc2026DataProvider.TeamData> teams = Wc2026DataProvider.getAllTeams();
+        int totalJugadores = 0;
+        
+        for (Wc2026DataProvider.TeamData teamData : teams) {
+            Seleccion seleccion = seleccionRepository.findByPais(teamData.pais).orElse(null);
+            
+            if (seleccion != null && jugadorRepository.findBySeleccion(seleccion).isEmpty()) {
+                for (Wc2026DataProvider.PlayerData playerData : teamData.jugadores) {
+                    jugadorRepository.save(Jugador.builder()
+                            .nombreCompleto(playerData.nombre)
+                            .posicion(playerData.posicion)
+                            .dorsal(playerData.dorsal)
+                            .fechaNacimiento(LocalDate.of(1990, 1, 1)) // Placeholder
+                            .nacionalidad(teamData.pais)
+                            .fotoUrl("https://via.placeholder.com/150")
+                            .popularidad(playerData.popularidad)
+                            .seleccion(seleccion)
+                            .build());
+                    totalJugadores++;
+                }
             }
         }
-
-        if (colombia != null && jugadorRepository.findBySeleccion(colombia).isEmpty()) {
-            String[][] jugadoresCol = {
-                {"James Rodríguez", "Centrocampista", "10", "1991-07-12"},
-                {"Radamel Falcao", "Delantero", "9", "1986-02-10"},
-                {"David Ospina", "Portero", "1", "1988-08-31"}
-            };
-
-            for (String[] jug : jugadoresCol) {
-                jugadorRepository.save(Jugador.builder()
-                        .nombreCompleto(jug[0])
-                        .posicion(jug[1])
-                        .dorsal(Integer.parseInt(jug[2]))
-                        .fechaNacimiento(java.time.LocalDate.parse(jug[3]))
-                        .nacionalidad("Colombia")
-                        .seleccion(colombia)
-                        .build());
-            }
-        }
-
-        if (brasil != null && jugadorRepository.findBySeleccion(brasil).isEmpty()) {
-            String[][] jugadoresBra = {
-                {"Neymar Jr", "Delantero", "10", "1992-02-05"},
-                {"Vinícius Júnior", "Delantero", "7", "2000-07-12"},
-                {"Alisson Ramses", "Portero", "1", "1992-10-02"}
-            };
-
-            for (String[] jug : jugadoresBra) {
-                jugadorRepository.save(Jugador.builder()
-                        .nombreCompleto(jug[0])
-                        .posicion(jug[1])
-                        .dorsal(Integer.parseInt(jug[2]))
-                        .fechaNacimiento(java.time.LocalDate.parse(jug[3]))
-                        .nacionalidad("Brasil")
-                        .seleccion(brasil)
-                        .build());
-            }
-        }
-
-        System.out.println("✓ Jugadores cargados");
+        System.out.println("✓ Jugadores cargados (" + totalJugadores + " jugadores)");
     }
 
     private void seedPartidos() {

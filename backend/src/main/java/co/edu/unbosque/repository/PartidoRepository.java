@@ -16,4 +16,10 @@ public interface PartidoRepository extends JpaRepository<Partido, Integer> {
 
     @Query("SELECT p FROM Partido p WHERE p.fechaHora >= :startDate AND p.fechaHora <= :endDate")
     List<Partido> findByFechaHoraBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    @Query("SELECT p FROM Partido p WHERE p.seleccionLocal.id = :seleccionId OR p.seleccionVisitante.id = :seleccionId ORDER BY p.fechaHora ASC")
+    List<Partido> findBySeleccion(Integer seleccionId);
+
+    @Query("SELECT p FROM Partido p WHERE (p.seleccionLocal.id = :seleccionId OR p.seleccionVisitante.id = :seleccionId) AND p.estado = 'PROGRAMADO' ORDER BY p.fechaHora ASC")
+    List<Partido> findProximosPartidosBySeleccion(Integer seleccionId);
 }

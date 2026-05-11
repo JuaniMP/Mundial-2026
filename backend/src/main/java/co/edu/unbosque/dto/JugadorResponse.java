@@ -21,6 +21,7 @@ public class JugadorResponse {
     private Integer minutosJugados;
     private Integer goles;
     private String fotoUrl;
+    private Integer popularidad;
     private Integer idSeleccion;
     private String pais;
 }
