@@ -357,6 +357,18 @@
   outline-offset: 2px;
 }
 
+/* ─── Particle Pop Animation ─── */
+@keyframes particle-pop {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) translateY(-24px);
+  }
+}
+
 /* ─── Noise Texture Overlay (subtle) ─── */
 .noise::after {
   content: '';

@@ -3,10 +3,8 @@ package co.edu.unbosque.service;
 import co.edu.unbosque.dto.CheckoutRequest;
 import co.edu.unbosque.dto.PaymentIntentResponse;
 import co.edu.unbosque.entity.Entrada;
-import co.edu.unbosque.entity.Partido;
 import co.edu.unbosque.entity.Usuario;
 import co.edu.unbosque.repository.EntradaRepository;
-import co.edu.unbosque.repository.PartidoRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
@@ -16,6 +14,7 @@ import com.stripe.net.Webhook;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.model.StripeObject;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class StripeService {
 
@@ -53,16 +53,7 @@ public class StripeService {
     private String webhookSecret;
 
     private final EntradaRepository entradaRepository;
-    private final PartidoRepository  partidoRepository;
-    private final FcmService         fcmService;
-
-    public StripeService(EntradaRepository entradaRepository,
-                         PartidoRepository partidoRepository,
-                         FcmService fcmService) {
-        this.entradaRepository = entradaRepository;
-        this.partidoRepository  = partidoRepository;
-        this.fcmService         = fcmService;
-    }
+    private final FcmService        fcmService;
 
     @PostConstruct
     public void init() {
@@ -88,9 +79,6 @@ public class StripeService {
             throw new IllegalArgumentException("Categoría inválida: " + categoria + ". Use GENERAL, VIP o PALCO.");
         }
 
-        Partido partido = partidoRepository.findById(req.getPartidoId())
-                .orElseThrow(() -> new IllegalArgumentException("Partido no encontrado: " + req.getPartidoId()));
-
         long precioPorEntrada = PRECIOS_CENTAVOS.get(categoria);
         long totalCentavos    = precioPorEntrada * req.getCantidad();
         BigDecimal precioUnit = PRECIOS_USD.get(categoria);
@@ -99,6 +87,9 @@ public class StripeService {
         String email = req.getEmailComprador() != null ? req.getEmailComprador()
                      : (usuario != null ? usuario.getEmail() : "guest@mundial2026.com");
 
+        // Descripción del partido desde los datos enviados por el frontend
+        String localVs = buildMatchDesc(req);
+
         // Crear PaymentIntent en Stripe
         PaymentIntent pi;
         try {
@@ -106,13 +97,11 @@ public class StripeService {
                     .setAmount(totalCentavos)
                     .setCurrency("usd")
                     .setReceiptEmail(email)
-                    .putMetadata("partidoId",  String.valueOf(partido.getId()))
-                    .putMetadata("categoria",  categoria)
-                    .putMetadata("cantidad",   String.valueOf(req.getCantidad()))
-                    .putMetadata("usuarioId",  usuario != null ? String.valueOf(usuario.getId()) : "guest")
-                    .setDescription("WC 2026 — " + partido.getSeleccionLocal().getPais()
-                                    + " vs " + partido.getSeleccionVisitante().getPais()
-                                    + " · " + categoria + " x" + req.getCantidad())
+                    .putMetadata("apiPartidoId", String.valueOf(req.getApiPartidoId()))
+                    .putMetadata("categoria",    categoria)
+                    .putMetadata("cantidad",     String.valueOf(req.getCantidad()))
+                    .putMetadata("usuarioId",    usuario != null ? String.valueOf(usuario.getId()) : "guest")
+                    .setDescription("WC 2026 — " + localVs + " · " + categoria + " x" + req.getCantidad())
                     .build();
             pi = PaymentIntent.create(params);
             log.info("💳 PaymentIntent created: {} — {} USD", pi.getId(), totalUsd);
@@ -135,15 +124,15 @@ public class StripeService {
                     .total(precioUnit)
                     .fechaCompra(LocalDateTime.now())
                     .emailComprador(email)
-                    .partido(partido)
+                    .apiPartidoId(req.getApiPartidoId())
+                    .seleccionLocal(req.getSeleccionLocal())
+                    .seleccionVisitante(req.getSeleccionVisitante())
+                    .estadioNombre(req.getEstadioNombre())
+                    .ronda(req.getRonda())
                     .usuarioComprador(usuario)
                     .build();
             ids.add(entradaRepository.save(e).getId());
         }
-
-        String desc = partido.getSeleccionLocal().getPais()
-                    + " vs " + partido.getSeleccionVisitante().getPais()
-                    + " — " + partido.getRonda();
 
         return PaymentIntentResponse.builder()
                 .clientSecret(pi.getClientSecret())
@@ -152,7 +141,7 @@ public class StripeService {
                 .cantidad(req.getCantidad())
                 .categoria(categoria)
                 .entradaIds(ids)
-                .partidoDescripcion(desc)
+                .partidoDescripcion(localVs)
                 .build();
     }
 
@@ -163,7 +152,6 @@ public class StripeService {
         Event event;
         try {
             if (webhookSecret.contains("REEMPLAZA")) {
-                // Skip signature check in dev
                 event = Event.GSON.fromJson(payload, Event.class);
             } else {
                 event = Webhook.constructEvent(payload, sigHeader, webhookSecret);
@@ -197,14 +185,9 @@ public class StripeService {
         entradaRepository.saveAll(entradas);
         log.info("✅ {} entradas marcadas como PAGADO para PI: {}", entradas.size(), piId);
 
-        // FCM — notify the buyer
         if (!entradas.isEmpty()) {
             Entrada primera = entradas.get(0);
-            String desc = primera.getPartido() != null
-                    ? primera.getPartido().getSeleccionLocal().getPais()
-                      + " vs " + primera.getPartido().getSeleccionVisitante().getPais()
-                      + " — " + primera.getPartido().getRonda()
-                    : "Partido WC 2026";
+            String desc = buildEntradaDesc(primera);
             fcmService.notifyTicketPurchase(
                     primera.getUsuarioComprador(),
                     desc,
@@ -221,5 +204,21 @@ public class StripeService {
         });
         entradaRepository.saveAll(entradas);
         log.warn("❌ {} entradas marcadas como FALLIDO para PI: {}", entradas.size(), piId);
+    }
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+
+    private String buildMatchDesc(CheckoutRequest req) {
+        String local     = req.getSeleccionLocal()     != null ? req.getSeleccionLocal()     : "Local";
+        String visitante = req.getSeleccionVisitante() != null ? req.getSeleccionVisitante() : "Visitante";
+        String ronda     = req.getRonda()              != null ? " — " + req.getRonda()       : "";
+        return local + " vs " + visitante + ronda;
+    }
+
+    private String buildEntradaDesc(Entrada e) {
+        String local     = e.getSeleccionLocal()     != null ? e.getSeleccionLocal()     : "Local";
+        String visitante = e.getSeleccionVisitante() != null ? e.getSeleccionVisitante() : "Visitante";
+        String ronda     = e.getRonda()              != null ? " — " + e.getRonda()       : "";
+        return local + " vs " + visitante + ronda;
     }
 }

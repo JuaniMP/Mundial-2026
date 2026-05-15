@@ -16,5 +16,6 @@ public class PrediccionResponse {
     private Integer puntosObtenidos;
     private Integer idUsuario;
     private String nombreUsuario;
-    private Integer idPartido;
+    /** ID del partido en football-data.org */
+    private Long apiPartidoId;
 }
