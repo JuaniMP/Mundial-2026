@@ -13,8 +13,8 @@ export const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      navigate('/');
+      const rol = await login(email, password);
+      navigate(rol === 'ADMIN' ? '/admin' : '/');
     } catch {
       // Error is already set in context
     }

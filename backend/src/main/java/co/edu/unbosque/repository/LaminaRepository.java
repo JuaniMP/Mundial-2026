@@ -10,7 +10,10 @@ import java.util.List;
 @Repository
 public interface LaminaRepository extends JpaRepository<Lamina, Integer> {
     List<Lamina> findByRareza(String rareza);
-    List<Lamina> findByJugadorId(Integer jugadorId);
+    List<Lamina> findByApiJugadorId(Long apiJugadorId);
+    List<Lamina> findByApiSeleccionId(Long apiSeleccionId);
+    List<Lamina> findByTipo(String tipo);
+    long countByTipo(String tipo);
 
     @Query("SELECT l FROM Lamina l ORDER BY RAND()")
     List<Lamina> findRandom();

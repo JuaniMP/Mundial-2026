@@ -1,10 +1,14 @@
 package co.edu.unbosque.service;
 
 import co.edu.unbosque.dto.*;
+import co.edu.unbosque.entity.Aficionado;
+import co.edu.unbosque.entity.Administrador;
 import co.edu.unbosque.entity.Rol;
 import co.edu.unbosque.entity.Usuario;
 import co.edu.unbosque.exception.BadRequestException;
 import co.edu.unbosque.exception.ResourceNotFoundException;
+import co.edu.unbosque.repository.AficionadoRepository;
+import co.edu.unbosque.repository.AdministradorRepository;
 import co.edu.unbosque.repository.RolRepository;
 import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.security.JwtUtil;
@@ -31,6 +35,8 @@ public class AuthService {
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
+    private final AficionadoRepository aficionadoRepository;
+    private final AdministradorRepository administradorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
@@ -73,8 +79,15 @@ public class AuthService {
 
         usuario = usuarioRepository.save(usuario);
 
+        // Crear registro en tabla específica del rol
+        crearRegistroRol(usuario);
+
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("role", rol.getNombre());
+        extraClaims.put("userId", usuario.getId());
+
         UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
-        String token = jwtUtil.generateToken(userDetails);
+        String token = jwtUtil.generateToken(userDetails, extraClaims);
 
         return AuthResponse.builder()
                 .token(token)
@@ -82,6 +95,30 @@ public class AuthService {
                 .nombre(usuario.getNombre())
                 .rol(usuario.getRol().getNombre())
                 .build();
+    }
+
+    private void crearRegistroRol(Usuario usuario) {
+        String rolNombre = usuario.getRol().getNombre();
+        switch (rolNombre) {
+            case "AFICIONADO" -> {
+                if (!aficionadoRepository.existsById(usuario.getId())) {
+                    aficionadoRepository.save(Aficionado.builder()
+                            .usuario(usuario)
+                            .seleccionFavorita(usuario.getSeleccionFavorita())
+                            .build());
+                }
+            }
+            case "ADMIN" -> {
+                if (!administradorRepository.existsById(usuario.getId())) {
+                    administradorRepository.save(Administrador.builder()
+                            .usuario(usuario)
+                            .superadmin(false)
+                            .requiereMfa(true)
+                            .build());
+                }
+            }
+            default -> log.debug("Rol {} sin tabla específica", rolNombre);
+        }
     }
 
     @Transactional
