@@ -1,628 +1,1300 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { matches } from '../data/mockData';
-import { MatchCard } from '../components/features/MatchCard';
-import { FeatureCard } from '../components/features/FeatureCard';
-import { Badge, Button } from '../components/ui';
-import {
-  ArrowRight,
-  Play,
-  Landmark,
-  Trophy,
-  BookOpen,
-  Bell,
-  BellOff,
-  X,
-  Users,
-} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useFcm } from '../hooks/useFcm';
-import { Hero3D } from '../components/features/Hero3D';
-import type { PartidoApi } from '../types';
-import { fetchSeleccionByCode } from '../services/footballApi';
-import { getTeamByShortName } from '../components/album/teamColors';
+import { fetchAllMatches, fetchStandings } from '../services/footballApi';
+import type { FdMatch, FdStandingsGroup } from '../types';
+import { ExternalLink, ChevronRight, ArrowUp, ArrowDown } from 'lucide-react';
 
-export function Dashboard() {
-  const nextMatch = matches[0];
-  const { token, user } = useAuth();
-  const { permission, registered, foregroundMessage, isConfigured, requestAndRegister, disable } =
-    useFcm(token);
-  const [bannerDismissed, setBannerDismissed] = useState(false);
-  const [loading, setLoading] = useState(false);
+// ─── Flag helper ─────────────────────────────────────────────────────────────
 
-  // User's favourite team code (e.g. 'ARG', 'BRA', 'COL', …)
-  const favCode = (user as { seleccionFavorita?: string } | null)?.seleccionFavorita ?? null;
-  const favTeam = favCode ? (getTeamByShortName(favCode) ?? null) : null;
-
-  // Next match for the favourite team
-  const [nextFavMatch, setNextFavMatch] = useState<PartidoApi | null>(null);
-
-  useEffect(() => {
-    if (!favCode || !token) return;
-    let cancelled = false;
-    fetchSeleccionByCode(favCode)
-      .then((seleccion) => {
-        if (!seleccion || cancelled) return;
-        const authHeader = { Authorization: `Bearer ${token}` };
-        const url =
-          `http://localhost:8082/api/v1/selecciones/` + `${seleccion.id}/partidos/proximos`;
-        return fetch(url, { headers: authHeader })
-          .then((r) => r.json() as Promise<{ data: PartidoApi[] }>)
-          .then((body) => {
-            if (!cancelled) setNextFavMatch(body.data?.[0] ?? null);
-          });
-      })
-      .catch(() => null);
-    return () => {
-      cancelled = true;
-    };
-  }, [favCode, token]);
-
-  const showBanner =
-    isConfigured &&
-    !bannerDismissed &&
-    permission !== 'granted' &&
-    permission !== 'denied' &&
-    permission !== 'unsupported';
-
-  const handleEnable = async () => {
-    setLoading(true);
-    await requestAndRegister();
-    setLoading(false);
+function getFlagUrl(tla: string): string {
+  const map: Record<string, string> = {
+    MEX: 'mx',
+    USA: 'us',
+    CAN: 'ca',
+    ARG: 'ar',
+    BRA: 'br',
+    FRA: 'fr',
+    ESP: 'es',
+    GER: 'de',
+    ENG: 'gb-eng',
+    POR: 'pt',
+    NED: 'nl',
+    COL: 'co',
+    URU: 'uy',
+    ECU: 'ec',
+    CHI: 'cl',
+    PER: 'pe',
+    MAR: 'ma',
+    SEN: 'sn',
+    GHA: 'gh',
+    CMR: 'cm',
+    JPN: 'jp',
+    KOR: 'kr',
+    AUS: 'au',
+    SAU: 'sa',
+    IRN: 'ir',
+    QAT: 'qa',
+    BEL: 'be',
+    SUI: 'ch',
+    CRO: 'hr',
+    DEN: 'dk',
+    SWE: 'se',
+    POL: 'pl',
+    SRB: 'rs',
+    WAL: 'gb-wls',
+    SCO: 'gb-sct',
+    CRC: 'cr',
+    PAN: 'pa',
+    HON: 'hn',
+    JAM: 'jm',
+    TRI: 'tt',
   };
+  const code = map[tla?.toUpperCase()] ?? tla?.toLowerCase().slice(0, 2);
+  return `https://flagcdn.com/w40/${code}.png`;
+}
 
+// ─── Hero Section ─────────────────────────────────────────────────────────────
+
+/* Photo collage positions: each photo is placed absolutely to create the
+   overlapping montage seen in the reference design. */
+const HERO_PHOTOS: {
+  src: string;
+  left: string;
+  top: string;
+  w: number;
+  h: number;
+  rotate: number;
+  z: number;
+}[] = [
+  /* far left */
+  { src: '/assets/hero/action1.jpg', left: '-2%', top: '8%', w: 220, h: 310, rotate: -5, z: 1 },
+  { src: '/assets/hero/action2.jpg', left: '8%', top: '22%', w: 200, h: 300, rotate: 2, z: 2 },
+  /* center-left */
+  { src: '/assets/hero/action3.jpg', left: '19%', top: '5%', w: 210, h: 320, rotate: -3, z: 3 },
+  { src: '/assets/hero/action4.jpg', left: '28%', top: '28%', w: 190, h: 280, rotate: 4, z: 2 },
+  /* center-right */
+  { src: '/assets/hero/action5.jpg', left: '58%', top: '6%', w: 210, h: 310, rotate: 3, z: 3 },
+  { src: '/assets/hero/action6.jpg', left: '67%', top: '25%', w: 195, h: 290, rotate: -2, z: 2 },
+  /* far right */
+  { src: '/assets/hero/action7.jpg', left: '78%', top: '4%', w: 215, h: 320, rotate: 5, z: 1 },
+  { src: '/assets/hero/action8.jpg', left: '88%', top: '18%', w: 200, h: 300, rotate: -4, z: 2 },
+];
+
+function HeroSection() {
   return (
-    <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-2xl mx-auto w-full pb-28 md:pb-12">
-      {/* ══════ Foreground Push Toast ══════ */}
-      {foregroundMessage && (
-        <div className="fixed top-20 right-4 z-[200] max-w-sm w-full animate-fade-in-up">
-          <div className="glass border border-primary/30 rounded-xl p-4 shadow-lg flex items-start gap-3">
-            <Bell className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-text-primary text-sm">{foregroundMessage.title}</p>
-              <p className="text-text-secondary text-sm mt-0.5">{foregroundMessage.body}</p>
-            </div>
-          </div>
-        </div>
-      )}
+    <section
+      style={{
+        position: 'relative',
+        overflow: 'hidden',
+        height: 560,
+        backgroundColor: '#F4F1EA',
+      }}
+    >
+      {/* ── BG: FIFA brand art (faded) ── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'url(/assets/hero-bg.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: 0.45,
+          zIndex: 0,
+        }}
+      />
 
-      {/* ══════ Notification Permission Banner ══════ */}
-      {showBanner && (
-        <div className="mb-6 glass border border-primary/20 rounded-2xl p-4 flex items-center gap-4 animate-fade-in-up">
-          <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center shrink-0">
-            <Bell className="w-5 h-5 text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-text-primary text-sm">
-              Activa las notificaciones push
-            </p>
-            <p className="text-text-muted text-xs mt-0.5">
-              Recibe resultados de partidos y confirmaciones de entradas en tiempo real.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button
-              variant="primary"
-              size="sm"
-              icon={Bell}
-              onClick={handleEnable}
-              disabled={loading}
-            >
-              {loading ? 'Activando…' : 'Activar'}
-            </Button>
-            <button
-              onClick={() => setBannerDismissed(true)}
-              className="text-text-muted hover:text-text-secondary transition-colors p-1"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ══════ Notification Status Chip (when granted) ══════ */}
-      {isConfigured && permission === 'granted' && (
-        <div className="mb-4 flex items-center justify-end gap-2">
-          {registered ? (
-            <button
-              onClick={disable}
-              className="flex items-center gap-1.5 text-xs text-text-muted hover:text-danger transition-colors"
-            >
-              <BellOff className="w-3.5 h-3.5" />
-              Desactivar notificaciones
-            </button>
-          ) : (
-            <button
-              onClick={handleEnable}
-              className="flex items-center gap-1.5 text-xs text-primary hover:underline transition-colors"
-            >
-              <Bell className="w-3.5 h-3.5" />
-              Registrar dispositivo
-            </button>
-          )}
-        </div>
-      )}
-
-      {/* ══════ Mascot Banner ══════ */}
-      <section className="mb-10 animate-fade-in-up">
-        <div
-          style={{
-            background: 'linear-gradient(135deg,rgba(124,58,237,0.12),rgba(37,99,235,0.12))',
-            border: '1px solid rgba(124,58,237,0.2)',
-            borderRadius: 20,
-            padding: '24px 16px',
-            textAlign: 'center',
-          }}
-        >
+      {/* ── LAYER 1: Photo collage ── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 2,
+          pointerEvents: 'none',
+        }}
+      >
+        {HERO_PHOTOS.map((photo, i) => (
           <div
+            key={i}
             style={{
-              color: 'rgba(255,255,255,0.45)',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 11,
-              textTransform: 'uppercase',
-              letterSpacing: 3,
-              margin: '0 0 18px',
+              position: 'absolute',
+              left: photo.left,
+              top: photo.top,
+              width: photo.w,
+              height: photo.h,
+              borderRadius: 12,
+              overflow: 'hidden',
+              transform: `rotate(${photo.rotate}deg)`,
+              zIndex: photo.z,
+              boxShadow:
+                '0 8px 30px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12)',
+              border: '3px solid rgba(255,255,255,0.7)',
             }}
           >
-            <div>
-              {/* Eyebrow */}
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  fontFamily: 'Anton, sans-serif',
-                  fontSize: 12,
-                  letterSpacing: '0.25em',
-                  color: 'var(--color-primary)',
-                  paddingBottom: 12,
-                  borderBottom: '1px solid rgba(229,180,73,.35)',
-                  marginBottom: 24,
-                }}
-              >
-                <span
-                  style={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: '50%',
-                    background: 'var(--color-danger)',
-                    animation: 'pulse 1.6s infinite',
-                    display: 'inline-block',
-                  }}
-                />
-                EN VIVO · TEMPORADA 2026
-              </span>
-
-              {/* Title */}
-              <h1
-                style={{
-                  fontFamily: 'Anton, sans-serif',
-                  letterSpacing: '0.005em',
-                  lineHeight: 0.85,
-                  textTransform: 'uppercase',
-                  margin: '0 0 20px',
-                }}
-              >
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 'clamp(80px,10vw,148px)',
-                    color: 'var(--color-bg-base)',
-                  }}
-                >
-                  EL{' '}
-                  <span
-                    style={{
-                      fontFamily: 'DM Serif Display, serif',
-                      fontStyle: 'italic',
-                      textTransform: 'none',
-                      color: 'var(--color-primary)',
-                      fontSize: '0.82em',
-                      letterSpacing: '-0.01em',
-                    }}
-                  >
-                    gran
-                  </span>
-                </span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontSize: 'clamp(80px,10vw,148px)',
-                    WebkitTextStroke: '2px var(--color-bg-base)',
-                    color: 'transparent',
-                  }}
-                >
-                  MUN
-                  <span style={{ color: 'var(--color-primary)', WebkitTextStroke: '0' }}>·</span>
-                  DIAL
-                </span>
-                <span
-                  style={{
-                    display: 'block',
-                    fontFamily: 'DM Serif Display, serif',
-                    fontStyle: 'italic',
-                    textTransform: 'none',
-                    color: 'var(--color-primary)',
-                    fontSize: 'clamp(40px,5.5vw,80px)',
-                    lineHeight: 1.1,
-                    marginTop: 6,
-                  }}
-                >
-                  vuelve a casa.
-                </span>
-              </h1>
-
-              <p
-                style={{
-                  maxWidth: 500,
-                  fontSize: 15,
-                  lineHeight: 1.55,
-                  color: 'rgba(246,239,226,.78)',
-                  marginBottom: 28,
-                  fontFamily: 'Archivo, sans-serif',
-                }}
-              >
-                Tres países. Dieciséis sedes. Cuarenta y ocho selecciones. Una sola fiebre. Sigue
-                cada gol, cada cromo, cada celebración — desde el saque inicial hasta el trofeo
-                dorado.
-              </p>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-                <Link
-                  to="/matches"
-                  style={{
-                    background: 'var(--color-primary)',
-                    color: 'var(--color-ink)',
-                    fontFamily: 'Anton, sans-serif',
-                    letterSpacing: '0.05em',
-                    fontSize: 16,
-                    padding: '14px 26px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 10,
-                    textDecoration: 'none',
-                    transition: 'transform 0.15s, box-shadow 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.transform = 'translate(-2px,-2px)';
-                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '6px 6px 0 #b58523';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.transform = '';
-                    (e.currentTarget as HTMLAnchorElement).style.boxShadow = '';
-                  }}
-                >
-                  VIVE EL MUNDIAL <ArrowRight size={16} />
-                </Link>
-                <Link
-                  to="/album"
-                  style={{
-                    background: 'transparent',
-                    color: 'var(--color-bg-base)',
-                    border: '1.5px solid var(--color-bg-base)',
-                    fontFamily: 'Anton, sans-serif',
-                    letterSpacing: '0.05em',
-                    fontSize: 14,
-                    padding: '13px 22px',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    textDecoration: 'none',
-                    transition: 'background 0.15s, color 0.15s',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.background =
-                      'var(--color-bg-base)';
-                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-ink)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.background = 'transparent';
-                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--color-bg-base)';
-                  }}
-                >
-                  <Play size={14} />
-                  VER TRÁILER
-                </Link>
-              </div>
-            </div>
-
-            {/* Stats strip */}
-            <div
+            <img
+              src={photo.src}
+              alt=""
               style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                borderTop: '1px solid rgba(246,239,226,.15)',
-                paddingTop: 20,
-                marginTop: 32,
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                display: 'block',
+              }}
+            />
+          </div>
+        ))}
+      </div>
+
+      {/* ── LAYER 2 (TOP): Headline + CTA ── */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 10,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          textAlign: 'center',
+          padding: '0 24px',
+          pointerEvents: 'none',
+        }}
+      >
+        {/* Frosted glass backdrop */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.65)',
+            backdropFilter: 'blur(10px)',
+            WebkitBackdropFilter: 'blur(10px)',
+            padding: '28px 48px 24px',
+            borderRadius: 10,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.08)',
+          }}
+        >
+          <h1
+            style={{
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(34px, 5.6vw, 68px)',
+              lineHeight: 0.96,
+              color: '#0D1B2A',
+              letterSpacing: '-0.03em',
+              textTransform: 'uppercase',
+              margin: 0,
+            }}
+          >
+            The World's Game.
+          </h1>
+          <h1
+            style={{
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(34px, 5.6vw, 68px)',
+              lineHeight: 0.96,
+              letterSpacing: '-0.03em',
+              textTransform: 'uppercase',
+              margin: '4px 0',
+              color: '#0D1B2A',
+            }}
+          >
+            <span style={{ color: '#C8102E' }}>Your</span> Tournament.
+          </h1>
+          <h1
+            style={{
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 'clamp(34px, 5.6vw, 68px)',
+              lineHeight: 0.96,
+              color: '#0D1B2A',
+              letterSpacing: '-0.03em',
+              margin: 0,
+            }}
+          >
+            2026.
+          </h1>
+        </div>
+
+        {/* CTA pill */}
+        <Link
+          to="/matches"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: '#ffffff',
+            color: '#0D1B2A',
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontWeight: 700,
+            fontSize: 13,
+            letterSpacing: '0.06em',
+            padding: '10px 26px',
+            borderRadius: 9999,
+            textDecoration: 'none',
+            pointerEvents: 'auto',
+            marginTop: 22,
+            border: '1px solid rgba(0,0,0,0.06)',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+            transition: 'transform 0.18s, background 0.18s',
+          }}
+          onMouseEnter={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.background = '#0D1B2A';
+            el.style.color = '#ffffff';
+            el.style.transform = 'translateY(-2px)';
+          }}
+          onMouseLeave={(e) => {
+            const el = e.currentTarget as HTMLAnchorElement;
+            el.style.background = '#ffffff';
+            el.style.color = '#0D1B2A';
+            el.style.transform = '';
+          }}
+        >
+          Celebrasvera <ChevronRight size={14} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+// ─── Match Center Section ─────────────────────────────────────────────────────
+
+function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
+  const upcoming = matches
+    .filter((m) => m.status === 'TIMED' || m.status === 'SCHEDULED')
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
+    .slice(0, 3);
+  const live = matches.find((m) => m.status === 'LIVE' || m.status === 'IN_PLAY');
+  const featured =
+    live ??
+    matches
+      .filter((m) => m.status === 'FINISHED')
+      .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())[0];
+
+  return (
+    <section style={{ padding: '24px' }}>
+      <div
+        style={{
+          background: '#ffffff',
+          border: '1px solid rgba(0,0,0,0.08)',
+          borderRadius: 12,
+          overflow: 'hidden',
+          boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '16px 20px',
+            borderBottom: '1px solid rgba(0,0,0,0.07)',
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 800,
+                fontSize: 16,
+                color: '#0D1B2A',
+                margin: 0,
+                letterSpacing: '-0.01em',
               }}
             >
-              {[
-                { n: '48', l: 'Selecciones' },
-                { n: '16', l: 'Sedes' },
-                { n: '104', l: 'Partidos' },
-                { n: '31', l: 'Días al saque', accent: true },
-              ].map((s) => (
-                <div key={s.l} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+              MATCH CENTER
+            </h2>
+            <p
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 12,
+                color: '#6b7280',
+                margin: '2px 0 0',
+              }}
+            >
+              Live scores, fixtures & standings
+            </p>
+          </div>
+          <Link
+            to="/matches"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              color: '#006847',
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 600,
+              fontSize: 12,
+              textDecoration: 'none',
+              letterSpacing: '0.04em',
+            }}
+          >
+            VIEW ALL <ExternalLink size={12} />
+          </Link>
+        </div>
+
+        {/* 3-column grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr 1fr',
+            minHeight: 200,
+          }}
+        >
+          {/* Col 1: Upcoming fixtures */}
+          <div
+            style={{
+              padding: '16px',
+              borderRight: '1px solid rgba(0,0,0,0.07)',
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: '#6b7280',
+                margin: '0 0 12px',
+              }}
+            >
+              UPCOMING FIXT.
+            </p>
+            {upcoming.length === 0 ? (
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#9ca3af' }}>
+                No upcoming matches
+              </p>
+            ) : (
+              upcoming.map((m) => {
+                const d = new Date(m.utcDate);
+                const dateStr = d.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  timeZone: 'America/Bogota',
+                });
+                return (
+                  <div
+                    key={m.id}
+                    style={{
+                      marginBottom: 12,
+                      padding: '8px 10px',
+                      background: '#f8f9fa',
+                      borderRadius: 8,
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: 10,
+                        color: '#9ca3af',
+                        margin: '0 0 4px',
+                      }}
+                    >
+                      {dateStr}
+                      {m.group ? ` · ${m.group.replace('GROUP_', 'G')}` : ''}
+                    </p>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 6,
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <img
+                          src={getFlagUrl(m.homeTeam.tla)}
+                          alt={m.homeTeam.tla}
+                          style={{
+                            width: 16,
+                            height: 11,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                            fontWeight: 700,
+                            fontSize: 11,
+                            color: '#0D1B2A',
+                          }}
+                        >
+                          {m.homeTeam.tla}
+                        </span>
+                      </div>
+                      <span
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: 10,
+                          color: '#6b7280',
+                        }}
+                      >
+                        vs
+                      </span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <span
+                          style={{
+                            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                            fontWeight: 700,
+                            fontSize: 11,
+                            color: '#0D1B2A',
+                          }}
+                        >
+                          {m.awayTeam.tla}
+                        </span>
+                        <img
+                          src={getFlagUrl(m.awayTeam.tla)}
+                          alt={m.awayTeam.tla}
+                          style={{
+                            width: 16,
+                            height: 11,
+                            objectFit: 'cover',
+                            borderRadius: 1,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Col 2: Featured live/recent score */}
+          <div
+            style={{
+              padding: '16px',
+              borderRight: '1px solid rgba(0,0,0,0.07)',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <p
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: live ? '#C8102E' : '#6b7280',
+                margin: '0 0 12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              {live && (
+                <span
+                  style={{
+                    display: 'inline-block',
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: '#C8102E',
+                    animation: 'pulse 1.5s infinite',
+                  }}
+                />
+              )}
+              {live ? 'LIVE SCORE' : 'LAST RESULT'}
+            </p>
+
+            {featured ? (
+              <>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    marginBottom: 4,
+                  }}
+                >
+                  <img
+                    src={getFlagUrl(featured.homeTeam.tla)}
+                    alt={featured.homeTeam.tla}
+                    style={{ width: 24, height: 16, objectFit: 'cover', borderRadius: 2 }}
+                  />
                   <span
                     style={{
-                      fontFamily: 'Anton, sans-serif',
-                      fontSize: 36,
-                      color: 'var(--color-bg-base)',
+                      fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                      fontWeight: 800,
+                      fontSize: 40,
+                      color: '#0D1B2A',
                       lineHeight: 1,
                     }}
                   >
-                    {s.n}
-                    {s.accent && (
-                      <span
-                        style={{
-                          fontFamily: 'DM Serif Display, serif',
-                          fontStyle: 'italic',
-                          color: 'var(--color-primary)',
-                          fontSize: '0.85em',
-                        }}
-                      >
-                        d
-                      </span>
-                    )}
+                    {featured.score.fullTime.home ?? '-'}
                   </span>
                   <span
                     style={{
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(246,239,226,.5)',
-                      fontFamily: 'Archivo, sans-serif',
+                      fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                      fontWeight: 400,
+                      fontSize: 22,
+                      color: '#6b7280',
                     }}
                   >
-                    {s.l}
+                    VS
                   </span>
+                  <span
+                    style={{
+                      fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                      fontWeight: 800,
+                      fontSize: 40,
+                      color: '#0D1B2A',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {featured.score.fullTime.away ?? '-'}
+                  </span>
+                  <img
+                    src={getFlagUrl(featured.awayTeam.tla)}
+                    alt={featured.awayTeam.tla}
+                    style={{ width: 24, height: 16, objectFit: 'cover', borderRadius: 2 }}
+                  />
                 </div>
-              ))}
-            </div>
+                <p
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 11,
+                    color: '#374151',
+                    margin: '2px 0 0',
+                    textAlign: 'center',
+                  }}
+                >
+                  {featured.homeTeam.shortName} · {featured.awayTeam.shortName}
+                </p>
+                {featured.venue && (
+                  <p
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: 10,
+                      color: '#9ca3af',
+                      margin: '2px 0 0',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {featured.venue}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#9ca3af' }}>
+                No match data
+              </p>
+            )}
           </div>
 
-          {/* RIGHT — mascot stage */}
+          {/* Col 3: Group standings snippet */}
+          <GroupSnippet />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GroupSnippet() {
+  const [group, setGroup] = useState<FdStandingsGroup | null>(null);
+
+  useEffect(() => {
+    fetchStandings()
+      .then((groups) => {
+        if (groups.length > 0) setGroup(groups[0]);
+      })
+      .catch(() => null);
+  }, []);
+
+  return (
+    <div style={{ padding: '16px' }}>
+      <p
+        style={{
+          fontFamily: "'Space Grotesk', system-ui, sans-serif",
+          fontWeight: 700,
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: '#6b7280',
+          margin: '0 0 12px',
+        }}
+      >
+        {group ? `GROUP ${group.group?.replace('GROUP_', '') ?? ''}` : 'GROUP'}
+      </p>
+      {!group ? (
+        <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 12, color: '#9ca3af' }}>
+          Loading...
+        </p>
+      ) : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {['#', 'Team', 'P', 'Pts'].map((h) => (
+                <th
+                  key={h}
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 10,
+                    color: '#9ca3af',
+                    fontWeight: 600,
+                    textAlign: h === 'Team' ? 'left' : 'center',
+                    padding: '0 4px 6px',
+                  }}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {group.table.slice(0, 4).map((entry) => (
+              <tr key={entry.team.id}>
+                <td
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 11,
+                    color: '#6b7280',
+                    textAlign: 'center',
+                    padding: '4px',
+                  }}
+                >
+                  {entry.position}
+                </td>
+                <td
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 11,
+                    color: '#0D1B2A',
+                    fontWeight: 600,
+                    padding: '4px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <img
+                      src={getFlagUrl(entry.team.tla)}
+                      alt={entry.team.tla}
+                      style={{ width: 14, height: 10, objectFit: 'cover', borderRadius: 1 }}
+                    />
+                    {entry.team.tla}
+                  </div>
+                </td>
+                <td
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: 11,
+                    color: '#6b7280',
+                    textAlign: 'center',
+                    padding: '4px',
+                  }}
+                >
+                  {entry.playedGames}
+                </td>
+                <td
+                  style={{
+                    fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#006847',
+                    textAlign: 'center',
+                    padding: '4px',
+                  }}
+                >
+                  {entry.points}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
+// ─── Gamification Section ─────────────────────────────────────────────────────
+
+function GamificationSection() {
+  return (
+    <section style={{ padding: '0 24px 32px' }}>
+      <div
+        style={{
+          background: '#002868',
+          borderRadius: 12,
+          padding: '28px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 28,
+          boxShadow: '0 4px 24px rgba(0,40,104,0.22)',
+          flexWrap: 'wrap',
+        }}
+      >
+        {/* Graphic */}
+        <div
+          style={{
+            fontSize: 64,
+            lineHeight: 1,
+            flexShrink: 0,
+          }}
+        >
+          📔
+        </div>
+
+        {/* Text */}
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <span
+            style={{
+              display: 'inline-block',
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 700,
+              fontSize: 9,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: '#006847',
+              background: 'rgba(0,104,71,0.18)',
+              border: '1px solid rgba(0,104,71,0.4)',
+              padding: '3px 10px',
+              borderRadius: 3,
+              marginBottom: 10,
+            }}
+          >
+            COLECCIONA & GANA
+          </span>
+          <h2
+            style={{
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 24,
+              color: '#ffffff',
+              margin: '0 0 6px',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            ÁLBUM VIRTUAL 2026
+          </h2>
+          <p
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: 13,
+              color: 'rgba(255,255,255,0.65)',
+              margin: '0 0 16px',
+              lineHeight: 1.5,
+            }}
+          >
+            Colecciona láminas de todos los jugadores del Mundial. Intercambia, completa tu álbum y
+            compite con hinchas de todo el mundo.
+          </p>
+          <Link
+            to="/album"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: '#006847',
+              color: '#ffffff',
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 700,
+              fontSize: 12,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              padding: '10px 22px',
+              borderRadius: 9999,
+              textDecoration: 'none',
+              transition: 'background 0.15s',
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.background = '#005038')
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLAnchorElement).style.background = '#006847')
+            }
+          >
+            IR AL ÁLBUM <ChevronRight size={13} />
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Fan Hub Panel (right aside) ──────────────────────────────────────────────
+
+function FanHubPanel() {
+  const LEADERBOARD = [
+    { pos: 1, name: 'San José', pts: 1240, trend: 'up' as const },
+    { pos: 2, name: 'Argentina', pts: 1180, trend: 'up' as const },
+    { pos: 3, name: 'Colombia', pts: 1050, trend: 'down' as const },
+    { pos: 4, name: 'United States', pts: 980, trend: 'up' as const },
+    { pos: 5, name: 'Mexico', pts: 940, trend: 'down' as const },
+  ];
+
+  const PREDICTION_MATCHES = [
+    { home: 'MEX', away: 'USA', homeFl: 'mx', awayFl: 'us' },
+    { home: 'ARG', away: 'BRA', homeFl: 'ar', awayFl: 'br' },
+    { home: 'COL', away: 'CAN', homeFl: 'co', awayFl: 'ca' },
+  ];
+
+  const [selectedPred, setSelectedPred] = useState<number | null>(0);
+
+  return (
+    <div
+      style={{
+        padding: 24,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 20,
+      }}
+    >
+      {/* Header */}
+      <div>
+        {/* Score chips */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 14, flexWrap: 'wrap' }}>
+          {[
+            { label: 'MEX 3 - 0 CAN', color: '#006847' },
+            { label: 'USA 1 - 1 ARG', color: '#002868' },
+          ].map((chip) => (
+            <span
+              key={chip.label}
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 9,
+                letterSpacing: '0.1em',
+                color: chip.color,
+                background: `${chip.color}22`,
+                border: `1px solid ${chip.color}44`,
+                padding: '3px 8px',
+                borderRadius: 4,
+              }}
+            >
+              {chip.label}
+            </span>
+          ))}
+        </div>
+        <h2
+          style={{
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontWeight: 800,
+            fontSize: 44,
+            color: '#ffffff',
+            margin: '0 0 8px',
+            lineHeight: 0.95,
+            letterSpacing: '-0.02em',
+          }}
+        >
+          FAN HUB
+        </h2>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 12,
+            color: 'rgba(255,255,255,0.45)',
+            margin: 0,
+            lineHeight: 1.5,
+          }}
+        >
+          Gamificación — interactúa con millones de hinchas en la experiencia definitiva.
+        </p>
+      </div>
+
+      {/* Widget 1: Virtual Trading Card Album */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          overflow: 'hidden',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+        }}
+      >
+        <div style={{ display: 'flex', minHeight: 140 }}>
+          {/* Left: gradient preview */}
           <div
             style={{
-              position: 'relative',
-              zIndex: 2,
+              width: 110,
+              flexShrink: 0,
+              background: 'linear-gradient(135deg, #002868 0%, #006847 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              minHeight: 560,
+              fontSize: 40,
+              position: 'relative',
+              overflow: 'hidden',
             }}
           >
-            <Hero3D />
-          </div>
-        </div>
-      </section>
-
-      {/* ══════ Favourite Team Section (any team) ══════ */}
-      {favTeam && (
-        <section className="mb-10 animate-fade-in-up">
-          <div
-            style={{
-              background: `linear-gradient(135deg,${favTeam.primary}22,${favTeam.secondary}18)`,
-              border: `1.5px solid ${favTeam.primary}55`,
-              borderRadius: 20,
-              padding: '20px 24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 20,
-              flexWrap: 'wrap' as const,
-            }}
-          >
-            {/* Flag */}
-            <span style={{ fontSize: 48, lineHeight: 1 }}>{favTeam.flag}</span>
-
-            {/* Team info */}
-            <div style={{ flex: 1, minWidth: 180 }}>
-              <p
+            <span style={{ position: 'relative', zIndex: 2 }}>📔</span>
+            {/* Mini sticker faces */}
+            {['😎', '⚽', '🏆', '🌟'].map((emoji, i) => (
+              <span
+                key={i}
                 style={{
-                  color: favTeam.primary,
-                  fontFamily: 'Oswald, sans-serif',
-                  fontSize: 20,
-                  fontWeight: 800,
-                  margin: '0 0 4px',
-                  letterSpacing: 1,
-                  textTransform: 'uppercase',
+                  position: 'absolute',
+                  fontSize: 14,
+                  top: `${15 + i * 20}%`,
+                  right: 8,
+                  opacity: 0.75,
                 }}
               >
-                ¡Vamos {favTeam.name}!
-              </p>
-
-              {nextFavMatch ? (
-                <p
-                  style={{
-                    color: 'rgba(255,255,255,0.65)',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 13,
-                    margin: 0,
-                  }}
-                >
-                  Próximo:{' '}
-                  <strong style={{ color: '#fff' }}>
-                    {nextFavMatch.seleccionLocal} vs {nextFavMatch.seleccionVisitante}
-                  </strong>{' '}
-                  — {nextFavMatch.estadioNombre}
-                </p>
-              ) : (
-                <p
-                  style={{
-                    color: 'rgba(255,255,255,0.4)',
-                    fontFamily: 'Inter, sans-serif',
-                    fontSize: 13,
-                    margin: 0,
-                  }}
-                >
-                  Grupo {favTeam.group} · FIFA World Cup 2026
-                </p>
-              )}
-            </div>
-
-            {/* CTAs */}
-            <div
+                {emoji}
+              </span>
+            ))}
+          </div>
+          {/* Right: content */}
+          <div style={{ padding: '14px 14px 14px 14px', flex: 1 }}>
+            <p
               style={{
-                display: 'flex',
-                flexDirection: 'column' as const,
-                gap: 8,
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 9,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: '#6b7280',
+                margin: '0 0 4px',
               }}
             >
+              VIRTUAL TRADING CARD ALBUM
+            </p>
+            <p
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 13,
+                color: '#0D1B2A',
+                margin: '0 0 8px',
+              }}
+            >
+              COLLECT &amp; SWAP
+            </p>
+            {/* Progress bar */}
+            <div
+              style={{
+                height: 5,
+                background: '#eef0f3',
+                borderRadius: 99,
+                marginBottom: 6,
+                overflow: 'hidden',
+              }}
+            >
+              <div
+                style={{
+                  height: '100%',
+                  width: '62%',
+                  background: 'linear-gradient(90deg, #005038, #006847)',
+                  borderRadius: 99,
+                }}
+              />
+            </div>
+            <p
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 10,
+                color: '#6b7280',
+                margin: '0 0 10px',
+              }}
+            >
+              178 / 288 láminas coleccionadas
+            </p>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <Link
+                to="/pack-opening"
+                style={{
+                  flex: 1,
+                  background: '#002868',
+                  color: '#fff',
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  fontWeight: 700,
+                  fontSize: 10,
+                  letterSpacing: '0.05em',
+                  padding: '7px 8px',
+                  borderRadius: 6,
+                  textDecoration: 'none',
+                  textAlign: 'center',
+                  display: 'block',
+                }}
+              >
+                Open Pack
+              </Link>
               <Link
                 to="/album"
                 style={{
-                  padding: '10px 22px',
-                  borderRadius: 999,
-                  background: `linear-gradient(135deg,${favTeam.primary},${favTeam.secondary})`,
-                  color: favTeam.text,
-                  fontFamily: 'Oswald, sans-serif',
-                  fontSize: 13,
-                  fontWeight: 800,
-                  letterSpacing: 1,
+                  flex: 1,
+                  background: '#f0f2f5',
+                  color: '#0D1B2A',
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  fontWeight: 700,
+                  fontSize: 10,
+                  letterSpacing: '0.05em',
+                  padding: '7px 8px',
+                  borderRadius: 6,
                   textDecoration: 'none',
-                  textTransform: 'uppercase' as const,
-                  whiteSpace: 'nowrap' as const,
-                  textAlign: 'center' as const,
+                  textAlign: 'center',
+                  display: 'block',
                 }}
               >
-                📔 Ir al Álbum
-              </Link>
-              <Link
-                to="/teams"
-                style={{
-                  padding: '8px 22px',
-                  borderRadius: 999,
-                  background: 'rgba(255,255,255,0.07)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  color: 'rgba(255,255,255,0.7)',
-                  fontFamily: 'Inter, sans-serif',
-                  fontSize: 12,
-                  textDecoration: 'none',
-                  textAlign: 'center' as const,
-                }}
-              >
-                Ver plantel 🏴
+                My Collection
               </Link>
             </div>
           </div>
-        </section>
-      )}
-
-      {/* ══════ Hero Section: Next Match ══════ */}
-      <section className="mb-12 md:mb-16 relative rounded-3xl overflow-hidden group animate-fade-in-up">
-        {/* Background */}
-        <div className="absolute inset-0 z-0 gradient-hero noise">
-          <img
-            alt="Stadium atmosphere"
-            className="w-full h-full object-cover opacity-20 mix-blend-luminosity"
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBiIMYdM6-PbXJI8K0dRF2iUv_cxCAb-auD5ug2oeud28B0JYmRhTpCC95XS4emTnWScf_XR9eC9ZbTBZj1gkYdLAZ4__BUUfiDUQfcbVlWenaCB19kxsnVOPOfmyFJmhCXg7fSLEswe6Qsh78MQmzj26BvlcJCmL78ac_3Cq69D9ZyPM9RgOwJRv6H45OVgQOTYyFzo6k--aE6ZAOB8qDPQFcOHWUIoWO8PSp8slA4rn0iqjLa69KuKI0TeU6yZnNWEgGHVap88q8"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-deep via-bg-deep/50 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-transparent to-secondary/10" />
         </div>
+      </div>
 
-        <div className="relative z-10 p-6 md:p-12 lg:p-16 flex flex-col lg:flex-row justify-between items-end gap-8 lg:gap-12">
-          {/* Left Content */}
-          <div className="w-full lg:w-1/2 animate-fade-in-up delay-100">
-            <Badge variant="danger" dot className="mb-6">
-              Upcoming Fixture
-            </Badge>
-            <h1 className="font-headline text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-[1.1] mb-5">
-              <span className="text-white">El Gran</span>
-              <br />
-              <span className="gradient-text">Comienzo</span>
-            </h1>
-            <p className="text-base md:text-lg text-white/90 max-w-xl leading-relaxed mb-8">
-              The opening match of the 2026 FIFA World Cup. Witness history as the host nations take
-              center stage.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="primary" icon={ArrowRight} size="lg">
-                View Match Details
-              </Button>
-              <Button variant="ghost" icon={Play} iconPosition="left" size="lg">
-                Watch Teaser
-              </Button>
-            </div>
-          </div>
-
-          {/* Match Card */}
-          <div className="w-full lg:w-auto lg:min-w-[380px] animate-fade-in-up delay-300">
-            <MatchCard match={nextMatch} />
-          </div>
+      {/* Widget 2: Community Challenges */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          padding: 16,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 12,
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontWeight: 800,
+              fontSize: 12,
+              color: '#0D1B2A',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            COMMUNITY CHALLENGES
+          </p>
+          <span
+            style={{
+              fontFamily: 'Inter, sans-serif',
+              fontWeight: 600,
+              fontSize: 9,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: '#006847',
+              background: 'rgba(0,104,71,0.1)',
+              padding: '2px 7px',
+              borderRadius: 3,
+            }}
+          >
+            LEADERBOARD
+          </span>
         </div>
-      </section>
+        {LEADERBOARD.map((entry) => (
+          <div
+            key={entry.pos}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '7px 0',
+              borderBottom: entry.pos < 5 ? '1px solid rgba(0,0,0,0.05)' : 'none',
+            }}
+          >
+            <span
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 11,
+                color: entry.pos <= 2 ? '#006847' : '#9ca3af',
+                width: 16,
+                textAlign: 'center',
+              }}
+            >
+              {entry.pos}
+            </span>
+            <span
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 12,
+                color: '#0D1B2A',
+                flex: 1,
+                fontWeight: 500,
+              }}
+            >
+              {entry.name}
+            </span>
+            <span
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontSize: 11,
+                fontWeight: 700,
+                color: '#374151',
+              }}
+            >
+              {entry.pts.toLocaleString()}
+            </span>
+            {entry.trend === 'up' ? (
+              <ArrowUp size={12} color="#006847" />
+            ) : (
+              <ArrowDown size={12} color="#C8102E" />
+            )}
+          </div>
+        ))}
+      </div>
 
-      {/* ══════ Bento Grid: Quick Links & Stats ══════ */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-12 md:mb-16">
-        <FeatureCard
-          to="/stadiums"
-          title="Stadiums"
-          description="Explore the 16 architectural marvels across North America."
-          icon={Landmark}
-          variant="image"
-          imageUrl="https://lh3.googleusercontent.com/aida-public/AB6AXuAfE5Vb07Lq20RL2Swb3E-l6mzOGewnk7TfeWxz1us0c3BulSAU0XByUDvYHfCm4Prb8co-SeSwmQSSa1sqbPkzLbwqmCqC9fTaa1Ma3pJ3LA4KJhgz6fASTerBk3-zoJ72copmi2GQgcJ-QdRoaSAYXy-Ou7xhSVRI2NvVVxKKE7lysro6UHrJRf0CMCQo-qECVSzI7im4UXKmtYNwZ6FeUj80F0eeSHrFJheEVkspSFx_pTQJZTCzTs78t_OsS-nOAeebiSn2Z64"
-          className="animate-fade-in-up delay-200"
-        />
-        <FeatureCard
+      {/* Widget 3: Predictor Game */}
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: 12,
+          padding: 16,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.25)',
+        }}
+      >
+        <p
+          style={{
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontWeight: 800,
+            fontSize: 12,
+            color: '#0D1B2A',
+            margin: '0 0 2px',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          PREDICTOR GAME
+        </p>
+        <p
+          style={{
+            fontFamily: 'Inter, sans-serif',
+            fontSize: 11,
+            color: '#6b7280',
+            margin: '0 0 12px',
+          }}
+        >
+          Predict today's results and earn points
+        </p>
+        {PREDICTION_MATCHES.map((pm, idx) => (
+          <button
+            key={idx}
+            onClick={() => setSelectedPred(idx)}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '8px 10px',
+              marginBottom: 6,
+              background: selectedPred === idx ? 'rgba(0,104,71,0.07)' : '#f8f9fa',
+              border:
+                selectedPred === idx ? '1.5px solid #006847' : '1.5px solid transparent',
+              borderRadius: 8,
+              cursor: 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            <div
+              style={{
+                width: 14,
+                height: 14,
+                borderRadius: '50%',
+                border: `2px solid ${selectedPred === idx ? '#006847' : '#d1d5db'}`,
+                background: selectedPred === idx ? '#006847' : 'transparent',
+                flexShrink: 0,
+                transition: 'all 0.15s',
+              }}
+            />
+            <img
+              src={`https://flagcdn.com/w40/${pm.homeFl}.png`}
+              alt={pm.home}
+              style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 1 }}
+            />
+            <span
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 11,
+                color: '#0D1B2A',
+              }}
+            >
+              {pm.home}
+            </span>
+            <span
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 10,
+                color: '#9ca3af',
+                flex: 1,
+                textAlign: 'center',
+              }}
+            >
+              vs
+            </span>
+            <span
+              style={{
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 11,
+                color: '#0D1B2A',
+              }}
+            >
+              {pm.away}
+            </span>
+            <img
+              src={`https://flagcdn.com/w40/${pm.awayFl}.png`}
+              alt={pm.away}
+              style={{ width: 18, height: 12, objectFit: 'cover', borderRadius: 1 }}
+            />
+          </button>
+        ))}
+        <Link
           to="/superpolla"
-          title="Superpolla"
-          description="Make your predictions. Climb the global leaderboard."
-          icon={Trophy}
-          variant="accent"
-          badge="Live"
-          stat={{ label: 'Current Rank', value: '#4,209' }}
-          className="animate-fade-in-up delay-300 bg-bg-surface"
-        />
-        <FeatureCard
-          to="/album"
-          title="Digital Album"
-          description="Collect, trade, and complete your digital sticker album."
-          icon={BookOpen}
-          variant="solid"
-          progress={{ value: 45, label: '45%' }}
-          className="animate-fade-in-up delay-400 bg-bg-surface"
-        />
-        <FeatureCard
-          to="/teams"
-          title="Selecciones"
-          description="Explora las 32 selecciones y sus plantillas completas."
-          icon={Users}
-          variant="accent"
-          className="animate-fade-in-up delay-500 bg-bg-surface"
-        />
-        <FeatureCard
-          to="/pack-opening"
-          title="Abrir Sobre"
-          description="Abre sobres y descubre nuevos cromos para tu álbum."
-          icon={BookOpen}
-          variant="solid"
-          className="animate-fade-in-up delay-600 bg-bg-surface"
-        />
-      </section>
+          style={{
+            display: 'block',
+            width: '100%',
+            marginTop: 10,
+            background: '#002868',
+            color: '#ffffff',
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontWeight: 700,
+            fontSize: 12,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            padding: '11px',
+            borderRadius: 8,
+            textDecoration: 'none',
+            textAlign: 'center',
+            transition: 'background 0.15s',
+            boxSizing: 'border-box',
+          }}
+          onMouseEnter={(e) =>
+            ((e.currentTarget as HTMLAnchorElement).style.background = '#001a4a')
+          }
+          onMouseLeave={(e) =>
+            ((e.currentTarget as HTMLAnchorElement).style.background = '#002868')
+          }
+        >
+          Log Prediction
+        </Link>
+      </div>
+    </div>
+  );
+}
 
-      {/* ══════ Upcoming Matches Row ══════ */}
-      <section className="mb-12 md:mb-16 animate-fade-in-up delay-500">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
-          <div>
-            <h2 className="font-headline text-2xl md:text-3xl font-bold text-text-primary tracking-tight">
-              Upcoming Matches
-            </h2>
-            <p className="text-sm text-text-muted mt-1">Group stage fixtures</p>
-          </div>
-          <Button variant="ghost" icon={ArrowRight} size="sm">
-            View All
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {matches.map((match) => (
-            <MatchCard key={match.id} match={match} />
-          ))}
-        </div>
-      </section>
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
+
+export function Dashboard() {
+  const { token } = useAuth();
+  const [matches, setMatches] = useState<FdMatch[]>([]);
+
+  useEffect(() => {
+    if (!token) return;
+    fetchAllMatches()
+      .then((data) => setMatches(data))
+      .catch(() => null);
+  }, [token]);
+
+  return (
+    <main
+      style={{
+        minHeight: '100vh',
+        paddingTop: 64,
+        background: '#ffffff',
+      }}
+    >
+      <HeroSection />
+      <MatchCenterSection matches={matches} />
+      <GamificationSection />
     </main>
   );
 }
