@@ -41,7 +41,54 @@ export async function fetchStandings(): Promise<FdStandingsGroup[]> {
   return data?.data?.standings ?? [];
 }
 
-// ── Estadios ──────────────────────────────────────────────────────────────────
+// ── Teams ─────────────────────────────────────────────────────────────────────
+
+export interface ApiTeam {
+  id: number;
+  name: string;
+  shortName: string;
+  tla: string;
+  crest: string;
+  venue?: string;
+  clubColors?: string;
+}
+
+export interface ApiPlayer {
+  id: number;
+  name: string;
+  position?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  shirtNumber?: number;
+}
+
+export interface ApiTeamDetail extends ApiTeam {
+  squad: ApiPlayer[];
+  coach?: { name: string; nationality?: string };
+  address?: string;
+  website?: string;
+  founded?: number;
+}
+
+export async function fetchTeams(): Promise<ApiTeam[]> {
+  const { data } = await axios.get(`${API_BASE}/teams`, { headers: getAuthHeaders() });
+  return data?.data?.teams ?? [];
+}
+
+export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | null> {
+  try {
+    const { data } = await axios.get(`${API_BASE}/teams/${teamId}`, {
+      headers: getAuthHeaders(),
+    });
+    return data?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Estadios / Venues ─────────────────────────────────────────────────────────
+// Venues are extracted from matches via the football-data.org API.
+// The /api/v1/estadios endpoint aggregates unique venues from match data.
 
 export async function fetchEstadios(): Promise<EstadioApi[]> {
   const { data } = await axios.get(ESTADIOS_BASE);

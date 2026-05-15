@@ -67,9 +67,20 @@ public class PollaController {
                 .body(ApiResponse.success(prediccion, "Predicción creada"));
     }
 
+    /**
+     * Evalúa las predicciones de un partido específico dentro de una polla.
+     * Debe llamarse cuando el partido ya terminó y se conoce el resultado real.
+     *
+     * Body esperado: { "apiPartidoId": 12345, "marcadorLocal": 2, "marcadorVisitante": 1 }
+     */
     @PostMapping("/{id}/evaluar")
-    public ResponseEntity<ApiResponse<Void>> evaluarPredicciones(@PathVariable Integer id) {
-        pollaService.evaluarPredicciones(id);
+    public ResponseEntity<ApiResponse<Void>> evaluarPredicciones(
+            @PathVariable Integer id,
+            @RequestBody java.util.Map<String, Object> body) {
+        Long apiPartidoId       = Long.valueOf(body.get("apiPartidoId").toString());
+        Integer marcadorLocal     = Integer.valueOf(body.get("marcadorLocal").toString());
+        Integer marcadorVisitante = Integer.valueOf(body.get("marcadorVisitante").toString());
+        pollaService.evaluarPredicciones(id, apiPartidoId, marcadorLocal, marcadorVisitante);
         return ResponseEntity.ok(ApiResponse.success(null, "Predicciones evaluadas"));
     }
 

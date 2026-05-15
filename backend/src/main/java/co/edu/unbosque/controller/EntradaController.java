@@ -7,6 +7,7 @@ import co.edu.unbosque.entity.Usuario;
 import co.edu.unbosque.repository.EntradaRepository;
 import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.service.StripeService;
+import java.util.Objects;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,19 +94,23 @@ public class EntradaController {
 
         List<Entrada> entradas = entradaRepository.findByUsuarioCompradorId(usuario.getId());
         List<Map<String, Object>> result = entradas.stream()
-                .map(e -> Map.<String, Object>of(
-                        "id",          e.getId(),
-                        "codigoQr",    e.getCodigoQr(),
-                        "categoria",   e.getCategoria(),
-                        "precio",      e.getPrecio(),
-                        "estado",      e.getEstado(),
-                        "stripeId",    e.getStripePaymentIntentId() != null ? e.getStripePaymentIntentId() : "",
-                        "fechaCompra", e.getFechaCompra() != null ? e.getFechaCompra().toString() : "",
-                        "partido",     e.getPartido() != null
-                                       ? e.getPartido().getSeleccionLocal().getPais() + " vs "
-                                         + e.getPartido().getSeleccionVisitante().getPais()
-                                       : ""
-                ))
+                .map(e -> {
+                    String matchDesc = "";
+                    if (e.getSeleccionLocal() != null && e.getSeleccionVisitante() != null) {
+                        matchDesc = e.getSeleccionLocal() + " vs " + e.getSeleccionVisitante();
+                        if (e.getRonda() != null) matchDesc += " — " + e.getRonda();
+                    }
+                    return Map.<String, Object>of(
+                            "id",          e.getId(),
+                            "codigoQr",    e.getCodigoQr(),
+                            "categoria",   e.getCategoria(),
+                            "precio",      e.getPrecio(),
+                            "estado",      e.getEstado(),
+                            "stripeId",    Objects.requireNonNullElse(e.getStripePaymentIntentId(), ""),
+                            "fechaCompra", e.getFechaCompra() != null ? e.getFechaCompra().toString() : "",
+                            "partido",     matchDesc
+                    );
+                })
                 .toList();
         return ResponseEntity.ok(Map.of("success", true, "data", result));
     }

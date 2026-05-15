@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "predicciones", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id_usuario", "id_polla", "id_partido"})
+        @UniqueConstraint(columnNames = {"id_usuario", "id_polla", "api_partido_id"})
 })
 @Data
 @NoArgsConstructor
@@ -37,9 +37,9 @@ public class Prediccion {
     @JoinColumn(name = "id_polla", nullable = false)
     private Polla polla;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_partido", nullable = false)
-    private Partido partido;
+    /** ID del partido en football-data.org (sin FK a tabla local) */
+    @Column(name = "api_partido_id", nullable = false)
+    private Long apiPartidoId;
 
     @Column(name = "fecha_prediccion")
     private LocalDateTime fechaPrediccion;

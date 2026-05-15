@@ -1,67 +1,63 @@
 package co.edu.unbosque.controller;
 
-import co.edu.unbosque.dto.EstadioDto;
-import co.edu.unbosque.entity.Estadio;
-import co.edu.unbosque.repository.EstadioRepository;
+import co.edu.unbosque.dto.football.FdMatchDto;
+import co.edu.unbosque.dto.football.FdMatchesApiResponse;
+import co.edu.unbosque.service.FootballDataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
+/**
+ * GET /api/v1/estadios
+ *
+ * Devuelve los venues (sedes) del Mundial 2026 extraídos de los partidos
+ * de la API de football-data.org. No se usa ninguna tabla local.
+ */
 @RestController
 @RequestMapping("/api/v1/estadios")
 @RequiredArgsConstructor
 @Slf4j
 public class EstadioController {
 
-    private final EstadioRepository estadioRepository;
+    private final FootballDataService footballDataService;
 
     /**
-     * GET /api/v1/estadios
-     * Returns all WC 2026 stadiums that have coordinates (lat/lng set).
+     * Agrega los venues únicos de todos los partidos del Mundial 2026.
+     * Útil para el mapa interactivo del frontend.
      */
     @GetMapping
-    @Transactional(readOnly = true)
     public ResponseEntity<?> getAllEstadios() {
-        List<EstadioDto> dtos = estadioRepository.findAll().stream()
-                .filter(e -> e.getLat() != null && e.getLng() != null)
-                .map(this::toDto)
-                .toList();
+        try {
+            FdMatchesApiResponse resp = footballDataService.getAllMatches();
+            if (resp == null || resp.getMatches() == null) {
+                return ResponseEntity.ok(Map.of("success", true, "data", List.of()));
+            }
 
-        log.info("📍 Returning {} estadios with coordinates", dtos.size());
-        return ResponseEntity.ok(Map.of("success", true, "data", dtos));
-    }
+            // Deduplica venues por nombre
+            List<Map<String, Object>> venues = resp.getMatches().stream()
+                    .filter(m -> m.getVenue() != null && !m.getVenue().isBlank())
+                    .collect(Collectors.groupingBy(FdMatchDto::getVenue, LinkedHashMap::new, Collectors.toList()))
+                    .entrySet().stream()
+                    .map(entry -> {
+                        FdMatchDto sample = entry.getValue().get(0);
+                        Map<String, Object> v = new LinkedHashMap<>();
+                        v.put("nombre", entry.getKey());
+                        // Los equipos locales pueden darnos la ciudad aproximada
+                        v.put("partidos", entry.getValue().size());
+                        return v;
+                    })
+                    .collect(Collectors.toList());
 
-    /**
-     * GET /api/v1/estadios/{id}
-     */
-    @GetMapping("/{id}")
-    @Transactional(readOnly = true)
-    public ResponseEntity<?> getEstadio(@PathVariable Integer id) {
-        return estadioRepository.findById(id)
-                .filter(e -> e.getLat() != null)
-                .map(e -> ResponseEntity.ok(Map.of("success", true, "data", toDto(e))))
-                .orElse(ResponseEntity.notFound().build());
-    }
+            log.info("📍 Returning {} venues from football-data.org", venues.size());
+            return ResponseEntity.ok(Map.of("success", true, "data", venues));
 
-    // ── Mapper ────────────────────────────────────────────────────────────────
-
-    private EstadioDto toDto(Estadio e) {
-        String ciudad = e.getSede() != null ? e.getSede().getCiudad() : "";
-        String pais   = e.getSede() != null ? e.getSede().getPais()   : "";
-        return EstadioDto.builder()
-                .id(e.getId())
-                .nombre(e.getNombre())
-                .ciudad(ciudad)
-                .pais(pais)
-                .capacidad(e.getCapacidad())
-                .lat(e.getLat())
-                .lng(e.getLng())
-                .direccion(e.getDireccion())
-                .build();
+        } catch (Exception e) {
+            log.warn("⚠️  No se pudieron obtener venues: {}", e.getMessage());
+            return ResponseEntity.ok(Map.of("success", true, "data", List.of()));
+        }
     }
 }

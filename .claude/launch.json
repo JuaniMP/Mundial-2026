@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "C:\\Users\\juame\\Mundial-2026\\frontend\\world-cup-2026",
+      "port": 5174
+    }
+  ]
+}
