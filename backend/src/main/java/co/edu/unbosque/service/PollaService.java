@@ -24,7 +24,6 @@ public class PollaService {
     private final UsuarioRepository usuarioRepository;
     private final ParticipantePollaRepository participantePollaRepository;
     private final PrediccionRepository prediccionRepository;
-    private final PartidoRepository partidoRepository;
 
     public List<PollaResponse> getAllPollas() {
         return pollaRepository.findAll().stream().map(this::toPollaResponse).collect(Collectors.toList());
@@ -99,14 +98,8 @@ public class PollaService {
             throw new BadRequestException("No eres participante de esta polla");
         }
 
-        Partido partido = partidoRepository.findById(request.getIdPartido())
-                .orElseThrow(() -> new ResourceNotFoundException("Partido no encontrado"));
-
-        if (!partido.getEstado().equals("PROGRAMADO")) {
-            throw new BadRequestException("El partido ya no acepta predicciones");
-        }
-
-        if (prediccionRepository.findByUsuarioIdAndPollaIdAndPartidoId(usuarioId, polla.getId(), partido.getId()).isPresent()) {
+        if (prediccionRepository.findByUsuarioIdAndPollaIdAndApiPartidoId(
+                usuarioId, polla.getId(), request.getApiPartidoId()).isPresent()) {
             throw new BadRequestException("Ya has hecho una predicción para este partido");
         }
 
@@ -119,7 +112,7 @@ public class PollaService {
                 .puntosObtenidos(0)
                 .usuario(usuario)
                 .polla(polla)
-                .partido(partido)
+                .apiPartidoId(request.getApiPartidoId())
                 .build();
 
         prediccion = prediccionRepository.save(prediccion);
@@ -132,36 +125,43 @@ public class PollaService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Evalúa predicciones de un partido una vez que el partido ha terminado.
+     * El resultado real del partido (marcadores) debe suministrarse desde la API de football-data.org.
+     *
+     * @param pollaId        ID de la polla
+     * @param apiPartidoId   ID del partido en football-data.org
+     * @param marcadorLocal  Goles del equipo local (resultado real)
+     * @param marcadorVisitante Goles del equipo visitante (resultado real)
+     */
     @Transactional
-    public void evaluarPredicciones(Integer pollaId) {
-        List<Prediccion> predicciones = prediccionRepository.findByPollaId(pollaId);
+    public void evaluarPredicciones(Integer pollaId, Long apiPartidoId,
+                                    Integer marcadorLocal, Integer marcadorVisitante) {
+        List<Prediccion> predicciones = prediccionRepository.findByPollaIdAndApiPartidoId(pollaId, apiPartidoId);
 
         for (Prediccion prediccion : predicciones) {
-            Partido partido = prediccion.getPartido();
-            if (!partido.getEstado().equals("TERMINADO")) continue;
-
             int puntos = 0;
-            if (partido.getMarcadorLocal().equals(prediccion.getGolesLocal()) &&
-                partido.getMarcadorVisitante().equals(prediccion.getGolesVisitante())) {
-                puntos = 10;
-            } else if (partido.getMarcadorLocal() > partido.getMarcadorVisitante() &&
-                       prediccion.getGolesLocal() > prediccion.getGolesVisitante()) {
-                puntos = 5;
-            } else if (partido.getMarcadorLocal() < partido.getMarcadorVisitante() &&
-                       prediccion.getGolesLocal() < prediccion.getGolesVisitante()) {
-                puntos = 5;
+            if (marcadorLocal.equals(prediccion.getGolesLocal()) &&
+                marcadorVisitante.equals(prediccion.getGolesVisitante())) {
+                puntos = 10; // Resultado exacto
+            } else if (marcadorLocal > marcadorVisitante && prediccion.getGolesLocal() > prediccion.getGolesVisitante()) {
+                puntos = 5; // Ganador correcto (local)
+            } else if (marcadorLocal < marcadorVisitante && prediccion.getGolesLocal() < prediccion.getGolesVisitante()) {
+                puntos = 5; // Ganador correcto (visitante)
+            } else if (marcadorLocal.equals(marcadorVisitante) && prediccion.getGolesLocal().equals(prediccion.getGolesVisitante())) {
+                puntos = 5; // Empate correcto
             }
 
             prediccion.setPuntosObtenidos(puntos);
             prediccionRepository.save(prediccion);
 
-            var participante = participantePollaRepository
-                    .findByUsuarioIdAndPollaId(prediccion.getUsuario().getId(), pollaId);
-            if (participante.isPresent()) {
-                ParticipantePolla p = participante.get();
-                p.setPuntosAcumulados(p.getPuntosAcumulados() + puntos);
-                participantePollaRepository.save(p);
-            }
+            final int puntosFinales = puntos;
+            participantePollaRepository
+                    .findByUsuarioIdAndPollaId(prediccion.getUsuario().getId(), pollaId)
+                    .ifPresent(p -> {
+                        p.setPuntosAcumulados(p.getPuntosAcumulados() + puntosFinales);
+                        participantePollaRepository.save(p);
+                    });
         }
     }
 
@@ -184,7 +184,7 @@ public class PollaService {
                 .puntosObtenidos(prediccion.getPuntosObtenidos())
                 .idUsuario(prediccion.getUsuario().getId())
                 .nombreUsuario(prediccion.getUsuario().getNombre())
-                .idPartido(prediccion.getPartido().getId())
+                .apiPartidoId(prediccion.getApiPartidoId())
                 .build();
     }
 }

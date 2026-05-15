@@ -6,8 +6,7 @@ interface User {
   id: string;
   email: string;
   name: string;
-  rol?: string;
-  seleccionFavorita?: string;
+  rol: string;
 }
 
 interface AuthContextType {
@@ -15,13 +14,13 @@ interface AuthContextType {
   token: string | null;
   loading: boolean;
   error: string | null;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<string>;
   register: (
     name: string,
     email: string,
     password: string,
     seleccionFavorita?: string,
-  ) => Promise<void>;
+  ) => Promise<string>;
   logout: () => void;
   clearError: () => void;
 }
@@ -42,8 +41,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
     }
   }, [token]);
+
+  // Interceptor global: si el servidor responde 401 limpiar sesión
+  useEffect(() => {
+    const id = axios.interceptors.response.use(
+      (res) => res,
+      (err) => {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          // Token expirado o inválido → limpiar sesión
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+        }
+        return Promise.reject(err);
+      },
+    );
+    return () => axios.interceptors.response.eject(id);
+  }, []);
 
   const login = async (email: string, password: string) => {
     setLoading(true);
@@ -77,6 +97,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      return rol;
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data?.data?.error as string) ||
@@ -103,7 +124,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         nombre: name,
         email,
         password,
-        seleccionFavorita: seleccionFavorita ?? null,
+        seleccionFavorita: seleccionFavorita || null,
       });
 
       const { data } = response.data;
@@ -123,13 +144,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: userEmail,
         name: nombre,
         rol,
-        seleccionFavorita: seleccionFavorita ?? undefined,
       };
       setToken(token);
       setUser(user);
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      return rol;
     } catch (err) {
       const message = axios.isAxiosError(err)
         ? (err.response?.data?.data?.error as string) ||
