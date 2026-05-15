@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,12 +32,60 @@ public class DataSeeder implements ApplicationRunner {
     private final AficionadoRepository aficionadoRepository;
     private final AdministradorRepository administradorRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
+        eliminarTablasObsoletas(); // ← primero, antes de que Hibernate haga nada
         seedRoles();
         seedAdminUser();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Eliminar tablas que ya no existen en el modelo JPA
+    // (ddl-auto=update nunca borra tablas automáticamente)
+    // ─────────────────────────────────────────────────────────────────────────
+
+    private void eliminarTablasObsoletas() {
+        // Tablas que fueron eliminadas del modelo porque sus datos
+        // ahora vienen de football-data.org API en tiempo real.
+        String[] tablasAEliminar = {
+            "intercambios_laminas",   // FK a laminas (debe ir antes)
+            "laminas_album",          // FK a laminas
+            "laminas",               // antes de jugadores
+            "paquetes",
+            "predicciones",          // FK a partidos
+            "participantes_pollas",
+            "entradas",              // FK a partidos
+            "partidos",              // FK a estadios y selecciones
+            "jugadores",             // FK a selecciones
+            "selecciones",
+            "estadios",              // FK a sedes
+            "sedes",
+            "auditoria_movimientos"  // tabla extra del esquema viejo si existe
+        };
+
+        try {
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 0");
+            for (String tabla : tablasAEliminar) {
+                try {
+                    // Verificar si la tabla existe antes de intentar borrarla
+                    Integer existe = jdbcTemplate.queryForObject(
+                        "SELECT COUNT(*) FROM information_schema.tables " +
+                        "WHERE table_schema = DATABASE() AND table_name = ?",
+                        Integer.class, tabla);
+                    if (existe != null && existe > 0) {
+                        jdbcTemplate.execute("DROP TABLE IF EXISTS `" + tabla + "`");
+                        log.info("🗑️  Tabla obsoleta eliminada: {}", tabla);
+                    }
+                } catch (Exception e) {
+                    log.debug("Skip tabla {}: {}", tabla, e.getMessage());
+                }
+            }
+        } finally {
+            jdbcTemplate.execute("SET FOREIGN_KEY_CHECKS = 1");
+        }
     }
 
     // ─────────────────────────────────────────────────────────────────────────
