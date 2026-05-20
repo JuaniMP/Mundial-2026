@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public interface EntradaRepository extends JpaRepository<Entrada, Integer> {
     Optional<Entrada> findByCodigoQr(String codigoQr);
-    List<Entrada> findByPartidoId(Integer partidoId);
+    List<Entrada> findByApiPartidoId(Long apiPartidoId);
     List<Entrada> findByUsuarioCompradorId(Integer usuarioId);
     List<Entrada> findByEstado(String estado);
     List<Entrada> findByStripePaymentIntentId(String piId);

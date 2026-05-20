@@ -5,8 +5,7 @@
       "name": "frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
-      "cwd": "C:\\Users\\juame\\Mundial-2026\\frontend\\world-cup-2026",
-      "port": 5174
+            "port": 5174
     }
   ]
 }
