@@ -2,6 +2,8 @@ package co.edu.unbosque.service;
 
 import co.edu.unbosque.dto.football.FdMatchesApiResponse;
 import co.edu.unbosque.dto.football.FdStandingsApiResponse;
+import co.edu.unbosque.dto.football.FdTeamsApiResponse;
+import co.edu.unbosque.dto.football.FdTeamFullDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
@@ -50,6 +52,20 @@ public class FootballDataService {
     public FdMatchesApiResponse getMatchesByMatchday(int matchday) {
         String url = baseUrl + "/competitions/" + competition + "/matches?season=" + season + "&matchday=" + matchday;
         return fetch(url, FdMatchesApiResponse.class);
+    }
+
+    // ── Equipos (selecciones) ─────────────────────────────────────────────────
+
+    @Cacheable("fd-teams")
+    public FdTeamsApiResponse getTeams() {
+        String url = baseUrl + "/competitions/" + competition + "/teams?season=" + season;
+        return fetch(url, FdTeamsApiResponse.class);
+    }
+
+    @Cacheable(value = "fd-squad", key = "#teamId")
+    public FdTeamFullDto getTeamWithSquad(Long teamId) {
+        String url = baseUrl + "/teams/" + teamId;
+        return fetch(url, FdTeamFullDto.class);
     }
 
     // ── Tabla de posiciones ───────────────────────────────────────────────────

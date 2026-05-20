@@ -20,6 +20,8 @@ DROP TABLE IF EXISTS predicciones;
 DROP TABLE IF EXISTS participantes_pollas;
 DROP TABLE IF EXISTS pollas;
 DROP TABLE IF EXISTS entradas;
+-- Tablas eliminadas: partidos, jugadores, selecciones, estadios, sedes
+-- Esos datos ahora vienen de la API football-data.org en tiempo real
 DROP TABLE IF EXISTS partidos;
 DROP TABLE IF EXISTS jugadores;
 DROP TABLE IF EXISTS selecciones;
@@ -29,9 +31,9 @@ DROP TABLE IF EXISTS aliados_comerciales;
 DROP TABLE IF EXISTS agentes_soporte;
 DROP TABLE IF EXISTS operadores;
 DROP TABLE IF EXISTS aficionados;
+DROP TABLE IF EXISTS administradores;
 DROP TABLE IF EXISTS usuarios;
 DROP TABLE IF EXISTS roles;
-DROP TABLE IF EXISTS administradores;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -49,6 +51,7 @@ CREATE TABLE usuarios (
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     zona_horaria VARCHAR(50) DEFAULT 'UTC',
+    seleccion_favorita VARCHAR(50),
     id_rol INT NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_login DATETIME,
@@ -62,7 +65,7 @@ CREATE TABLE aficionados (
     id_usuario INT PRIMARY KEY,
     seleccion_favorita VARCHAR(50),
     album_completitud_pct FLOAT DEFAULT 0,
-    num_intercambios_diarios INT DEFAULT 0, -- Se puede resetear cada 24h por lógica de negocio
+    num_intercambios_diarios INT DEFAULT 0,
     CONSTRAINT fk_aficionado_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
@@ -75,7 +78,7 @@ CREATE TABLE operadores (
 
 CREATE TABLE agentes_soporte (
     id_usuario INT PRIMARY KEY,
-    nivel_acceso VARCHAR(50) NOT NULL, -- Ej: 'NIVEL_1', 'NIVEL_2', 'ESPECIALISTA'
+    nivel_acceso VARCHAR(50) NOT NULL,
     casos_asignados INT DEFAULT 0,
     CONSTRAINT fk_soporte_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
@@ -83,7 +86,7 @@ CREATE TABLE agentes_soporte (
 CREATE TABLE aliados_comerciales (
     id_usuario INT PRIMARY KEY,
     nombre_empresa VARCHAR(100) NOT NULL,
-    tipo_servicio VARCHAR(100) NOT NULL, -- ej. API Pagos, API Deportes
+    tipo_servicio VARCHAR(100) NOT NULL,
     token_acceso VARCHAR(255) UNIQUE,
     estado_api VARCHAR(50) DEFAULT 'ACTIVO',
     CONSTRAINT fk_aliado_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
@@ -91,89 +94,45 @@ CREATE TABLE aliados_comerciales (
 
 CREATE TABLE administradores (
     id_usuario INT PRIMARY KEY,
-    superadmin BOOLEAN DEFAULT FALSE, -- Para distinguir si es el dueño del chuzo o un admin de menor nivel
-    departamento VARCHAR(100), -- Ej: 'Tecnología', 'Gerencia General'
-    requiere_mfa BOOLEAN DEFAULT TRUE, -- Obligar a que tengan autenticación de dos factores por seguridad
-    fecha_ultimo_cambio_clave DATETIME, -- Control de seguridad extra para obligarlos a rotar clave
+    superadmin BOOLEAN DEFAULT FALSE,
+    departamento VARCHAR(100),
+    requiere_mfa BOOLEAN DEFAULT TRUE,
+    fecha_ultimo_cambio_clave DATETIME,
     CONSTRAINT fk_admin_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE
 );
--- ==========================================
--- 2. INFRAESTRUCTURA Y GEOGRAFÍA
--- ==========================================
-CREATE TABLE sedes (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    ciudad VARCHAR(100) NOT NULL,
-    pais VARCHAR(50) NOT NULL 
-);
-
-CREATE TABLE estadios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
-    direccion VARCHAR(255) NOT NULL,
-    capacidad INT NOT NULL,
-    id_sede INT NOT NULL,
-    CONSTRAINT fk_estadio_sede FOREIGN KEY (id_sede) REFERENCES sedes(id)
-);
 
 -- ==========================================
--- 3. SELECCIONES, JUGADORES Y PARTIDOS
--- ==========================================
-CREATE TABLE selecciones (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    pais VARCHAR(100) NOT NULL UNIQUE,
-    codigo_fifa CHAR(3) NOT NULL UNIQUE,
-    confederacion VARCHAR(50) NOT NULL,
-    grupo CHAR(1) NOT NULL, 
-    historial TEXT,
-    bandera_url VARCHAR(255)
-);
-
-CREATE TABLE jugadores (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre_completo VARCHAR(150) NOT NULL,
-    posicion VARCHAR(50) NOT NULL,
-    dorsal INT,
-    fecha_nacimiento DATE,
-    nacionalidad VARCHAR(100),
-    minutos_jugados INT DEFAULT 0,
-    goles INT DEFAULT 0,
-    foto_url VARCHAR(255),
-    id_seleccion INT NOT NULL,
-    CONSTRAINT fk_jugador_seleccion FOREIGN KEY (id_seleccion) REFERENCES selecciones(id)
-);
-
-CREATE TABLE partidos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fecha_hora DATETIME NOT NULL,
-    ronda VARCHAR(50) NOT NULL,
-    estado VARCHAR(50) DEFAULT 'PROGRAMADO', 
-    marcador_local INT DEFAULT 0,
-    marcador_visitante INT DEFAULT 0,
-    id_estadio INT NOT NULL,
-    id_seleccion_local INT NOT NULL,
-    id_seleccion_visitante INT NOT NULL,
-    CONSTRAINT fk_partido_estadio FOREIGN KEY (id_estadio) REFERENCES estadios(id),
-    CONSTRAINT fk_seleccion_local FOREIGN KEY (id_seleccion_local) REFERENCES selecciones(id),
-    CONSTRAINT fk_seleccion_visitante FOREIGN KEY (id_seleccion_visitante) REFERENCES selecciones(id)
-);
-
--- ==========================================
--- 4. GESTIÓN DE ENTRADAS
+-- 2. GESTIÓN DE ENTRADAS
+-- Partidos ahora vienen de football-data.org API.
+-- Se almacena api_partido_id (ID del partido en la API) + info desnormalizada
+-- para evitar consultas a la API en tiempo real al listar entradas.
 -- ==========================================
 CREATE TABLE entradas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     codigo_qr VARCHAR(255) NOT NULL UNIQUE,
-    categoria VARCHAR(50) NOT NULL,
+    categoria VARCHAR(50) NOT NULL,           -- GENERAL | VIP | PALCO
     precio DECIMAL(10, 2) NOT NULL,
-    estado VARCHAR(50) NOT NULL, 
-    id_partido INT NOT NULL,
+    estado VARCHAR(50) NOT NULL,              -- PENDIENTE | PAGADO | FALLIDO | USADO
+    -- Referencia al partido en football-data.org (sin FK local)
+    api_partido_id BIGINT,
+    seleccion_local VARCHAR(100),
+    seleccion_visitante VARCHAR(100),
+    estadio_nombre VARCHAR(100),
+    ronda VARCHAR(50),
+    -- Stripe
+    stripe_payment_intent_id VARCHAR(100),
+    stripe_status VARCHAR(50),
+    cantidad INT DEFAULT 1,
+    total DECIMAL(10, 2),
+    fecha_compra DATETIME,
+    email_comprador VARCHAR(255),
+    -- Comprador
     id_usuario_comprador INT,
-    CONSTRAINT fk_entrada_partido FOREIGN KEY (id_partido) REFERENCES partidos(id),
     CONSTRAINT fk_entrada_usuario FOREIGN KEY (id_usuario_comprador) REFERENCES usuarios(id)
 );
 
 -- ==========================================
--- 5. POLLAS FUTBOLERAS
+-- 3. POLLAS FUTBOLERAS
 -- ==========================================
 CREATE TABLE pollas (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -200,15 +159,18 @@ CREATE TABLE predicciones (
     puntos_obtenidos INT DEFAULT 0,
     id_usuario INT NOT NULL,
     id_polla INT NOT NULL,
-    id_partido INT NOT NULL,
+    -- Referencia al partido en football-data.org (sin FK local)
+    api_partido_id BIGINT NOT NULL,
     fecha_prediccion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_prediccion (id_usuario, id_polla, api_partido_id),
     CONSTRAINT fk_pred_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id),
-    CONSTRAINT fk_pred_polla FOREIGN KEY (id_polla) REFERENCES pollas(id),
-    CONSTRAINT fk_pred_partido FOREIGN KEY (id_partido) REFERENCES partidos(id)
+    CONSTRAINT fk_pred_polla FOREIGN KEY (id_polla) REFERENCES pollas(id)
 );
 
 -- ==========================================
--- 6. ÁLBUM DIGITAL E INTERCAMBIOS
+-- 4. ÁLBUM DIGITAL E INTERCAMBIOS
+-- Jugadores ahora vienen de football-data.org API.
+-- Las láminas almacenan api_jugador_id + nombre desnormalizado.
 -- ==========================================
 CREATE TABLE albumes (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -220,9 +182,17 @@ CREATE TABLE albumes (
 
 CREATE TABLE laminas (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    rareza VARCHAR(50) NOT NULL, 
-    id_jugador INT NOT NULL,
-    CONSTRAINT fk_lamina_jugador FOREIGN KEY (id_jugador) REFERENCES jugadores(id)
+    numero INT,
+    nombre VARCHAR(200),
+    tipo VARCHAR(20) NOT NULL DEFAULT 'JUGADOR', -- JUGADOR | ESCUDO_HOLO | FORMACION | ESPECIAL
+    rareza VARCHAR(50) NOT NULL DEFAULT 'COMUN', -- COMUN | RARO | EPICO | LEGENDARIO
+    imagen_url VARCHAR(500),
+    -- Referencia al jugador en football-data.org (sin FK local)
+    api_jugador_id BIGINT,
+    nombre_jugador VARCHAR(150),
+    -- Referencia a la selección en football-data.org (sin FK local)
+    api_seleccion_id BIGINT,
+    seleccion_nombre VARCHAR(100)
 );
 
 CREATE TABLE laminas_album (
@@ -259,15 +229,15 @@ CREATE TABLE intercambios_laminas (
 );
 
 -- ==========================================
--- 7. SOPORTE, LOGS Y NOTIFICACIONES
+-- 5. SOPORTE, LOGS Y NOTIFICACIONES
 -- ==========================================
 CREATE TABLE incidentes_soporte (
     id INT AUTO_INCREMENT PRIMARY KEY,
     descripcion TEXT NOT NULL,
-    estado VARCHAR(50) DEFAULT 'ABIERTO', 
+    estado VARCHAR(50) DEFAULT 'ABIERTO',
     prioridad VARCHAR(20),
-    id_reportador INT NOT NULL, 
-    id_agente_soporte INT, 
+    id_reportador INT NOT NULL,
+    id_agente_soporte INT,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_incidente_reportador FOREIGN KEY (id_reportador) REFERENCES usuarios(id),
     CONSTRAINT fk_incidente_agente FOREIGN KEY (id_agente_soporte) REFERENCES usuarios(id)
@@ -279,7 +249,7 @@ CREATE TABLE logs_transaccionales (
     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     detalle TEXT,
     hash_integridad VARCHAR(255),
-    nivel_riesgo VARCHAR(20), 
+    nivel_riesgo VARCHAR(20),
     verificado_compliance BOOLEAN DEFAULT FALSE,
     id_usuario INT NOT NULL,
     CONSTRAINT fk_log_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
@@ -288,16 +258,16 @@ CREATE TABLE logs_transaccionales (
 CREATE TABLE notificaciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
     mensaje TEXT NOT NULL,
-    canal VARCHAR(20) NOT NULL, 
+    canal VARCHAR(20) NOT NULL,
     id_destinatario INT NOT NULL,
-    id_emisor INT, 
+    id_emisor INT,
     fecha_envio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_noti_destinatario FOREIGN KEY (id_destinatario) REFERENCES usuarios(id),
     CONSTRAINT fk_noti_emisor FOREIGN KEY (id_emisor) REFERENCES usuarios(id)
 );
 
 -- ==========================================
--- 8. COMPLIANCE Y REPORTES ALIADOS
+-- 6. COMPLIANCE Y REPORTES ALIADOS
 -- ==========================================
 CREATE TABLE reportes_interaccion_api (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -306,7 +276,6 @@ CREATE TABLE reportes_interaccion_api (
     peticiones_exitosas INT DEFAULT 0,
     peticiones_fallidas INT DEFAULT 0,
     fecha_corte DATE NOT NULL,
-    -- Aquí ajustamos la foránea para que apunte a la nueva tabla de aliados que usa id_usuario
     CONSTRAINT fk_reporte_aliado FOREIGN KEY (id_aliado) REFERENCES aliados_comerciales(id_usuario)
 );
 
@@ -314,8 +283,8 @@ CREATE TABLE reportes_compliance (
     id INT AUTO_INCREMENT PRIMARY KEY,
     tipo_reporte VARCHAR(100) NOT NULL,
     descripcion TEXT,
-    ruta_archivo VARCHAR(255), 
-    id_generador INT NOT NULL, 
+    ruta_archivo VARCHAR(255),
+    id_generador INT NOT NULL,
     fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_compliance_generador FOREIGN KEY (id_generador) REFERENCES usuarios(id)
 );

@@ -5,6 +5,8 @@ import type {
   EstadioApi,
   SeleccionResponse,
   JugadorResponse,
+  QualifierFixture,
+  Confederation,
 } from '../types';
 
 const API_BASE = 'http://localhost:8082/api/v1/football';
@@ -48,7 +50,54 @@ export async function fetchStandings(): Promise<FdStandingsGroup[]> {
   return data?.data?.standings ?? [];
 }
 
-// ── Estadios ──────────────────────────────────────────────────────────────────
+// ── Teams ─────────────────────────────────────────────────────────────────────
+
+export interface ApiTeam {
+  id: number;
+  name: string;
+  shortName: string;
+  tla: string;
+  crest: string;
+  venue?: string;
+  clubColors?: string;
+}
+
+export interface ApiPlayer {
+  id: number;
+  name: string;
+  position?: string;
+  dateOfBirth?: string;
+  nationality?: string;
+  shirtNumber?: number;
+}
+
+export interface ApiTeamDetail extends ApiTeam {
+  squad: ApiPlayer[];
+  coach?: { name: string; nationality?: string };
+  address?: string;
+  website?: string;
+  founded?: number;
+}
+
+export async function fetchTeams(): Promise<ApiTeam[]> {
+  const { data } = await axios.get(`${API_BASE}/teams`, { headers: getAuthHeaders() });
+  return data?.data?.teams ?? [];
+}
+
+export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | null> {
+  try {
+    const { data } = await axios.get(`${API_BASE}/teams/${teamId}`, {
+      headers: getAuthHeaders(),
+    });
+    return data?.data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// ── Estadios / Venues ─────────────────────────────────────────────────────────
+// Venues are extracted from matches via the football-data.org API.
+// The /api/v1/estadios endpoint aggregates unique venues from match data.
 
 export async function fetchEstadios(): Promise<EstadioApi[]> {
   const { data } = await axios.get(ESTADIOS_BASE);
@@ -81,6 +130,43 @@ export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResp
   });
   return (data?.data as JugadorResponse[]) ?? [];
 }
+
+// ── Qualifiers / Eliminatorias ────────────────────────────────────────────
+
+export async function fetchQualifierMatches(
+  confederation?: Confederation,
+): Promise<QualifierFixture[]> {
+  const params: Record<string, string> = {};
+  if (confederation) params.confederation = confederation;
+  const { data } = await axios.get(
+    `${API_BASE}/qualifiers/matches`,
+    { params, headers: getAuthHeaders() },
+  );
+  return data?.data?.matches ?? [];
+}
+
+export async function fetchQualifierStandings(
+  confederation: Confederation,
+): Promise<FdStandingsGroup[]> {
+  const { data } = await axios.get(
+    `${API_BASE}/qualifiers/standings`,
+    { params: { confederation }, headers: getAuthHeaders() },
+  );
+  return data?.data ?? [];
+}
+
+export const CONFEDERATIONS: {
+  id: Confederation;
+  label: string;
+  emoji: string;
+}[] = [
+  { id: 'CONMEBOL', label: 'Sudamérica', emoji: '🌎' },
+  { id: 'CONCACAF', label: 'Norte y Centroamérica', emoji: '🌎' },
+  { id: 'UEFA', label: 'Europa', emoji: '🌍' },
+  { id: 'AFC', label: 'Asia', emoji: '🌏' },
+  { id: 'CAF', label: 'África', emoji: '🌍' },
+  { id: 'OFC', label: 'Oceanía', emoji: '🌏' },
+];
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 

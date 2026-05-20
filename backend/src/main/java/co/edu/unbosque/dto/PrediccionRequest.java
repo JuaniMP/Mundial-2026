@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class PrediccionRequest {
     private Integer idPolla;
-    private Integer idPartido;
+    /** ID del partido en football-data.org */
+    private Long apiPartidoId;
     private Integer golesLocal;
     private Integer golesVisitante;
 }
