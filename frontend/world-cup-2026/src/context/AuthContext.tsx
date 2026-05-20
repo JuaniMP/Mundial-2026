@@ -6,7 +6,8 @@ interface User {
   id: string;
   email: string;
   name: string;
-  rol: string;
+  rol?: string;
+  seleccionFavorita?: string;
 }
 
 interface AuthContextType {
@@ -144,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email: userEmail,
         name: nombre,
         rol,
+        seleccionFavorita: seleccionFavorita ?? undefined,
       };
       setToken(token);
       setUser(user);
