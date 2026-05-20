@@ -10,9 +10,39 @@ interface FeatureCardProps {
   badge?: string;
   stat?: { label: string; value: string };
   progress?: { value: number; label: string };
-  variant?: 'image' | 'solid' | 'accent';
+  /** 'dark' = ink bg, 'gold' = gold bg, 'green' = MX green bg,
+   *  'cream' = cream bg, 'image' = photo bg, 'solid' = paper bg */
+  variant?: 'image' | 'solid' | 'accent' | 'dark' | 'gold' | 'green' | 'cream';
   className?: string;
 }
+
+const BG: Record<string, string> = {
+  dark: '#0e1a2b',
+  gold: '#e5b449',
+  green: '#006847',
+  cream: '#f6efe2',
+  solid: '#fbf7ee',
+  accent: '#fbf7ee',
+  image: '#fbf7ee',
+};
+const FG: Record<string, string> = {
+  dark: '#f6efe2',
+  gold: '#0e1a2b',
+  green: '#f6efe2',
+  cream: '#0e1a2b',
+  solid: '#0e1a2b',
+  accent: '#0e1a2b',
+  image: '#0e1a2b',
+};
+const EYEBROW: Record<string, string> = {
+  dark: '#e5b449',
+  gold: '#0e1a2b',
+  green: 'rgba(246,239,226,.75)',
+  cream: '#6b6356',
+  solid: '#6b6356',
+  accent: '#006847',
+  image: '#6b6356',
+};
 
 export function FeatureCard({
   to,
@@ -26,88 +56,185 @@ export function FeatureCard({
   variant = 'solid',
   className = '',
 }: FeatureCardProps) {
+  const bg = BG[variant] ?? '#fbf7ee';
+  const fg = FG[variant] ?? '#0e1a2b';
+  const eyebrowColor = EYEBROW[variant] ?? '#6b6356';
+  const isImage = variant === 'image' && imageUrl;
+
   return (
     <Link
       to={to}
-      className={`
-        group relative overflow-hidden rounded-2xl flex flex-col min-h-[280px]
-        border border-border transition-all duration-500
-        hover:border-border-hover hover:shadow-xl hover:-translate-y-1
-        ${variant === 'image' ? 'justify-end' : 'justify-between p-6'}
-        ${className}
-      `}
+      className={`group relative overflow-hidden flex flex-col min-h-[260px]
+        border-[1.5px] border-ink transition-all duration-200
+        hover:-translate-x-[3px] hover:-translate-y-[3px]
+        hover:shadow-[8px_8px_0_#0e1a2b] ${className}`}
+      style={{ background: bg, color: fg }}
     >
-      {/* Image background variant */}
-      {variant === 'image' && imageUrl && (
-        <>
-          <div className="absolute inset-0 z-0">
-            <img
-              alt={title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              src={imageUrl}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg-deep via-bg-deep/60 to-transparent" />
-          </div>
-          <div className="relative z-10 p-6">
-            <div className="w-10 h-10 rounded-xl bg-bg-card/80 backdrop-blur-md flex items-center justify-center mb-4 border border-border">
-              <Icon className="text-primary w-6 h-6" />
-            </div>
-            <h3 className="font-headline font-bold text-xl text-text-primary mb-1">{title}</h3>
-            <p className="text-sm text-text-secondary">{description}</p>
-          </div>
-        </>
+      {/* Image background */}
+      {isImage && (
+        <div className="absolute inset-0 z-0">
+          <img
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            src={imageUrl}
+          />
+          <div
+            className="absolute inset-0"
+            style={{ background: 'linear-gradient(to top, #0e1a2bdd 40%, transparent)' }}
+          />
+        </div>
       )}
 
-      {/* Solid / accent variant */}
-      {variant !== 'image' && (
-        <>
-          <div className="flex justify-between items-start">
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center border border-border ${
-                variant === 'accent' ? 'bg-primary-subtle' : 'bg-bg-elevated'
-              }`}
+      <div className={`relative z-10 flex flex-col justify-between flex-1 p-7`}>
+        {/* Top row */}
+        <div className="flex justify-between items-start">
+          <div
+            style={{
+              fontFamily: 'Archivo, sans-serif',
+              fontSize: 10,
+              letterSpacing: '0.25em',
+              textTransform: 'uppercase',
+              color: isImage ? '#e5b449' : eyebrowColor,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+            }}
+          >
+            <Icon size={14} />
+            <span>{badge ?? title}</span>
+          </div>
+          {badge && (
+            <span
+              style={{
+                fontFamily: 'Anton, sans-serif',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                padding: '3px 8px',
+                background: variant === 'dark' ? '#e5b449' : '#0e1a2b',
+                color: variant === 'dark' ? '#0e1a2b' : '#e5b449',
+              }}
             >
-              <Icon
-                className={`w-6 h-6 ${variant === 'accent' ? 'text-primary' : 'text-secondary'}`}
-              />
+              {badge}
+            </span>
+          )}
+        </div>
+
+        {/* Title + description */}
+        <div className="mt-auto">
+          <h3
+            style={{
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 38,
+              lineHeight: 0.92,
+              margin: '16px 0 10px',
+              color: isImage ? '#f6efe2' : fg,
+            }}
+          >
+            {title}
+          </h3>
+          <p
+            style={{
+              fontSize: 14,
+              lineHeight: 1.5,
+              opacity: 0.82,
+              maxWidth: 300,
+              margin: 0,
+              color: isImage ? 'rgba(246,239,226,.8)' : fg,
+            }}
+          >
+            {description}
+          </p>
+
+          {stat && (
+            <div
+              style={{
+                marginTop: 14,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '10px 14px',
+                border: `1px solid ${variant === 'dark' ? 'rgba(246,239,226,.15)' : 'rgba(14,26,43,.15)'}`,
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'Archivo, sans-serif',
+                  fontSize: 10,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  opacity: 0.65,
+                }}
+              >
+                {stat.label}
+              </span>
+              <span
+                style={{
+                  fontFamily: 'Anton, sans-serif',
+                  fontSize: 18,
+                  color: variant === 'dark' ? '#e5b449' : 'var(--color-secondary)',
+                }}
+              >
+                {stat.value}
+              </span>
             </div>
-            {badge && <span className="badge badge-primary">{badge}</span>}
-          </div>
+          )}
 
-          <div>
-            <h3 className="font-headline font-bold text-xl text-text-primary mb-1">{title}</h3>
-            <p className="text-sm text-text-secondary mb-4">{description}</p>
-
-            {stat && (
-              <div className="glass-light rounded-lg p-3 flex justify-between items-center">
-                <span className="text-[0.65rem] uppercase text-text-muted tracking-wider">
-                  {stat.label}
-                </span>
-                <span className="font-headline font-bold text-base text-primary">{stat.value}</span>
+          {progress && (
+            <div style={{ marginTop: 14 }}>
+              <div
+                style={{
+                  height: 6,
+                  background: variant === 'dark' ? 'rgba(246,239,226,.12)' : 'rgba(14,26,43,.1)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    height: '100%',
+                    width: `${progress.value}%`,
+                    background: 'linear-gradient(90deg, #00432d, #e5b449)',
+                  }}
+                />
               </div>
-            )}
-
-            {progress && (
-              <div>
-                <div className="w-full bg-bg-hover rounded-full h-1.5 mb-2 overflow-hidden">
-                  <div
-                    className="h-1.5 rounded-full transition-all duration-700"
-                    style={{
-                      width: `${progress.value}%`,
-                      background:
-                        'linear-gradient(90deg, var(--color-secondary-dim), var(--color-secondary))',
-                    }}
-                  />
-                </div>
-                <div className="flex justify-between text-[0.65rem] text-text-muted">
-                  <span>Completion</span>
-                  <span className="font-bold text-text-secondary">{progress.label}</span>
-                </div>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  marginTop: 6,
+                  fontSize: 10,
+                  letterSpacing: '0.15em',
+                  textTransform: 'uppercase',
+                  opacity: 0.65,
+                  fontFamily: 'Archivo, sans-serif',
+                }}
+              >
+                <span>Completado</span>
+                <span style={{ fontWeight: 700 }}>{progress.label}</span>
               </div>
-            )}
+            </div>
+          )}
+
+          <div
+            className="flex items-center gap-2 mt-4"
+            style={{
+              fontFamily: 'Anton, sans-serif',
+              fontSize: 13,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              borderBottom: `2px solid ${isImage ? '#e5b449' : fg}`,
+              width: 'fit-content',
+              paddingBottom: 3,
+              color: isImage ? '#e5b449' : fg,
+            }}
+          >
+            VER MÁS →
           </div>
-        </>
-      )}
+        </div>
+      </div>
     </Link>
   );
 }
