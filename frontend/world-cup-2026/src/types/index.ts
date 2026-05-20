@@ -169,6 +169,28 @@ export interface JugadorResponse {
   pais?: string;
 }
 
+// ── Qualifier / Eliminatorias types ──────────────────────────────────────────
+
+export interface QualifierFixture {
+  id: number;
+  utcDate: string;
+  status: string;
+  venue: string | null;
+  round: string | null;
+  confederation: string;
+  homeTeam: FdTeam;
+  awayTeam: FdTeam;
+  score: FdScore;
+}
+
+export type Confederation =
+  | 'CONMEBOL'
+  | 'CONCACAF'
+  | 'UEFA'
+  | 'AFC'
+  | 'CAF'
+  | 'OFC';
+
 // ── Prediction types ─────────────────────────────────────────────────────────
 
 export interface Prediction {

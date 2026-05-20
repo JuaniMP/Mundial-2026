@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -125,20 +128,22 @@ public class AlbumService {
     }
 
     private List<Lamina> generarLaminasAleatorias(int cantidad) {
-        List<Lamina> todasLaminas = laminaRepository.findAll();
-        if (todasLaminas.isEmpty()) {
+        if (laminaRepository.count() == 0) {
             throw new BadRequestException("No hay laminas disponibles");
         }
 
+        List<Lamina> resultado = new ArrayList<>();
+        List<Lamina> todas = laminaRepository.findAll();
         for (int i = 0; i < cantidad; i++) {
             String rareza = RAREZAS[random.nextInt(RAREZAS.length)];
             List<Lamina> filtradas = laminaRepository.findByRareza(rareza);
             if (!filtradas.isEmpty()) {
-                todasLaminas.add(filtradas.get(random.nextInt(filtradas.size())));
+                resultado.add(filtradas.get(random.nextInt(filtradas.size())));
+            } else {
+                resultado.add(todas.get(random.nextInt(todas.size())));
             }
         }
-
-        return todasLaminas.stream().limit(cantidad).collect(Collectors.toList());
+        return resultado;
     }
 
     private AlbumResponse toResponse(Album album) {
@@ -151,10 +156,15 @@ public class AlbumService {
     }
 
     private LaminaAlbumResponse toLaminaAlbumResponse(LaminaAlbum la) {
+        Lamina lamina = la.getLamina();
+        // Prioridad: nombre explícito → nombreJugador (de la API) → fallback
+        String nombreMostrar = lamina.getNombre() != null && !lamina.getNombre().isBlank()
+            ? lamina.getNombre()
+            : (lamina.getNombreJugador() != null ? lamina.getNombreJugador() : "Lámina especial");
         return LaminaAlbumResponse.builder()
-                .idLamina(la.getLamina().getId())
-                .nombreJugador(la.getLamina().getJugador().getNombreCompleto())
-                .rareza(la.getLamina().getRareza())
+                .idLamina(lamina.getId())
+                .nombreJugador(nombreMostrar)
+                .rareza(lamina.getRareza())
                 .estaPegada(la.getEstaPegada())
                 .cantidadRepetidas(la.getCantidadRepetidas())
                 .build();
