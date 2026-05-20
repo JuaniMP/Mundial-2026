@@ -5,6 +5,8 @@ import type {
   EstadioApi,
   SeleccionResponse,
   JugadorResponse,
+  QualifierFixture,
+  Confederation,
 } from '../types';
 
 const API_BASE = 'http://localhost:8082/api/v1/football';
@@ -128,6 +130,43 @@ export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResp
   });
   return (data?.data as JugadorResponse[]) ?? [];
 }
+
+// ── Qualifiers / Eliminatorias ────────────────────────────────────────────
+
+export async function fetchQualifierMatches(
+  confederation?: Confederation,
+): Promise<QualifierFixture[]> {
+  const params: Record<string, string> = {};
+  if (confederation) params.confederation = confederation;
+  const { data } = await axios.get(
+    `${API_BASE}/qualifiers/matches`,
+    { params, headers: getAuthHeaders() },
+  );
+  return data?.data?.matches ?? [];
+}
+
+export async function fetchQualifierStandings(
+  confederation: Confederation,
+): Promise<FdStandingsGroup[]> {
+  const { data } = await axios.get(
+    `${API_BASE}/qualifiers/standings`,
+    { params: { confederation }, headers: getAuthHeaders() },
+  );
+  return data?.data ?? [];
+}
+
+export const CONFEDERATIONS: {
+  id: Confederation;
+  label: string;
+  emoji: string;
+}[] = [
+  { id: 'CONMEBOL', label: 'Sudamérica', emoji: '🌎' },
+  { id: 'CONCACAF', label: 'Norte y Centroamérica', emoji: '🌎' },
+  { id: 'UEFA', label: 'Europa', emoji: '🌍' },
+  { id: 'AFC', label: 'Asia', emoji: '🌏' },
+  { id: 'CAF', label: 'África', emoji: '🌍' },
+  { id: 'OFC', label: 'Oceanía', emoji: '🌏' },
+];
 
 // ── Formatters ────────────────────────────────────────────────────────────────
 

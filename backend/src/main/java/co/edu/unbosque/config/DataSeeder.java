@@ -48,21 +48,14 @@ public class DataSeeder implements ApplicationRunner {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void eliminarTablasObsoletas() {
-        // Tablas que fueron eliminadas del modelo porque sus datos
-        // ahora vienen de football-data.org API en tiempo real.
+        // SOLO las tablas que ya NO tienen entidad JPA (eliminadas del modelo).
+        // Las demás (laminas, entradas, predicciones, etc.) las gestiona Hibernate.
         String[] tablasAEliminar = {
-            "intercambios_laminas",   // FK a laminas (debe ir antes)
-            "laminas_album",          // FK a laminas
-            "laminas",               // antes de jugadores
-            "paquetes",
-            "predicciones",          // FK a partidos
-            "participantes_pollas",
-            "entradas",              // FK a partidos
-            "partidos",              // FK a estadios y selecciones
-            "jugadores",             // FK a selecciones
-            "selecciones",
-            "estadios",              // FK a sedes
-            "sedes",
+            "partidos",              // sin entidad JPA — datos vienen de football-data.org
+            "jugadores",             // sin entidad JPA — datos vienen de football-data.org
+            "selecciones",           // sin entidad JPA — datos vienen de football-data.org
+            "estadios",              // sin entidad JPA — datos vienen de football-data.org
+            "sedes",                 // sin entidad JPA — datos vienen de football-data.org
             "auditoria_movimientos"  // tabla extra del esquema viejo si existe
         };
 
