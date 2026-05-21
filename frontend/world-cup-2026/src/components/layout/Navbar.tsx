@@ -4,8 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 
 const LEFT_NAV = [
-  { to: '/fan-zone', label: 'FAN ZONE' },
   { to: '/matches', label: 'MATCHES' },
+  { to: '/pollas', label: 'POLLAS' },
 ] as const;
 
 const RIGHT_NAV = [
@@ -20,7 +20,9 @@ const MOBILE_NAV = [
   { to: '/tickets', label: 'Entradas', exact: false },
   { to: '/teams', label: 'Selecciones', exact: false },
   { to: '/album', label: 'Álbum', exact: false },
+  { to: '/pollas', label: 'Pollas', exact: false },
   { to: '/superpolla', label: 'Predictor', exact: false },
+  { to: '/profile', label: 'Mi perfil', exact: false },
 ] as const;
 
 const navLinkStyle = (isActive: boolean): string =>
@@ -231,6 +233,8 @@ export function Navbar() {
                   </div>
                 )}
                 {[
+                  { to: '/profile', label: '👤 Mi perfil' },
+                  { to: '/pollas', label: '🎯 Pollas' },
                   { to: '/album', label: '📔 My Collection' },
                   { to: '/superpolla', label: '🏆 Predictor Game' },
                   { to: '/pack-opening', label: '📦 Open Packs' },

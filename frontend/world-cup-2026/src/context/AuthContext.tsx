@@ -31,11 +31,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const API_BASE_URL = 'http://localhost:8082/api/v1';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // NOTA: usamos sessionStorage (no localStorage) para que la sesión sea
+  // independiente por pestaña/ventana. Así se puede iniciar sesión con
+  // usuarios distintos en ventanas distintas sin que se mezclen los datos.
   const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem('user');
+    const storedUser = sessionStorage.getItem('user');
     return storedUser ? (JSON.parse(storedUser) as User) : null;
   });
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(() => sessionStorage.getItem('token'));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,13 +55,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const id = axios.interceptors.response.use(
       (res) => res,
       (err) => {
-        if (axios.isAxiosError(err) && err.response?.status === 401) {
-          // Token expirado o inválido → limpiar sesión
-          setUser(null);
-          setToken(null);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          delete axios.defaults.headers.common['Authorization'];
+        if (axios.isAxiosError(err)) {
+          const status = err.response?.status;
+          const localToken = sessionStorage.getItem('token');
+          const tokenLooksBroken =
+            !localToken || localToken === 'null' || localToken === 'undefined' || !localToken.includes('.');
+          // 401 = token expirado/inválido. 403 con token corrupto = JWT malformado.
+          if (status === 401 || (status === 403 && tokenLooksBroken)) {
+            setUser(null);
+            setToken(null);
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            delete axios.defaults.headers.common['Authorization'];
+          }
         }
         return Promise.reject(err);
       },
@@ -95,8 +104,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
       setToken(token);
       setUser(user);
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       return rol;
     } catch (err) {
@@ -149,8 +158,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       };
       setToken(token);
       setUser(user);
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('token', token);
+      sessionStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       return rol;
     } catch (err) {
@@ -169,8 +178,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
   };
 

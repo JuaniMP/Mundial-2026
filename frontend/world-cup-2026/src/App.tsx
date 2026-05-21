@@ -18,6 +18,9 @@ import { Agentes } from './pages/Agentes';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
+import { Pollas } from './pages/Pollas';
+import { PollaDetalle } from './pages/PollaDetalle';
+import { Profile } from './pages/Profile';
 
 function App() {
   return (
@@ -46,6 +49,9 @@ function App() {
                     <Route path="/tickets" element={<Tickets />} />
                     <Route path="/teams" element={<Teams />} />
                     <Route path="/pack-opening" element={<PackOpening />} />
+                    <Route path="/pollas" element={<Pollas />} />
+                    <Route path="/pollas/:id" element={<PollaDetalle />} />
+                    <Route path="/profile" element={<Profile />} />
                     <Route
                       path="/admin"
                       element={
