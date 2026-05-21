@@ -10,6 +10,7 @@ import {
   abrirPaquete,
   type LaminaAlbum,
 } from '../components/album/albumApi';
+import { scopedKey } from '../utils/userScope';
 
 // ─── localStorage keys ────────────────────────────────────────────────────────
 const LS_COINS = 'wc2026_coins';
@@ -23,16 +24,16 @@ type Tab = 'album' | 'cromos' | 'intercambios' | 'misiones';
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function loadCoins(): number {
-  return parseInt(localStorage.getItem(LS_COINS) ?? '100', 10);
+  return parseInt(localStorage.getItem(scopedKey(LS_COINS)) ?? '100', 10);
 }
 function saveCoins(n: number) {
-  localStorage.setItem(LS_COINS, String(n));
+  localStorage.setItem(scopedKey(LS_COINS), String(n));
 }
 function loadPacks(): number {
-  return parseInt(localStorage.getItem(LS_PACKS) ?? '3', 10);
+  return parseInt(localStorage.getItem(scopedKey(LS_PACKS)) ?? '3', 10);
 }
 function savePacks(n: number) {
-  localStorage.setItem(LS_PACKS, String(n));
+  localStorage.setItem(scopedKey(LS_PACKS), String(n));
 }
 
 function formatCountdown(ms: number): string {
@@ -101,7 +102,7 @@ export function Album() {
   // ── Free pack countdown ──
   useEffect(() => {
     const tick = () => {
-      const last = parseInt(localStorage.getItem(LS_LAST_FREE) ?? '0', 10);
+      const last = parseInt(localStorage.getItem(scopedKey(LS_LAST_FREE)) ?? '0', 10);
       const remaining = FREE_COOLDOWN_MS - (Date.now() - last);
       if (remaining <= 0) {
         setFreeReady(true);
@@ -135,7 +136,7 @@ export function Album() {
 
       setOpeningPack(true);
       try {
-        if (free) localStorage.setItem(LS_LAST_FREE, String(Date.now()));
+        if (free) localStorage.setItem(scopedKey(LS_LAST_FREE), String(Date.now()));
         else setPacks((p) => p - 1);
 
         const ids = await abrirPaquete();

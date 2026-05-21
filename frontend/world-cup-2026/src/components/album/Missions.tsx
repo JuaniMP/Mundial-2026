@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import type { LaminaAlbum } from './albumApi';
 import { parseRareza } from './rarityUtils';
 import { getTeamForLamina, TEAMS } from './teamColors';
+import { scopedKey } from '../../utils/userScope';
 
 interface MissionsProps {
   laminas: LaminaAlbum[];
@@ -146,7 +147,7 @@ const LS_KEY = 'wc2026_claimed_missions';
 
 function loadClaimed(): Set<string> {
   try {
-    return new Set(JSON.parse(localStorage.getItem(LS_KEY) ?? '[]') as string[]);
+    return new Set(JSON.parse(localStorage.getItem(scopedKey(LS_KEY)) ?? '[]') as string[]);
   } catch {
     return new Set();
   }
@@ -156,7 +157,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
   const [claimed, setClaimed] = useState<Set<string>>(loadClaimed);
 
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify([...claimed]));
+    localStorage.setItem(scopedKey(LS_KEY), JSON.stringify([...claimed]));
   }, [claimed]);
 
   const evaluated = useMemo(

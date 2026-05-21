@@ -16,7 +16,7 @@ const BACKEND_BASE = 'http://localhost:8082/api/v1';
 // ── helper ───────────────────────────────────────────────────────────────────
 
 function getAuthHeaders() {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
