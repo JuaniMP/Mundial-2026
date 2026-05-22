@@ -9,8 +9,9 @@ import lombok.Data;
 @Data
 public class CheckoutRequest {
 
+    /** ID del partido en football-data.org */
     @NotNull(message = "El ID del partido es requerido")
-    private Integer partidoId;
+    private Long apiPartidoId;
 
     @NotBlank(message = "La categoría es requerida")
     private String categoria; // GENERAL | VIP | PALCO
@@ -22,4 +23,11 @@ public class CheckoutRequest {
 
     /** Opcional — si no se envía se usa el email del usuario autenticado */
     private String emailComprador;
+
+    // ── Match info (enviada desde el frontend, ya disponible vía football-data.org) ──
+
+    private String seleccionLocal;
+    private String seleccionVisitante;
+    private String estadioNombre;
+    private String ronda;
 }

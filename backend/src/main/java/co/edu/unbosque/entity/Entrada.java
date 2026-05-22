@@ -51,11 +51,25 @@ public class Entrada {
     @Column(name = "email_comprador", length = 255)
     private String emailComprador;
 
-    // ── Relations ─────────────────────────────────────────────────────────────
+    // ── Match info (API reference — sin FK a tabla local) ────────────────────
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_partido", nullable = false)
-    private Partido partido;
+    /** ID del partido en football-data.org */
+    @Column(name = "api_partido_id")
+    private Long apiPartidoId;
+
+    @Column(name = "seleccion_local", length = 100)
+    private String seleccionLocal;
+
+    @Column(name = "seleccion_visitante", length = 100)
+    private String seleccionVisitante;
+
+    @Column(name = "estadio_nombre", length = 100)
+    private String estadioNombre;
+
+    @Column(name = "ronda", length = 50)
+    private String ronda;
+
+    // ── Relations ─────────────────────────────────────────────────────────────
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_usuario_comprador")
