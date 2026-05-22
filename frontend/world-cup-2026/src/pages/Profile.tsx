@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { createPortal } from 'react-dom';
 import {
   Settings,
   Bell,
@@ -19,9 +20,13 @@ import {
   Newspaper,
   ArrowRight,
   Check,
+  Pencil,
+  X,
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import {
   getPreferencias,
   savePreferencias,
@@ -37,34 +42,48 @@ import {
   type RecordatorioViaje,
   type FeedItem,
 } from '../services/profileApi';
+import { buildAvatarSeed, getAvatarUrl, parseAvatarSeed, DEFAULT_AVATAR_SEEDS } from '../utils/avatar';
 
 // ── Datos auxiliares para el wizard ───────────────────────────────────────────
+import { TEAMS } from '../data/teams';
 
-const SELECCIONES = [
-  'Argentina', 'Brasil', 'Francia', 'España', 'Alemania',
-  'Portugal', 'Colombia', 'Uruguay', 'México', 'Estados Unidos',
-  'Canadá', 'Inglaterra', 'Italia', 'Países Bajos', 'Japón',
-  'Croacia', 'Bélgica', 'Marruecos', 'Senegal', 'Corea del Sur',
-  'Suiza', 'Ecuador', 'Chile', 'Costa Rica', 'Polonia',
-];
+// Usar la lista completa de equipos (mock TEAMS) para el asistente de configuración
+const SELECCIONES = TEAMS.map((t) => t.name);
 
 const ESTADIOS = [
-  'MetLife Stadium', 'SoFi Stadium', 'AT&T Stadium', "Levi's Stadium",
-  'Arrowhead Stadium', 'NRG Stadium', 'Gillette Stadium', 'Lincoln Financial Field',
-  'Bank of America Stadium', 'Hard Rock Stadium', 'BC Place', 'BMO Field',
-  'Estadio Azteca', 'Estadio BBVA', 'Estadio Akron',
+  'MetLife Stadium',
+  'SoFi Stadium',
+  'AT&T Stadium',
+  "Levi's Stadium",
+  'Arrowhead Stadium',
+  'NRG Stadium',
+  'Gillette Stadium',
+  'Lincoln Financial Field',
+  'Bank of America Stadium',
+  'Hard Rock Stadium',
+  'BC Place',
+  'BMO Field',
+  'Estadio Azteca',
+  'Estadio BBVA',
+  'Estadio Akron',
 ];
 
 const CANALES = [
-  { key: 'APP',   label: 'Notificaciones en la app',  icon: Bell },
-  { key: 'EMAIL', label: 'Correo electrónico',        icon: Mail },
-  { key: 'PUSH',  label: 'Push (navegador/celular)',  icon: Smartphone },
+  { key: 'APP', label: 'Notificaciones en la app', icon: Bell },
+  { key: 'EMAIL', label: 'Correo electrónico', icon: Mail },
+  { key: 'PUSH', label: 'Push (navegador/celular)', icon: Smartphone },
 ] as const;
 
 const ZONAS = [
-  'America/Bogota', 'America/Mexico_City', 'America/New_York',
-  'America/Los_Angeles', 'America/Argentina/Buenos_Aires', 'America/Sao_Paulo',
-  'Europe/Madrid', 'Europe/London', 'UTC',
+  'America/Bogota',
+  'America/Mexico_City',
+  'America/New_York',
+  'America/Los_Angeles',
+  'America/Argentina/Buenos_Aires',
+  'America/Sao_Paulo',
+  'Europe/Madrid',
+  'Europe/London',
+  'UTC',
 ];
 
 type Tab = 'preferencias' | 'agenda' | 'feed' | 'viajes';
@@ -135,7 +154,11 @@ export function Profile() {
       setPrefs(updated);
       setWizardStep(0);
     } catch (err) {
-      setError(axios.isAxiosError(err) ? (err.response?.data?.message as string) || 'Error guardando' : 'Error guardando');
+      setError(
+        axios.isAxiosError(err)
+          ? (err.response?.data?.message as string) || 'Error guardando'
+          : 'Error guardando',
+      );
     } finally {
       setSavingPrefs(false);
     }
@@ -154,11 +177,7 @@ export function Profile() {
       <section className="relative overflow-hidden rounded-2xl gradient-hero p-6 md:p-8 shadow-xl animate-fade-in-up delay-100">
         <div className="absolute top-0 right-0 w-64 h-64 bg-accent rounded-full mix-blend-screen blur-[80px] opacity-20 pointer-events-none translate-x-1/3 -translate-y-1/4" />
         <div className="relative z-10 flex items-center gap-4">
-          <img
-            alt={user?.name ?? 'avatar'}
-            className="w-16 h-16 rounded-full object-cover border-2 border-white/20 shadow-lg"
-            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(user?.name ?? user?.email ?? 'fan')}`}
-          />
+          <AvatarPicker />
           <div className="flex-1 min-w-0">
             <h2 className="font-headline font-bold text-2xl text-white tracking-tight truncate">
               {user?.name ?? user?.email}
@@ -192,12 +211,14 @@ export function Profile() {
 
       {/* Tabs */}
       <div className="flex flex-wrap bg-bg-elevated rounded-xl p-1 border border-border self-start gap-1">
-        {([
-          { key: 'preferencias', label: 'Preferencias', icon: Settings },
-          { key: 'agenda',       label: 'Agenda',       icon: CalendarDays },
-          { key: 'feed',         label: 'Feed',         icon: Newspaper },
-          { key: 'viajes',       label: 'Viajes',       icon: Plane },
-        ] as const).map((t) => {
+        {(
+          [
+            { key: 'preferencias', label: 'Preferencias', icon: Settings },
+            { key: 'agenda', label: 'Agenda', icon: CalendarDays },
+            { key: 'feed', label: 'Feed', icon: Newspaper },
+            { key: 'viajes', label: 'Viajes', icon: Plane },
+          ] as const
+        ).map((t) => {
           const Active = t.icon;
           return (
             <button
@@ -238,13 +259,21 @@ export function Profile() {
       )}
 
       {!loading && tab === 'agenda' && (
-        <AgendaPanel agenda={agenda} reload={async () => setAgenda(await getAgenda())} setError={setError} />
+        <AgendaPanel
+          agenda={agenda}
+          reload={async () => setAgenda(await getAgenda())}
+          setError={setError}
+        />
       )}
 
       {!loading && tab === 'feed' && <FeedPanel feed={feed} />}
 
       {!loading && tab === 'viajes' && (
-        <ViajesPanel viajes={viajes} reload={async () => setViajes(await getViajes())} setError={setError} />
+        <ViajesPanel
+          viajes={viajes}
+          reload={async () => setViajes(await getViajes())}
+          setError={setError}
+        />
       )}
     </main>
   );
@@ -269,12 +298,20 @@ function PreferenciasPanel(props: {
   saving: boolean;
 }) {
   const {
-    prefs, wizardStep, setWizardStep,
-    draftSelecciones, setDraftSelecciones,
-    draftEstadios, setDraftEstadios,
-    draftCanales, setDraftCanales,
-    draftZona, setDraftZona,
-    toggle, guardar, saving,
+    prefs,
+    wizardStep,
+    setWizardStep,
+    draftSelecciones,
+    setDraftSelecciones,
+    draftEstadios,
+    setDraftEstadios,
+    draftCanales,
+    setDraftCanales,
+    draftZona,
+    setDraftZona,
+    toggle,
+    guardar,
+    saving,
   } = props;
 
   const showWizard = !prefs?.wizardCompletado || wizardStep > 0;
@@ -288,9 +325,7 @@ function PreferenciasPanel(props: {
             <h3 className="font-headline font-bold text-xl text-text-primary">
               Asistente de configuración
             </h3>
-            <p className="text-sm text-text-secondary">
-              Personalizamos tu experiencia en 4 pasos.
-            </p>
+            <p className="text-sm text-text-secondary">Personalizamos tu experiencia en 4 pasos.</p>
           </div>
         </div>
 
@@ -328,10 +363,12 @@ function PreferenciasPanel(props: {
 
         {wizardStep === 2 && (
           <div className="flex flex-col gap-3">
-            <h4 className="font-headline font-bold text-lg text-text-primary">¿Cómo te avisamos?</h4>
+            <h4 className="font-headline font-bold text-lg text-text-primary">
+              ¿Cómo te avisamos?
+            </h4>
             <p className="text-sm text-text-secondary">
-              Marca los canales para recordatorios de partido, predicciones bloqueadas
-              y noticias del torneo.
+              Marca los canales para recordatorios de partido, predicciones bloqueadas y noticias
+              del torneo.
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
               {CANALES.map((c) => {
@@ -385,7 +422,11 @@ function PreferenciasPanel(props: {
           </span>
           <div className="flex gap-2">
             {wizardStep > 0 && (
-              <Button variant="ghost" onClick={() => setWizardStep(wizardStep - 1)} disabled={saving}>
+              <Button
+                variant="ghost"
+                onClick={() => setWizardStep(wizardStep - 1)}
+                disabled={saving}
+              >
                 Atrás
               </Button>
             )}
@@ -419,6 +460,7 @@ function PreferenciasPanel(props: {
   // Vista resumen — preferencias guardadas
   return (
     <section className="flex flex-col gap-5 animate-fade-in">
+      <LanguageSwitcherCard />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PrefCard
           icon={Flag}
@@ -448,7 +490,12 @@ function PreferenciasPanel(props: {
         />
       </div>
       <div className="flex justify-end">
-        <Button variant="outline" icon={Settings} iconPosition="left" onClick={() => setWizardStep(0)}>
+        <Button
+          variant="outline"
+          icon={Settings}
+          iconPosition="left"
+          onClick={() => setWizardStep(0)}
+        >
           Editar preferencias
         </Button>
       </div>
@@ -495,8 +542,8 @@ function WizardSelections({
                 active
                   ? 'bg-primary text-ink border-ink'
                   : disabled
-                  ? 'bg-bg-hover text-text-muted border-transparent opacity-50 cursor-not-allowed'
-                  : 'bg-bg-elevated text-text-primary border-border hover:border-ink'
+                    ? 'bg-bg-hover text-text-muted border-transparent opacity-50 cursor-not-allowed'
+                    : 'bg-bg-elevated text-text-primary border-border hover:border-ink'
               }`}
             >
               {active && <Check className="w-3.5 h-3.5 inline mr-1" />}
@@ -544,6 +591,191 @@ function PrefCard({
   );
 }
 
+// ── AvatarPicker ────────────────────────────────────────────────────────────
+function AvatarPicker() {
+  const [open, setOpen] = useState(false);
+  const { user, updateUser } = useAuth();
+  const [customs, setCustoms] = useState<string[]>(() => user?.avatarCustomUrls ?? []);
+  const DEFAULT_ASSET_URLS = [
+    '/assets/avatars/avatar-1.png',
+    '/assets/avatars/avatar-2.png',
+    '/assets/avatars/avatar-3.png',
+  ];
+
+  // On mount or when opening, probe repository public assets and include them
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const found: string[] = [];
+        for (const url of DEFAULT_ASSET_URLS) {
+          try {
+            const res = await fetch(url, { method: 'HEAD' });
+            if (res.ok) found.push(url);
+          } catch {
+            // ignore
+          }
+        }
+        if (!mounted) return;
+        // Merge user customs with found defaults, prefer user-provided order
+        const userCustoms = user?.avatarCustomUrls ?? [];
+        const merged = [...userCustoms, ...found.filter((f) => !userCustoms.includes(f))].slice(0, 3);
+        setCustoms(merged);
+        if (merged.length && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0)) {
+          updateUser({ avatarCustomUrls: merged });
+        }
+      } catch {
+        // noop
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [user?.avatarCustomUrls, updateUser]);
+
+  const options = DEFAULT_AVATAR_SEEDS;
+
+  const parsed = parseAvatarSeed(user?.avatarSeed);
+  const current = buildAvatarSeed(parsed.style, parsed.seed);
+
+  const modalContent = (
+    <div className="fixed inset-0 z-[80] bg-black/55 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl rounded-2xl bg-bg-card border border-border shadow-2xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
+          <div>
+            <h3 className="font-headline font-bold text-lg text-text-primary">Elige tu avatar</h3>
+            <p className="text-sm text-text-muted">Mascotas del mundial y fans con camiseta.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            className="w-8 h-8 rounded-lg hover:bg-bg-elevated flex items-center justify-center text-text-secondary"
+            title="Cerrar"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {/* Dicebear seeds */}
+          {options.map((opt) => {
+            const key = buildAvatarSeed(opt.style, opt.seed);
+            const selected = key === current && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
+            const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => {
+                  updateUser({ avatarSeed: key });
+                  // clear custom selection when choosing a seed
+                  updateUser({ avatarCustomUrls: [] });
+                  setOpen(false);
+                }}
+                className={`relative rounded-xl p-3 border transition-all text-left ${
+                  selected
+                    ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
+                    : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
+                }`}
+              >
+                <img src={url} alt={opt.label} className="w-14 h-14 rounded-full object-cover mb-2" />
+                <p className="text-xs font-semibold text-text-primary leading-tight">{opt.label}</p>
+                {selected && (
+                  <span className="absolute top-2 right-2 text-primary">
+                    <Check className="w-4 h-4" />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+
+          {/* Custom uploaded images (up to 3 shown) */}
+          {Array.from({ length: 3 }).map((_, idx) => {
+            const url = customs[idx];
+            const key = `custom-${idx}`;
+            const selected = !!url && user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
+            return (
+              <div
+                key={key}
+                className={`relative rounded-xl p-3 border transition-all text-left ${
+                  selected
+                    ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
+                    : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
+                }`}
+              >
+                {url ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateUser({ avatarCustomUrls: [url] });
+                      setOpen(false);
+                    }}
+                    className="flex flex-col items-start text-left"
+                  >
+                    <img src={url} alt={`Personal ${idx + 1}`} className="w-14 h-14 rounded-full object-cover mb-2" />
+                    <p className="text-xs font-semibold text-text-primary leading-tight">Personal {idx + 1}</p>
+                    {selected && (
+                      <span className="absolute top-2 right-2 text-primary">
+                        <Check className="w-4 h-4" />
+                      </span>
+                    )}
+                  </button>
+                ) : (
+                  <label className="flex flex-col items-start cursor-pointer">
+                    <div className="w-14 h-14 rounded-full bg-bg-elevated mb-2 flex items-center justify-center text-text-muted">+</div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (!file) return;
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          const dataUrl = String(reader.result ?? '');
+                          const next = [...customs];
+                          next[idx] = dataUrl;
+                          setCustoms(next);
+                          // persist all customs into user
+                          updateUser({ avatarCustomUrls: next.filter(Boolean) });
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                    />
+                    <p className="text-xs font-semibold text-text-primary leading-tight">Subir imagen</p>
+                  </label>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      <div className="relative shrink-0">
+        <img
+          alt={user?.name ?? 'avatar'}
+          className="w-16 h-16 rounded-full object-cover border-2 border-white/20 shadow-lg"
+          src={getAvatarUrl(user ?? undefined)}
+        />
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          title="Editar avatar"
+          className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white text-[#0D1B2A] border border-white/60 flex items-center justify-center shadow-md hover:bg-gray-100"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+      </div>
+
+      {open && createPortal(modalContent, document.body)}
+    </>
+  );
+}
+
 // ─── Agenda ──────────────────────────────────────────────────────────────────
 
 function AgendaPanel({
@@ -581,7 +813,14 @@ function AgendaPanel({
       });
       await reload();
       setShowAdd(false);
-      setForm({ titulo: '', descripcion: '', fechaInicio: '', tipo: 'CUSTOM', prioridad: 'MEDIA', ubicacion: '' });
+      setForm({
+        titulo: '',
+        descripcion: '',
+        fechaInicio: '',
+        tipo: 'CUSTOM',
+        prioridad: 'MEDIA',
+        ubicacion: '',
+      });
     } catch {
       setError('No se pudo crear el item.');
     } finally {
@@ -603,7 +842,13 @@ function AgendaPanel({
     <section className="flex flex-col gap-5 animate-fade-in">
       <div className="flex justify-between items-end">
         <h3 className="font-headline font-bold text-2xl text-text-primary">Mi agenda</h3>
-        <Button variant="primary" icon={Plus} iconPosition="left" size="sm" onClick={() => setShowAdd(true)}>
+        <Button
+          variant="primary"
+          icon={Plus}
+          iconPosition="left"
+          size="sm"
+          onClick={() => setShowAdd(true)}
+        >
           Agregar evento
         </Button>
       </div>
@@ -626,7 +871,9 @@ function AgendaPanel({
           />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Fecha y hora</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Fecha y hora
+              </span>
               <input
                 type="datetime-local"
                 value={form.fechaInicio}
@@ -635,7 +882,9 @@ function AgendaPanel({
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Tipo</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Tipo
+              </span>
               <select
                 value={form.tipo}
                 onChange={(e) => setForm({ ...form, tipo: e.target.value as AgendaItem['tipo'] })}
@@ -648,10 +897,14 @@ function AgendaPanel({
               </select>
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Prioridad</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Prioridad
+              </span>
               <select
                 value={form.prioridad}
-                onChange={(e) => setForm({ ...form, prioridad: e.target.value as AgendaItem['prioridad'] })}
+                onChange={(e) =>
+                  setForm({ ...form, prioridad: e.target.value as AgendaItem['prioridad'] })
+                }
                 className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 <option value="ALTA">Alta</option>
@@ -694,7 +947,8 @@ function AgendaPanel({
               <div className="flex-1 min-w-0">
                 <p className="font-headline font-bold text-text-primary truncate">{a.titulo}</p>
                 <p className="text-xs text-text-muted truncate">
-                  {fmtDateTime(a.fechaInicio)}{a.ubicacion ? ` · ${a.ubicacion}` : ''}
+                  {fmtDateTime(a.fechaInicio)}
+                  {a.ubicacion ? ` · ${a.ubicacion}` : ''}
                 </p>
                 {a.descripcion && (
                   <p className="text-sm text-text-secondary mt-1 line-clamp-2">{a.descripcion}</p>
@@ -730,8 +984,7 @@ function FeedPanel({ feed }: { feed: FeedItem[] }) {
   if (feed.length === 0) {
     return (
       <section className="card-base p-10 text-center text-text-muted animate-fade-in">
-        Sin actividad reciente. Agrega eventos a tu agenda o registra un viaje para
-        verlos aquí.
+        Sin actividad reciente. Agrega eventos a tu agenda o registra un viaje para verlos aquí.
       </section>
     );
   }
@@ -754,8 +1007,8 @@ function FeedPanel({ feed }: { feed: FeedItem[] }) {
               f.prioridad === 'ALTA'
                 ? 'bg-secondary/10 text-secondary-dim'
                 : f.prioridad === 'MEDIA'
-                ? 'bg-primary-subtle text-primary-dim'
-                : 'bg-bg-hover text-text-muted'
+                  ? 'bg-primary-subtle text-primary-dim'
+                  : 'bg-bg-hover text-text-muted'
             }`}
           >
             {f.prioridad}
@@ -775,7 +1028,9 @@ function FeedIcon({ origen }: { origen: FeedItem['origen'] }) {
   } as const;
   const { Icon, color } = map[origen] ?? map.NOTIFICACION;
   return (
-    <span className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${color}`}>
+    <span
+      className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${color}`}
+    >
       <Icon className="w-5 h-5" />
     </span>
   );
@@ -805,7 +1060,13 @@ function ViajesPanel({
   const [busy, setBusy] = useState(false);
 
   const onSubmit = async () => {
-    if (!form.ciudadDestino.trim() || !form.paisDestino.trim() || !form.fechaInicio || !form.fechaFin) return;
+    if (
+      !form.ciudadDestino.trim() ||
+      !form.paisDestino.trim() ||
+      !form.fechaInicio ||
+      !form.fechaFin
+    )
+      return;
     setBusy(true);
     setError(null);
     try {
@@ -820,7 +1081,15 @@ function ViajesPanel({
       });
       await reload();
       setShowAdd(false);
-      setForm({ ciudadDestino: '', paisDestino: '', zonaHorariaDestino: 'America/New_York', fechaInicio: '', fechaFin: '', estadioDestino: '', notas: '' });
+      setForm({
+        ciudadDestino: '',
+        paisDestino: '',
+        zonaHorariaDestino: 'America/New_York',
+        fechaInicio: '',
+        fechaFin: '',
+        estadioDestino: '',
+        notas: '',
+      });
     } catch {
       setError('No se pudo registrar el viaje.');
     } finally {
@@ -842,12 +1111,20 @@ function ViajesPanel({
     <section className="flex flex-col gap-5 animate-fade-in">
       <div className="flex justify-between items-end">
         <div>
-          <h3 className="font-headline font-bold text-2xl text-text-primary">Recordatorios de viaje</h3>
+          <h3 className="font-headline font-bold text-2xl text-text-primary">
+            Recordatorios de viaje
+          </h3>
           <p className="text-sm text-text-secondary mt-1">
             Te avisamos sobre zonas horarias y ventanas de acceso a estadios.
           </p>
         </div>
-        <Button variant="primary" icon={Plus} iconPosition="left" size="sm" onClick={() => setShowAdd(true)}>
+        <Button
+          variant="primary"
+          icon={Plus}
+          iconPosition="left"
+          size="sm"
+          onClick={() => setShowAdd(true)}
+        >
           Agregar viaje
         </Button>
       </div>
@@ -872,7 +1149,9 @@ function ViajesPanel({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Inicio</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Inicio
+              </span>
               <input
                 type="date"
                 value={form.fechaInicio}
@@ -881,7 +1160,9 @@ function ViajesPanel({
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Fin</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Fin
+              </span>
               <input
                 type="date"
                 value={form.fechaFin}
@@ -890,14 +1171,18 @@ function ViajesPanel({
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">Zona horaria</span>
+              <span className="text-xs uppercase tracking-widest text-text-muted font-bold">
+                Zona horaria
+              </span>
               <select
                 value={form.zonaHorariaDestino}
                 onChange={(e) => setForm({ ...form, zonaHorariaDestino: e.target.value })}
                 className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 {ZONAS.map((z) => (
-                  <option key={z} value={z}>{z}</option>
+                  <option key={z} value={z}>
+                    {z}
+                  </option>
                 ))}
               </select>
             </label>
@@ -917,11 +1202,19 @@ function ViajesPanel({
             className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <div className="flex justify-end gap-2">
-            <Button variant="ghost" onClick={() => setShowAdd(false)} disabled={busy}>Cancelar</Button>
+            <Button variant="ghost" onClick={() => setShowAdd(false)} disabled={busy}>
+              Cancelar
+            </Button>
             <Button
               variant="primary"
               onClick={onSubmit}
-              disabled={busy || !form.ciudadDestino || !form.paisDestino || !form.fechaInicio || !form.fechaFin}
+              disabled={
+                busy ||
+                !form.ciudadDestino ||
+                !form.paisDestino ||
+                !form.fechaInicio ||
+                !form.fechaFin
+              }
             >
               {busy ? 'Guardando…' : 'Guardar'}
             </Button>
@@ -956,7 +1249,9 @@ function ViajesPanel({
                   {v.estadioDestino && ` · ${v.estadioDestino}`}
                 </p>
                 {v.alerta && (
-                  <p className={`text-sm mt-2 ${v.enCurso ? 'text-primary-dim font-semibold' : 'text-text-secondary'}`}>
+                  <p
+                    className={`text-sm mt-2 ${v.enCurso ? 'text-primary-dim font-semibold' : 'text-text-secondary'}`}
+                  >
                     {v.alerta}
                   </p>
                 )}
@@ -974,6 +1269,42 @@ function ViajesPanel({
         </div>
       )}
     </section>
+  );
+}
+
+// ─── Language switcher card ─────────────────────────────────────────────────
+
+function LanguageSwitcherCard() {
+  const { t } = useTranslation();
+  const { lang, setLang, syncing } = useLanguage();
+  return (
+    <div className="card-base p-5 md:p-6 flex items-center justify-between gap-4">
+      <div className="flex items-start gap-3">
+        <Globe2 className="w-5 h-5 text-primary mt-0.5" />
+        <div>
+          <h4 className="font-headline font-bold text-base text-text-primary">
+            {t('profile.language')}
+          </h4>
+          <p className="text-xs text-text-secondary mt-1">{t('profile.languageHint')}</p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        {(['es', 'en'] as const).map((l) => (
+          <button
+            key={l}
+            onClick={() => void setLang(l)}
+            disabled={syncing}
+            className={`px-4 py-2 rounded-full text-sm font-bold border transition-all cursor-pointer ${
+              lang === l
+                ? 'bg-primary text-ink border-ink'
+                : 'bg-bg-elevated text-text-primary border-border hover:border-ink'
+            } ${syncing ? 'opacity-60 cursor-wait' : ''}`}
+          >
+            {l === 'es' ? `🇪🇸 ${t('common.spanish')}` : `🇺🇸 ${t('common.english')}`}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
