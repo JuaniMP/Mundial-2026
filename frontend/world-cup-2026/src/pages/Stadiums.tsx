@@ -4,7 +4,8 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { EstadioApi } from '../types';
 import { fetchEstadios } from '../services/footballApi';
-import { RefreshCw, AlertCircle, MapPin, Users, Search } from 'lucide-react';
+import { RefreshCw, AlertCircle, MapPin, Users, Search, Calendar, Trophy } from 'lucide-react';
+import { StadiumSeatMap } from '../components/stadium/StadiumSeatMap';
 
 // ── Fix Leaflet default icons in Vite ────────────────────────────────────────
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -237,7 +238,7 @@ export function Stadiums() {
             <div
               ref={listRef}
               className="flex flex-col gap-2 overflow-y-auto"
-              style={{ maxHeight: 420 }}
+              style={{ maxHeight: 560 }}
             >
               {filtered.map((s) => (
                 <StadiumCard
@@ -257,39 +258,114 @@ export function Stadiums() {
 
       {/* Selected stadium detail card */}
       {selected && !loading && (
-        <div className="mt-6 glass rounded-2xl p-5 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-2xl">{flag(selected.pais)}</span>
-              <h2 className="font-headline text-xl font-bold text-text-primary">
-                {selected.nombre}
-              </h2>
+        <div className="mt-6 glass rounded-2xl overflow-hidden">
+          {/* Hero image with fallback */}
+          <div
+            className="relative w-full h-64 md:h-80 overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, #006847 0%, #002868 50%, #C8102E 100%)',
+            }}
+          >
+            {selected.imagen && (
+              <img
+                key={selected.id}
+                src={selected.imagen}
+                alt={selected.nombre}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = 'none';
+                }}
+              />
+            )}
+            {/* Decorative pattern when no image */}
+            <div
+              className="absolute inset-0 opacity-20"
+              style={{
+                backgroundImage:
+                  'radial-gradient(circle at 25% 50%, rgba(255,255,255,0.2) 0%, transparent 50%), radial-gradient(circle at 75% 50%, rgba(255,255,255,0.15) 0%, transparent 50%)',
+              }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-3xl">{flag(selected.pais)}</span>
+                <h2 className="font-headline text-2xl md:text-3xl font-bold drop-shadow-lg">
+                  {selected.nombre}
+                </h2>
+              </div>
+              <p className="text-white/90 text-sm flex items-center gap-1 drop-shadow">
+                <MapPin className="w-3.5 h-3.5" />
+                {selected.ciudad}, {selected.pais}
+              </p>
             </div>
-            <p className="text-text-muted text-sm flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
-              {selected.direccion}
-            </p>
           </div>
-          <div className="flex flex-col gap-2">
-            <div className="glass rounded-xl px-4 py-2 flex items-center gap-3">
+
+          {/* Info grid */}
+          <div className="p-5 grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
               <Users className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-sm font-black text-text-primary">
+              <div className="min-w-0">
+                <p className="text-sm font-black text-text-primary truncate">
                   {selected.capacidad.toLocaleString('es-CO')}
                 </p>
                 <p className="text-[10px] text-text-muted uppercase tracking-wider">Capacidad</p>
               </div>
             </div>
-            <div className="glass rounded-xl px-4 py-2 flex items-center gap-3">
+            {selected.partidos != null && (
+              <div className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
+                <Trophy className="w-4 h-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-text-primary">{selected.partidos}</p>
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                    Partidos 2026
+                  </p>
+                </div>
+              </div>
+            )}
+            {selected.inaugurado != null && (
+              <div className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-sm font-black text-text-primary">{selected.inaugurado}</p>
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider">Inaugurado</p>
+                </div>
+              </div>
+            )}
+            <div className="glass rounded-xl px-3 py-2.5 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-primary shrink-0" />
-              <div>
-                <p className="text-sm font-black text-text-primary">{selected.ciudad}</p>
+              <div className="min-w-0">
+                <p className="text-sm font-black text-text-primary truncate">{selected.ciudad}</p>
                 <p className="text-[10px] text-text-muted uppercase tracking-wider">
                   {selected.pais}
                 </p>
               </div>
             </div>
           </div>
+
+          {/* Address + Team */}
+          <div className="px-5 pb-5 space-y-2">
+            <div className="text-xs text-text-muted flex items-start gap-2">
+              <MapPin className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              <span>{selected.direccion}</span>
+            </div>
+            {selected.equipoLocal && (
+              <div className="text-xs text-text-muted flex items-start gap-2">
+                <Trophy className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                <span>
+                  Equipo local:{' '}
+                  <strong className="text-text-primary">{selected.equipoLocal}</strong>
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Stadium Seat Map */}
+      {selected && !loading && (
+        <div className="mt-6">
+          <StadiumSeatMap stadium={selected} />
         </div>
       )}
     </main>
@@ -311,21 +387,47 @@ function StadiumCard({
     <button
       data-id={stadium.id}
       onClick={onClick}
-      className={`w-full text-left glass rounded-xl px-3 py-2.5 flex items-center gap-3 transition-all hover:bg-bg-elevated ${
+      className={`w-full text-left glass rounded-xl p-2 flex items-center gap-3 transition-all hover:bg-bg-elevated ${
         isSelected ? 'ring-1 ring-primary bg-primary/5' : ''
       }`}
     >
-      <span className="text-xl shrink-0">{flag(stadium.pais)}</span>
+      {/* Thumbnail */}
+      <div className="w-14 h-14 rounded-lg overflow-hidden shrink-0 bg-bg-elevated relative">
+        {stadium.imagen ? (
+          <img
+            src={stadium.imagen}
+            alt={stadium.nombre}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.style.display = 'none';
+              if (target.parentElement) {
+                target.parentElement.innerHTML = `<div class="w-full h-full flex items-center justify-center text-2xl">${flag(stadium.pais)}</div>`;
+              }
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-2xl">
+            {flag(stadium.pais)}
+          </div>
+        )}
+      </div>
+
       <div className="min-w-0 flex-1">
-        <p
-          className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-text-primary'}`}
-        >
-          {stadium.nombre}
-        </p>
+        <div className="flex items-center gap-1">
+          <span className="text-sm shrink-0">{flag(stadium.pais)}</span>
+          <p
+            className={`text-sm font-semibold truncate ${isSelected ? 'text-primary' : 'text-text-primary'}`}
+          >
+            {stadium.nombre}
+          </p>
+        </div>
         <p className="text-[11px] text-text-muted truncate">
           {stadium.ciudad}, {stadium.pais}
         </p>
       </div>
+
       <div className="text-right shrink-0">
         <p className="text-xs font-bold text-text-secondary">
           {(stadium.capacidad / 1000).toFixed(0)}k

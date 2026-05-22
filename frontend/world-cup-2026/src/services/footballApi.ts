@@ -96,12 +96,41 @@ export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | nu
 }
 
 // ── Estadios / Venues ─────────────────────────────────────────────────────────
-// Venues are extracted from matches via the football-data.org API.
-// The /api/v1/estadios endpoint aggregates unique venues from match data.
+// Venues from World Cup 2026 (16 official FIFA stadiums).
+// Tries backend first; falls back to embedded dataset with full details + photos.
+
+import { WORLD_CUP_2026_STADIUMS } from '../data/worldCup2026Stadiums';
 
 export async function fetchEstadios(): Promise<EstadioApi[]> {
-  const { data } = await axios.get(ESTADIOS_BASE);
-  return data?.data ?? [];
+  try {
+    const { data } = await axios.get(ESTADIOS_BASE, { timeout: 4000 });
+    const backendData: EstadioApi[] = data?.data ?? [];
+
+    // If backend has data, enrich it with images/details from our static dataset
+    if (backendData.length > 0) {
+      return backendData.map((s) => {
+        const match = WORLD_CUP_2026_STADIUMS.find(
+          (w) =>
+            w.nombre.toLowerCase() === s.nombre.toLowerCase() ||
+            w.ciudad.toLowerCase() === s.ciudad.toLowerCase(),
+        );
+        return match
+          ? {
+              ...s,
+              imagen: s.imagen ?? match.imagen,
+              partidos: s.partidos ?? match.partidos,
+              inaugurado: s.inaugurado ?? match.inaugurado,
+              equipoLocal: s.equipoLocal ?? match.equipoLocal,
+            }
+          : s;
+      });
+    }
+    // Backend returned empty → use full static dataset
+    return WORLD_CUP_2026_STADIUMS;
+  } catch {
+    // Backend failed → use full static dataset
+    return WORLD_CUP_2026_STADIUMS;
+  }
 }
 
 // ── Selecciones ───────────────────────────────────────────────────────────────
@@ -138,20 +167,20 @@ export async function fetchQualifierMatches(
 ): Promise<QualifierFixture[]> {
   const params: Record<string, string> = {};
   if (confederation) params.confederation = confederation;
-  const { data } = await axios.get(
-    `${API_BASE}/qualifiers/matches`,
-    { params, headers: getAuthHeaders() },
-  );
+  const { data } = await axios.get(`${API_BASE}/qualifiers/matches`, {
+    params,
+    headers: getAuthHeaders(),
+  });
   return data?.data?.matches ?? [];
 }
 
 export async function fetchQualifierStandings(
   confederation: Confederation,
 ): Promise<FdStandingsGroup[]> {
-  const { data } = await axios.get(
-    `${API_BASE}/qualifiers/standings`,
-    { params: { confederation }, headers: getAuthHeaders() },
-  );
+  const { data } = await axios.get(`${API_BASE}/qualifiers/standings`, {
+    params: { confederation },
+    headers: getAuthHeaders(),
+  });
   return data?.data ?? [];
 }
 
