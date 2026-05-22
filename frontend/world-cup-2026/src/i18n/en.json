@@ -1,0 +1,148 @@
+{
+  "common": {
+    "appName": "FIFA World Cup 2026",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "viewAll": "View all",
+    "readMore": "Read more",
+    "signedInAs": "Signed in as",
+    "signOut": "Sign out",
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "yes": "Yes",
+    "no": "No",
+    "language": "Language",
+    "spanish": "Spanish",
+    "english": "English",
+    "comingSoon": "Coming soon",
+    "noData": "No data",
+    "error": "Error",
+    "retry": "Retry"
+  },
+  "nav": {
+    "fanZone": "FAN ZONE",
+    "matches": "MATCHES",
+    "tickets": "TICKETS",
+    "teams": "TEAMS",
+    "myHub": "MY HUB",
+    "profile": "My profile",
+    "pollas": "Pools",
+    "collection": "My Collection",
+    "predictor": "Predictor Game",
+    "packs": "Open Packs",
+    "stadiums": "STADIUMS",
+    "home": "Home",
+    "standings": "Standings",
+    "album": "Album"
+  },
+  "dashboard": {
+    "heroTitle1": "The World's Game.",
+    "heroTitle2": "Your Tournament.",
+    "heroTitle3": "2026.",
+    "matchCenter": "MATCH CENTER",
+    "matchCenterSubtitle": "Live scores, upcoming fixtures & standings",
+    "upcomingFixt": "UPCOMING",
+    "liveScore": "LIVE SCORE",
+    "lastResult": "LAST RESULT",
+    "group": "GROUP",
+    "noUpcoming": "No upcoming matches",
+    "noFeatured": "No featured match"
+  },
+  "hero3d": {
+    "selectMascot": "Select a mascot",
+    "selectMascotAria": "Select {{mascot}} from {{country}}",
+    "activeMascot": "Active mascot: {{mascot}} · {{country}}"
+  },
+  "news": {
+    "title": "World Cup 2026 News",
+    "loading": "Loading news...",
+    "missingKey": "Missing VITE_GNEWS_API_KEY in .env.local. Get a free key at https://gnews.io",
+    "empty": "No news available.",
+    "count_one": "{{count}} article",
+    "count_other": "{{count}} articles",
+    "relative": {
+      "now": "now",
+      "minutes": "{{n}} min ago",
+      "hours": "{{n}} h ago",
+      "days": "{{n}} d ago"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Welcome Back",
+    "loginSubtitle": "Sign in to access your World Cup 2026 experience",
+    "emailLabel": "Email Address",
+    "passwordLabel": "Password",
+    "forgotPassword": "Forgot password?",
+    "or": "or",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "registerTitle": "Create your account",
+    "registerSubtitle": "Join the World Cup 2026 experience",
+    "fullName": "Full name",
+    "confirmPassword": "Confirm your password",
+    "invalidCredentials": "Invalid credentials",
+    "loginError": "Login error"
+  },
+  "profile": {
+    "title": "My Profile",
+    "subtitle": "Customize your World Cup experience",
+    "preferences": "Preferences",
+    "favoriteTeams": "Favorite teams",
+    "favoriteStadiums": "Favorite stadiums",
+    "notifications": "Notifications",
+    "timezone": "Timezone",
+    "language": "Application language",
+    "languageHint": "The UI and news will be shown in this language",
+    "saved": "Preferences saved",
+    "saveError": "Error saving preferences",
+    "agenda": "My agenda",
+    "trips": "My trips",
+    "feed": "My feed"
+  },
+  "pollas": {
+    "title": "Pools",
+    "createPolla": "Create pool",
+    "joinPolla": "Join pool",
+    "ranking": "Ranking",
+    "predictions": "Predictions",
+    "myPredictions": "My predictions"
+  },
+  "tickets": {
+    "title": "Tickets",
+    "available": "Available",
+    "category": "Category",
+    "buy": "Buy"
+  },
+  "album": {
+    "title": "My Album",
+    "coins": "Coins",
+    "packs": "Packs",
+    "missions": "Missions",
+    "complete": "Complete",
+    "stickers": "Stickers"
+  },
+  "matches": {
+    "title": "Matches",
+    "live": "Live",
+    "scheduled": "Scheduled",
+    "finished": "Finished",
+    "halfTime": "Half-time"
+  },
+  "qualifiers": {
+    "title": "Qualifiers",
+    "uefa": "UEFA",
+    "conmebol": "CONMEBOL",
+    "concacaf": "CONCACAF",
+    "caf": "CAF",
+    "afc": "AFC",
+    "ofc": "OFC"
+  }
+}
