@@ -671,7 +671,8 @@ function AvatarPicker() {
         </div>
 
         <div className="p-3 text-xs text-text-muted">Detectados: {customs.length} avatar(s) — {customs.join(', ') || 'ninguno'}</div>
-        <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="p-5 overflow-auto max-h-[56vh]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {/* If customs found, show ONLY them (user requested to keep only the 3 images) */}
           {customs && customs.length > 0 ? (
             <>
