@@ -32,6 +32,10 @@ public class LogsTransaccional {
     @Column(name = "nivel_riesgo", length = 20)
     private String nivelRiesgo;
 
+    /** Traza que correlaciona eventos de un mismo flujo (RF-24). */
+    @Column(name = "correlation_id", length = 64)
+    private String correlationId;
+
     @Column(name = "verificado_compliance")
     @Builder.Default
     private Boolean verificadoCompliance = false;

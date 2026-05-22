@@ -15,6 +15,7 @@ import { Teams } from './pages/Teams';
 import { PackOpening } from './pages/PackOpening';
 import { Admin } from './pages/Admin';
 import { Agentes } from './pages/Agentes';
+import { Soporte } from './pages/Soporte';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { ForgotPassword } from './pages/ForgotPassword';
@@ -65,6 +66,14 @@ function App() {
                       element={
                         <RoleRoute allowedRoles={['ADMIN', 'SOPORTE', 'OPERADOR']}>
                           <Agentes />
+                        </RoleRoute>
+                      }
+                    />
+                    <Route
+                      path="/soporte"
+                      element={
+                        <RoleRoute allowedRoles={['ADMIN', 'SOPORTE']}>
+                          <Soporte />
                         </RoleRoute>
                       }
                     />
