@@ -42,6 +42,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
     private final EmailService emailService;
+    private final TransactionLogService transactionLogService;
 
     private final Map<String, ResetCodeData> resetCodes = new ConcurrentHashMap<>();
 
@@ -135,6 +136,10 @@ public class AuthService {
 
         usuario.setUltimoLogin(LocalDateTime.now());
         usuarioRepository.save(usuario);
+
+        // Auditoría: alimenta la línea de tiempo del dashboard de soporte.
+        transactionLogService.registrar(usuario, "INICIO_SESION",
+                "Usuario inició sesión", "BAJO");
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(usuario.getEmail());
 

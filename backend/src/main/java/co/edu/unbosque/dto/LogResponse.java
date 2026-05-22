@@ -18,5 +18,6 @@ public class LogResponse {
     private String detalle;
     private String hashIntegridad;
     private String nivelRiesgo;
+    private String correlationId;
     private Boolean verificadoCompliance;
 }

@@ -54,6 +54,7 @@ public class StripeService {
 
     private final EntradaRepository entradaRepository;
     private final FcmService        fcmService;
+    private final TransactionLogService transactionLogService;
 
     @PostConstruct
     public void init() {
@@ -134,6 +135,13 @@ public class StripeService {
             ids.add(entradaRepository.save(e).getId());
         }
 
+        // Auditoría: el paymentIntentId se usa como correlationId para que
+        // checkout, webhook y correos compartan la misma traza.
+        transactionLogService.registrar(usuario, "RESERVA_ENTRADA",
+                "Intento de reserva — " + localVs + " · " + categoria + " x" + req.getCantidad()
+                        + " (" + totalUsd + " USD)",
+                "BAJO", pi.getId());
+
         return PaymentIntentResponse.builder()
                 .clientSecret(pi.getClientSecret())
                 .paymentIntentId(pi.getId())
@@ -193,6 +201,10 @@ public class StripeService {
                     desc,
                     primera.getCategoria(),
                     entradas.size());
+
+            transactionLogService.registrar(primera.getUsuarioComprador(), "PAGO_EXITOSO",
+                    "Pago confirmado — " + desc + " · " + entradas.size() + " entrada(s)",
+                    "BAJO", piId);
         }
     }
 
@@ -204,6 +216,14 @@ public class StripeService {
         });
         entradaRepository.saveAll(entradas);
         log.warn("❌ {} entradas marcadas como FALLIDO para PI: {}", entradas.size(), piId);
+
+        if (!entradas.isEmpty()) {
+            Entrada primera = entradas.get(0);
+            transactionLogService.registrar(primera.getUsuarioComprador(), "ERROR_PASARELA",
+                    "Error en pasarela Sandbox — el pago de " + buildEntradaDesc(primera)
+                            + " no pudo completarse",
+                    "ALTO", piId);
+        }
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
