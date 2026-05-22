@@ -671,7 +671,8 @@ function AvatarPicker() {
         <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {/* If customs found, show ONLY them (user requested to keep only the 3 images) */}
           {customs && customs.length > 0 ? (
-            customs.map((url, idx) => {
+            <>
+              {customs.map((url, idx) => {
               const key = `custom-only-${idx}`;
               const selected = user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
               return (
@@ -706,7 +707,48 @@ function AvatarPicker() {
                   )}
                 </button>
               );
-            })
+              })}
+
+              {/* Add two extra seed options to make 5 choices total */}
+              {options.slice(0, 2).map((opt) => {
+                const key = buildAvatarSeed(opt.style, opt.seed);
+                const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
+                const selectedSeed = parsed && buildAvatarSeed(parsed.style, parsed.seed) === key && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      updateUser({ avatarSeed: key });
+                      updateUser({ avatarCustomUrls: [] });
+                      setOpen(false);
+                    }}
+                    className={`relative rounded-xl p-3 border transition-all text-left ${
+                      selectedSeed
+                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
+                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
+                    }`}
+                  >
+                    <img
+                      src={url}
+                      alt={opt.label}
+                      className="w-14 h-14 rounded-full object-cover mb-2"
+                      onError={(e) => {
+                        const el = e.currentTarget as HTMLImageElement;
+                        el.onerror = null;
+                        el.src = getAvatarUrl(user ?? undefined);
+                      }}
+                    />
+                    <p className="text-xs font-semibold text-text-primary leading-tight">{opt.label}</p>
+                    {selectedSeed && (
+                      <span className="absolute top-2 right-2 text-primary">
+                        <Check className="w-4 h-4" />
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </>
           ) : (
             // Fallback: show seeds + upload options when no customs
             <>
