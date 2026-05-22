@@ -46,11 +46,15 @@ const STADIUMS: Stadium[] = [
 // ─── Page model ───────────────────────────────────────────────────────────────
 
 type ContentPage =
+  | { type: 'intro' }
+  | { type: 'groups' }
   | { type: 'team'; teamIdx: number }
   | { type: 'stadiums-intro' }
   | { type: 'stadium'; stadiumIdx: number };
 
 const CONTENT_PAGES: ContentPage[] = [
+  { type: 'intro' },
+  { type: 'groups' },
   ...TEAMS.map((_, i): ContentPage => ({ type: 'team', teamIdx: i })),
   { type: 'stadiums-intro' },
   ...STADIUMS.map((_, i): ContentPage => ({ type: 'stadium', stadiumIdx: i })),
@@ -292,13 +296,14 @@ function BookPage({
 }) {
   return (
     <div
+      className="album-wave-bg"
       style={{
         flex: 1,
-        background: '#faf7f0',
-        borderRadius: isLeft ? '4px 0 0 4px' : '0 4px 4px 0',
+        backgroundColor: '#0D1B2A',
+        borderRadius: isLeft ? '8px 0 0 8px' : '0 8px 8px 0',
         boxShadow: isLeft
-          ? 'inset -8px 0 16px rgba(0,0,0,0.08)'
-          : 'inset  8px 0 16px rgba(0,0,0,0.08)',
+          ? 'inset -12px 0 24px rgba(0,0,0,0.4)'
+          : 'inset  12px 0 24px rgba(0,0,0,0.4)',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
@@ -306,16 +311,45 @@ function BookPage({
         minHeight: 480,
       }}
     >
-      {children}
+      {/* Giant 26 Watermark */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontFamily: 'var(--font-display)',
+          fontSize: '240px',
+          color: 'rgba(255,255,255,0.02)',
+          pointerEvents: 'none',
+          zIndex: 0,
+          userSelect: 'none',
+        }}
+      >
+        26
+      </div>
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+        }}
+      >
+        {children}
+      </div>
       {pageNum !== undefined && (
         <div
           style={{
             position: 'absolute',
             bottom: 8,
-            [isLeft ? 'left' : 'right']: 12,
-            fontSize: 10,
-            color: '#94a3b8',
-            fontFamily: 'Inter, sans-serif',
+            [isLeft ? 'left' : 'right']: 16,
+            fontSize: 12,
+            fontWeight: 700,
+            color: 'rgba(255,255,255,0.3)',
+            fontFamily: "'Oswald', sans-serif",
+            zIndex: 1,
           }}
         >
           {pageNum}
@@ -775,6 +809,128 @@ function renderContentPage(
       </BookPage>
     );
   }
+  if (page.type === 'intro') {
+    return (
+      <BookPage isLeft={isLeft} pageNum={pageNum}>
+        <div
+          style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 32,
+              color: '#fbbf24',
+              textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+              margin: 0,
+              textAlign: 'center',
+            }}
+          >
+            ROLL OF HONOUR
+          </h2>
+          <div
+            style={{
+              flex: 1,
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: 12,
+              padding: '16px',
+              border: '1px solid rgba(255,255,255,0.2)',
+            }}
+          >
+            <table
+              style={{
+                width: '100%',
+                color: '#fff',
+                fontSize: 14,
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              <tbody>
+                {[
+                  ['2022', 'Argentina', '🇦🇷'],
+                  ['2018', 'France', '🇫🇷'],
+                  ['2014', 'Germany', '🇩🇪'],
+                  ['2010', 'Spain', '🇪🇸'],
+                  ['2006', 'Italy', '🇮🇹'],
+                  ['2002', 'Brazil', '🇧🇷'],
+                  ['1998', 'France', '🇫🇷'],
+                  ['1994', 'Brazil', '🇧🇷'],
+                ].map(([year, winner, flag]) => (
+                  <tr key={year} style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                    <td style={{ padding: '8px 0', fontWeight: 600, color: '#fbbf24' }}>{year}</td>
+                    <td style={{ padding: '8px 0', textAlign: 'right' }}>
+                      {winner} <span style={{ fontSize: 18, marginLeft: 8 }}>{flag}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </BookPage>
+    );
+  }
+  if (page.type === 'groups') {
+    return (
+      <BookPage isLeft={isLeft} pageNum={pageNum}>
+        <div
+          style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}
+        >
+          <h2
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: 32,
+              color: '#fff',
+              margin: 0,
+              textAlign: 'center',
+            }}
+          >
+            GROUPS A-L
+          </h2>
+          <div
+            style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px 16px', flex: 1 }}
+          >
+            {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map((grp) => (
+              <div
+                key={grp}
+                style={{
+                  background: 'rgba(255,255,255,0.05)',
+                  borderRadius: 8,
+                  padding: '8px 12px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "'Oswald', sans-serif",
+                    fontSize: 16,
+                    fontWeight: 700,
+                    color: '#fbbf24',
+                    display: 'block',
+                    marginBottom: 4,
+                  }}
+                >
+                  GROUP {grp}
+                </span>
+                {TEAMS.filter((t) => t.group === grp).map((t) => (
+                  <div
+                    key={t.name}
+                    style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}
+                  >
+                    <span style={{ fontSize: 12 }}>{t.flag}</span>
+                    <span
+                      style={{ color: '#fff', fontSize: 11, fontFamily: "'Inter', sans-serif" }}
+                    >
+                      {t.name}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </BookPage>
+    );
+  }
   if (page.type === 'team') {
     return (
       <TeamPage
@@ -864,7 +1020,7 @@ export function AlbumBook({ laminas, onPegar }: AlbumBookProps) {
   const [spreadIdx, setSpreadIdx] = useState(0);
   const [flipDir, setFlipDir] = useState<'next' | 'prev' | null>(null);
   const [flipKey, setFlipKey] = useState(0);
-  const [jumpOpen, setJumpOpen] = useState(false);
+  const [indexModalOpen, setIndexModalOpen] = useState(false);
   const spreading = useRef(false);
 
   const goNext = useCallback(() => {
@@ -903,8 +1059,17 @@ export function AlbumBook({ laminas, onPegar }: AlbumBookProps) {
 
   const jumpToSpread = (idx: number) => {
     setSpreadIdx(Math.max(0, Math.min(idx, TOTAL_SPREADS - 1)));
-    setJumpOpen(false);
+    setIndexModalOpen(false);
   };
+
+  // Helper to check for new/unpasted stickers in a team
+  const hasUnpasted = useCallback(
+    (teamIdx: number) => {
+      const slots = getLaminasForTeam(laminas, teamIdx);
+      return slots.some((s) => s && !s.estaPegada);
+    },
+    [laminas],
+  );
 
   // Current pages
   const leftPage = spreadIdx > 0 ? CONTENT_PAGES[(spreadIdx - 1) * 2] : undefined;
@@ -913,15 +1078,7 @@ export function AlbumBook({ laminas, onPegar }: AlbumBookProps) {
   const animClass =
     flipDir === 'next' ? 'book-flip-next' : flipDir === 'prev' ? 'book-flip-prev' : undefined;
 
-  // Jump options
-  const jumpOptions: { label: string; spread: number }[] = [
-    { label: '📖 Portada', spread: 0 },
-    ...TEAMS.map((t, i) => ({
-      label: `${t.flag} ${t.name} (Gr.${t.group})`,
-      spread: 1 + Math.floor(i / 2),
-    })),
-    { label: '🏟️ Estadios', spread: 1 + Math.floor(TEAMS.length / 2) },
-  ];
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
@@ -1008,64 +1165,217 @@ export function AlbumBook({ laminas, onPegar }: AlbumBookProps) {
           / {CONTENT_PAGES.length}
         </span>
 
-        {/* Jump dropdown */}
-        <div style={{ position: 'relative' }}>
-          <button
-            onClick={() => setJumpOpen((o) => !o)}
+        {/* Index Button */}
+        <button
+          onClick={() => setIndexModalOpen(true)}
+          style={{
+            padding: '8px 16px',
+            borderRadius: 8,
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            color: '#0D1B2A',
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: "'Oswald', sans-serif",
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            letterSpacing: '0.04em',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.04)',
+          }}
+        >
+          INDEX 📑
+        </button>
+      </div>
+
+      {/* ── Index Modal ── */}
+      {indexModalOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)',
+            backdropFilter: 'blur(4px)',
+          }}
+        >
+          <div
             style={{
-              padding: '5px 12px',
-              borderRadius: 8,
-              background: 'rgba(241,245,249,0.9)',
-              border: '1px solid #e2e8f0',
-              color: '#475569',
-              fontSize: 12,
-              cursor: 'pointer',
-              fontFamily: 'Inter,sans-serif',
+              background: '#ffffff',
+              borderRadius: 16,
+              width: '90%',
+              maxWidth: 600,
+              maxHeight: '85vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
             }}
           >
-            📑 Ir a sección ▾
-          </button>
-          {jumpOpen && (
             <div
               style={{
-                position: 'absolute',
-                bottom: '110%',
-                left: 0,
-                background: '#fff',
-                border: '1px solid #e2e8f0',
-                borderRadius: 10,
-                boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
-                maxHeight: 260,
-                overflowY: 'auto',
-                zIndex: 100,
-                minWidth: 220,
+                padding: '20px 24px',
+                borderBottom: '1px solid #e2e8f0',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: '#0D1B2A',
+                color: '#fff',
               }}
             >
-              {jumpOptions.map((o) => (
-                <button
-                  key={o.label}
-                  onClick={() => jumpToSpread(o.spread)}
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: '7px 14px',
-                    border: 'none',
-                    background: spreadIdx === o.spread ? '#eff6ff' : 'transparent',
-                    color: spreadIdx === o.spread ? '#1d4ed8' : '#334155',
-                    fontSize: 12,
-                    cursor: 'pointer',
-                    fontFamily: 'Inter,sans-serif',
-                    borderBottom: '1px solid #f1f5f9',
-                  }}
-                >
-                  {o.label}
-                </button>
-              ))}
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: 24,
+                  margin: 0,
+                  letterSpacing: '0.04em',
+                }}
+              >
+                ALBUM INDEX
+              </h2>
+              <button
+                onClick={() => setIndexModalOpen(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: 24,
+                  cursor: 'pointer',
+                }}
+              >
+                ×
+              </button>
             </div>
-          )}
+
+            <div
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '16px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+              }}
+              className="custom-scrollbar"
+            >
+              <button
+                onClick={() => jumpToSpread(0)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  background: spreadIdx === 0 ? '#eff6ff' : '#f8f9fa',
+                  border: '1px solid',
+                  borderColor: spreadIdx === 0 ? '#1d4ed8' : '#e2e8f0',
+                  cursor: 'pointer',
+                  fontFamily: "'Oswald', sans-serif",
+                  fontWeight: 600,
+                  fontSize: 16,
+                  color: '#0D1B2A',
+                  textAlign: 'left',
+                }}
+              >
+                📖 Cover Page
+              </button>
+
+              {TEAMS.map((t, i) => {
+                const spread = 1 + Math.floor(i / 2);
+                const showBadge = hasUnpasted(i);
+                return (
+                  <button
+                    key={t.name}
+                    onClick={() => jumpToSpread(spread)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px 16px',
+                      borderRadius: 8,
+                      background: spreadIdx === spread ? '#eff6ff' : '#ffffff',
+                      border: '1px solid',
+                      borderColor: spreadIdx === spread ? '#1d4ed8' : '#e2e8f0',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = '#f8f9fa')}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background =
+                        spreadIdx === spread ? '#eff6ff' : '#ffffff')
+                    }
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 24 }}>{t.flag}</span>
+                      <div>
+                        <span
+                          style={{
+                            fontFamily: "'Oswald', sans-serif",
+                            fontWeight: 600,
+                            fontSize: 16,
+                            color: '#0D1B2A',
+                            display: 'block',
+                          }}
+                        >
+                          {t.name}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: "'Inter', sans-serif",
+                            fontSize: 12,
+                            color: '#64748b',
+                          }}
+                        >
+                          Group {t.group}
+                        </span>
+                      </div>
+                    </div>
+                    {showBadge && (
+                      <div
+                        style={{
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          background: '#C8102E',
+                          boxShadow: '0 0 0 2px #ffffff',
+                        }}
+                      />
+                    )}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() => jumpToSpread(1 + Math.floor(TEAMS.length / 2))}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 16px',
+                  borderRadius: 8,
+                  background:
+                    spreadIdx === 1 + Math.floor(TEAMS.length / 2) ? '#eff6ff' : '#f8f9fa',
+                  border: '1px solid',
+                  borderColor:
+                    spreadIdx === 1 + Math.floor(TEAMS.length / 2) ? '#1d4ed8' : '#e2e8f0',
+                  cursor: 'pointer',
+                  fontFamily: "'Oswald', sans-serif",
+                  fontWeight: 600,
+                  fontSize: 16,
+                  color: '#0D1B2A',
+                  textAlign: 'left',
+                  marginTop: 8,
+                }}
+              >
+                🏟️ Stadiums
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

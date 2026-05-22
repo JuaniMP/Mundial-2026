@@ -2,28 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { Search, LogOut, ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
-
-const LEFT_NAV = [
-  { to: '/matches', label: 'MATCHES' },
-  { to: '/pollas', label: 'POLLAS' },
-] as const;
-
-const RIGHT_NAV = [
-  { to: '/tickets', label: 'TICKETS' },
-  { to: '/teams', label: 'TEAMS' },
-] as const;
-
-const MOBILE_NAV = [
-  { to: '/', label: 'Inicio', exact: true },
-  { to: '/matches', label: 'Partidos', exact: false },
-  { to: '/standings', label: 'Tabla', exact: false },
-  { to: '/tickets', label: 'Entradas', exact: false },
-  { to: '/teams', label: 'Selecciones', exact: false },
-  { to: '/album', label: 'Álbum', exact: false },
-  { to: '/pollas', label: 'Pollas', exact: false },
-  { to: '/superpolla', label: 'Predictor', exact: false },
-  { to: '/profile', label: 'Mi perfil', exact: false },
-] as const;
+import { useTranslation } from 'react-i18next';
 
 const navLinkStyle = (isActive: boolean): string =>
   `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 ${
@@ -35,6 +14,7 @@ const navLinkStyle = (isActive: boolean): string =>
 export function Navbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [showHubMenu, setShowHubMenu] = useState(false);
   const [showMobile, setShowMobile] = useState(false);
 
@@ -44,10 +24,28 @@ export function Navbar() {
     navigate('/login');
   };
 
-  const displayName =
-    user?.email
-      ? user.email.split('@')[0].slice(0, 12).toUpperCase()
-      : 'MY HUB';
+  const LEFT_NAV = [
+    { to: '/pollas', label: t('nav.fanZone') },
+    { to: '/matches', label: t('nav.matches') },
+  ];
+  const RIGHT_NAV = [
+    { to: '/tickets', label: t('nav.tickets') },
+    { to: '/teams', label: t('nav.teams') },
+    { to: '/stadiums', label: t('nav.stadiums') },
+  ];
+  const MOBILE_NAV = [
+    { to: '/', label: t('nav.home'), exact: true },
+    { to: '/matches', label: t('nav.matches'), exact: false },
+    { to: '/standings', label: t('nav.standings'), exact: false },
+    { to: '/tickets', label: t('nav.tickets'), exact: false },
+    { to: '/teams', label: t('nav.teams'), exact: false },
+    { to: '/album', label: t('nav.album'), exact: false },
+    { to: '/pollas', label: t('nav.pollas'), exact: false },
+    { to: '/superpolla', label: t('nav.predictor'), exact: false },
+    { to: '/profile', label: t('nav.profile'), exact: false },
+  ];
+
+  const displayName = t('nav.myHub');
 
   return (
     <>
@@ -92,9 +90,7 @@ export function Navbar() {
             onMouseEnter={(e) =>
               ((e.currentTarget as HTMLButtonElement).style.background = '#f0f2f5')
             }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = 'none')
-            }
+            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'none')}
             aria-label="Search"
           >
             <Search size={18} />
@@ -219,7 +215,7 @@ export function Navbar() {
                         margin: 0,
                       }}
                     >
-                      Signed in as
+                      {t('common.signedInAs')}
                     </p>
                     <p
                       style={{
@@ -238,12 +234,9 @@ export function Navbar() {
                   </div>
                 )}
                 {[
-                  { to: '/profile', label: '👤 Mi perfil' },
-                  { to: '/pollas', label: '🎯 Pollas' },
-                  { to: '/album', label: '📔 My Collection' },
-                  { to: '/superpolla', label: '🏆 Predictor Game' },
-                  { to: '/pack-opening', label: '📦 Open Packs' },
-                  { to: '/stadiums', label: '🏟 Stadiums' },
+                  { to: '/profile', label: `👤 ${t('nav.profile')}` },
+                  { to: '/pollas', label: `🎯 ${t('nav.pollas')}` },
+                  { to: '/album', label: `📔 ${t('nav.collection')}` },
                 ].map((item) => (
                   <NavLink
                     key={item.to}
@@ -295,7 +288,7 @@ export function Navbar() {
                   }
                 >
                   <LogOut size={14} />
-                  Sign Out
+                  {t('common.signOut')}
                 </button>
               </div>
             )}
@@ -446,7 +439,7 @@ export function Navbar() {
               }}
             >
               <LogOut size={16} />
-              Sign Out
+              {t('common.signOut')}
             </button>
           </div>
         </div>
