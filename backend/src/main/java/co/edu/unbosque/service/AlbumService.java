@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -54,8 +56,20 @@ public class AlbumService {
         return toResponse(createAlbumEntity(usuarioId));
     }
 
+    public int getPacketesAbiertosHoy(Integer usuarioId) {
+        LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
+        return paqueteRepository.countPaquetesDesde(usuarioId, inicioDia).intValue();
+    }
+
     @Transactional
     public PaqueteResponse abrirPaquete(Integer usuarioId) {
+        // Límite diario: 3 sobres por usuario
+        LocalDateTime inicioDia = LocalDate.now().atStartOfDay();
+        long abiertosHoy = paqueteRepository.countPaquetesDesde(usuarioId, inicioDia);
+        if (abiertosHoy >= 3) {
+            throw new BadRequestException("Ya abriste tus 3 sobres del día. ¡Vuelve mañana!");
+        }
+
         Album album = albumRepository.findByUsuarioId(usuarioId)
                 .orElseGet(() -> createAlbumEntity(usuarioId));
 
@@ -151,9 +165,17 @@ public class AlbumService {
     }
 
     private LaminaAlbumResponse toLaminaAlbumResponse(LaminaAlbum la) {
+        Jugador jugador = la.getLamina().getJugador();
+        String seleccionNombre = jugador.getSeleccion() != null
+                ? jugador.getSeleccion().getNombre()
+                : null;
         return LaminaAlbumResponse.builder()
                 .idLamina(la.getLamina().getId())
-                .nombreJugador(la.getLamina().getJugador().getNombreCompleto())
+                .nombreJugador(jugador.getNombreCompleto())
+                .posicion(jugador.getPosicion())
+                .nacionalidad(jugador.getNacionalidad())
+                .dorsal(jugador.getDorsal())
+                .seleccion(seleccionNombre)
                 .rareza(la.getLamina().getRareza())
                 .estaPegada(la.getEstaPegada())
                 .cantidadRepetidas(la.getCantidadRepetidas())
