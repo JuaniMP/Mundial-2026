@@ -632,8 +632,10 @@ function AvatarPicker() {
         if (!mounted) return;
         const userCustoms = user?.avatarCustomUrls ?? [];
         const merged = [...userCustoms, ...found.filter((f) => !userCustoms.includes(f))].slice(0, 3);
+        console.debug('AvatarPicker: found public avatars', { found, userCustoms, merged });
         setCustoms(merged);
         if (merged.length && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0)) {
+          console.debug('AvatarPicker: persisting merged avatarCustomUrls', merged);
           updateUser({ avatarCustomUrls: merged });
         }
       } catch {
@@ -668,45 +670,48 @@ function AvatarPicker() {
           </button>
         </div>
 
+        <div className="p-3 text-xs text-text-muted">Detectados: {customs.length} avatar(s) — {customs.join(', ') || 'ninguno'}</div>
         <div className="p-5 grid grid-cols-2 sm:grid-cols-4 gap-4">
           {/* If customs found, show ONLY them (user requested to keep only the 3 images) */}
           {customs && customs.length > 0 ? (
             <>
               {customs.map((url, idx) => {
-              const key = `custom-only-${idx}`;
-              const selected = user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    updateUser({ avatarCustomUrls: [url] });
-                    setOpen(false);
-                  }}
-                  className={`relative rounded-xl p-3 border transition-all text-left ${
-                    selected
-                      ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
-                      : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
-                  }`}
-                >
-                  <img
-                    src={url}
-                    alt={`Avatar ${idx + 1}`}
-                    className="w-14 h-14 rounded-full object-cover mb-2"
-                    onError={(e) => {
-                      const el = e.currentTarget as HTMLImageElement;
-                      el.onerror = null;
-                      el.src = getAvatarUrl(user ?? undefined);
-                    }}
-                  />
-                  <p className="text-xs font-semibold text-text-primary leading-tight">Avatar {idx + 1}</p>
-                  {selected && (
-                    <span className="absolute top-2 right-2 text-primary">
-                      <Check className="w-4 h-4" />
-                    </span>
-                  )}
-                </button>
-              );
+                const key = `custom-only-${idx}`;
+                const selected = user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
+                const chooseCustom = () => {
+                  console.debug('AvatarPicker: choose custom', url);
+                  updateUser({ avatarCustomUrls: [url] });
+                  setOpen(false);
+                };
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={chooseCustom}
+                    className={`relative rounded-xl p-3 border transition-all text-left ${
+                      selected
+                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
+                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
+                    }`}
+                  >
+                    <img
+                      src={url}
+                      alt={`Avatar ${idx + 1}`}
+                      className="w-14 h-14 rounded-full object-cover mb-2"
+                      onError={(e) => {
+                        const el = e.currentTarget as HTMLImageElement;
+                        el.onerror = null;
+                        el.src = getAvatarUrl(user ?? undefined);
+                      }}
+                    />
+                    <p className="text-xs font-semibold text-text-primary leading-tight">Avatar {idx + 1}</p>
+                    {selected && (
+                      <span className="absolute top-2 right-2 text-primary">
+                        <Check className="w-4 h-4" />
+                      </span>
+                    )}
+                  </button>
+                );
               })}
 
               {/* Add two extra seed options to make 5 choices total */}
@@ -714,15 +719,17 @@ function AvatarPicker() {
                 const key = buildAvatarSeed(opt.style, opt.seed);
                 const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
                 const selectedSeed = parsed && buildAvatarSeed(parsed.style, parsed.seed) === key && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
+                const chooseSeed = () => {
+                  console.debug('AvatarPicker: choose seed', key);
+                  updateUser({ avatarSeed: key });
+                  updateUser({ avatarCustomUrls: [] });
+                  setOpen(false);
+                };
                 return (
                   <button
                     key={key}
                     type="button"
-                    onClick={() => {
-                      updateUser({ avatarSeed: key });
-                      updateUser({ avatarCustomUrls: [] });
-                      setOpen(false);
-                    }}
+                    onClick={chooseSeed}
                     className={`relative rounded-xl p-3 border transition-all text-left ${
                       selectedSeed
                         ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
