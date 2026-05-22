@@ -3,8 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const Login = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login, loading, error, clearError } = useAuth();
@@ -14,7 +16,8 @@ export const Login = () => {
     e.preventDefault();
     try {
       const rol = await login(email, password);
-      navigate(rol === 'ADMIN' ? '/admin' : '/');
+      // Admin y Compliance van al backoffice, otros al dashboard
+      navigate(rol === 'ADMIN' || rol === 'COMPLIANCE' ? '/backoffice' : '/');
     } catch {
       // Error is already set in context
     }
@@ -32,9 +35,9 @@ export const Login = () => {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-2 font-headline">
-              Welcome Back
+              {t('auth.welcomeBack')}
             </h1>
-            <p className="text-text-muted">Sign in to access your World Cup 2026 experience</p>
+            <p className="text-text-muted">{t('auth.loginSubtitle')}</p>
           </div>
 
           {/* Error Alert */}
@@ -50,7 +53,7 @@ export const Login = () => {
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-2">
-                Email Address
+                {t('auth.emailLabel')}
               </label>
               <div className="relative">
                 <Mail className="absolute left-3 top-3 w-5 h-5 text-text-muted" />
@@ -75,7 +78,7 @@ export const Login = () => {
                 htmlFor="password"
                 className="block text-sm font-medium text-text-primary mb-2"
               >
-                Password
+                {t('auth.passwordLabel')}
               </label>
               <div className="relative">
                 <Lock className="absolute left-3 top-3 w-5 h-5 text-text-muted" />
@@ -100,7 +103,7 @@ export const Login = () => {
                 to="/forgot-password"
                 className="text-sm text-primary hover:text-primary-light transition-colors"
               >
-                Forgot password?
+                {t('auth.forgotPassword')}
               </Link>
             </div>
 
@@ -110,7 +113,7 @@ export const Login = () => {
               disabled={loading}
               className="w-full py-2.5 bg-primary hover:bg-primary-light text-text-inverse font-semibold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? `${t('common.signIn')}...` : t('common.signIn')}
             </Button>
           </form>
 
@@ -120,18 +123,18 @@ export const Login = () => {
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-bg-surface text-text-muted">or</span>
+              <span className="px-2 bg-bg-surface text-text-muted">{t('auth.or')}</span>
             </div>
           </div>
 
           {/* Sign Up Link */}
           <p className="text-center text-text-muted">
-            Don't have an account?{' '}
+            {t('auth.noAccount')}{' '}
             <Link
               to="/register"
               className="text-primary hover:text-primary-light font-semibold transition-colors"
             >
-              Sign Up
+              {t('common.signUp')}
             </Link>
           </p>
         </div>
