@@ -31,6 +31,7 @@ export function Navbar() {
   const RIGHT_NAV = [
     { to: '/tickets', label: t('nav.tickets') },
     { to: '/teams', label: t('nav.teams') },
+    { to: '/stadiums', label: t('nav.stadiums') },
   ];
   const MOBILE_NAV = [
     { to: '/', label: t('nav.home'), exact: true },
@@ -153,38 +154,6 @@ export function Navbar() {
             ))}
           </div>
 
-          {/* ADMIN button (if applicable) */}
-          {user?.rol === 'ADMIN' || user?.rol === 'COMPLIANCE' ? (
-            <button
-              onClick={() => navigate('/backoffice')}
-              style={{
-                background: '#006847',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: 6,
-                padding: '8px 16px',
-                fontFamily: "'Inter', system-ui, sans-serif",
-                fontWeight: 600,
-                fontSize: 12,
-                letterSpacing: '0.04em',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                transition: 'all 0.15s',
-                marginRight: 12,
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLButtonElement).style.background = '#005039')
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLButtonElement).style.background = '#006847')
-              }
-            >
-              🛡 Panel Admin
-            </button>
-          ) : null}
-
           {/* MY HUB pill button */}
           <div style={{ position: 'relative' }}>
             <button
@@ -268,12 +237,6 @@ export function Navbar() {
                   { to: '/profile', label: `👤 ${t('nav.profile')}` },
                   { to: '/pollas', label: `🎯 ${t('nav.pollas')}` },
                   { to: '/album', label: `📔 ${t('nav.collection')}` },
-                  { to: '/superpolla', label: `🏆 ${t('nav.predictor')}` },
-                  { to: '/pack-opening', label: `📦 ${t('nav.packs')}` },
-                  { to: '/stadiums', label: `🏟 ${t('nav.stadiums')}` },
-                  ...(user?.rol === 'ADMIN' || user?.rol === 'COMPLIANCE'
-                    ? [{ to: '/backoffice', label: '🛡 Backoffice' }]
-                    : []),
                 ].map((item) => (
                   <NavLink
                     key={item.to}

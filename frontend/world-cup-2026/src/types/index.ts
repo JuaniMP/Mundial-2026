@@ -125,6 +125,10 @@ export interface EstadioApi {
   lat: number;
   lng: number;
   direccion: string;
+  imagen?: string;
+  partidos?: number;
+  inaugurado?: number;
+  equipoLocal?: string;
 }
 
 // ── Partido API (from our backend DB) ────────────────────────────────────────
@@ -183,13 +187,7 @@ export interface QualifierFixture {
   score: FdScore;
 }
 
-export type Confederation =
-  | 'CONMEBOL'
-  | 'CONCACAF'
-  | 'UEFA'
-  | 'AFC'
-  | 'CAF'
-  | 'OFC';
+export type Confederation = 'CONMEBOL' | 'CONCACAF' | 'UEFA' | 'AFC' | 'CAF' | 'OFC';
 
 // ── Prediction types ─────────────────────────────────────────────────────────
 

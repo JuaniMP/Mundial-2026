@@ -1,0 +1,148 @@
+{
+  "common": {
+    "appName": "FIFA World Cup 2026",
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "close": "Cerrar",
+    "back": "Atrás",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "viewAll": "Ver todo",
+    "readMore": "Leer más",
+    "signedInAs": "Sesión como",
+    "signOut": "Cerrar sesión",
+    "signIn": "Iniciar sesión",
+    "signUp": "Registrarse",
+    "yes": "Sí",
+    "no": "No",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "Inglés",
+    "comingSoon": "Próximamente",
+    "noData": "Sin datos",
+    "error": "Error",
+    "retry": "Reintentar"
+  },
+  "nav": {
+    "fanZone": "FAN ZONE",
+    "matches": "PARTIDOS",
+    "tickets": "ENTRADAS",
+    "teams": "SELECCIONES",
+    "myHub": "MI HUB",
+    "profile": "Mi perfil",
+    "pollas": "Pollas",
+    "collection": "Mi colección",
+    "predictor": "Juego predictor",
+    "packs": "Abrir sobres",
+    "stadiums": "ESTADIOS",
+    "home": "Inicio",
+    "standings": "Tabla",
+    "album": "Álbum"
+  },
+  "dashboard": {
+    "heroTitle1": "The World's Game.",
+    "heroTitle2": "Your Tournament.",
+    "heroTitle3": "2026.",
+    "matchCenter": "CENTRO DE PARTIDOS",
+    "matchCenterSubtitle": "Marcadores en vivo, próximos partidos y posiciones",
+    "upcomingFixt": "PRÓXIMOS",
+    "liveScore": "EN VIVO",
+    "lastResult": "ÚLTIMO RESULTADO",
+    "group": "GRUPO",
+    "noUpcoming": "No hay próximos partidos",
+    "noFeatured": "Sin partido destacado"
+  },
+  "hero3d": {
+    "selectMascot": "Selecciona una mascota",
+    "selectMascotAria": "Seleccionar {{mascot}} de {{country}}",
+    "activeMascot": "Mascota activa: {{mascot}} · {{country}}"
+  },
+  "news": {
+    "title": "Noticias del Mundial 2026",
+    "loading": "Cargando noticias...",
+    "missingKey": "Falta VITE_GNEWS_API_KEY en .env.local. Consigue una key gratis en https://gnews.io",
+    "empty": "No hay noticias disponibles.",
+    "count_one": "{{count}} noticia",
+    "count_other": "{{count}} noticias",
+    "relative": {
+      "now": "ahora",
+      "minutes": "hace {{n}} min",
+      "hours": "hace {{n}} h",
+      "days": "hace {{n}} d"
+    }
+  },
+  "auth": {
+    "welcomeBack": "Bienvenido de vuelta",
+    "loginSubtitle": "Inicia sesión para acceder a tu experiencia del Mundial 2026",
+    "emailLabel": "Correo electrónico",
+    "passwordLabel": "Contraseña",
+    "forgotPassword": "¿Olvidaste tu contraseña?",
+    "or": "o",
+    "noAccount": "¿No tienes cuenta?",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "registerTitle": "Crea tu cuenta",
+    "registerSubtitle": "Únete a la experiencia del Mundial 2026",
+    "fullName": "Nombre completo",
+    "confirmPassword": "Confirma tu contraseña",
+    "invalidCredentials": "Credenciales inválidas",
+    "loginError": "Error iniciando sesión"
+  },
+  "profile": {
+    "title": "Mi perfil",
+    "subtitle": "Personaliza tu experiencia del Mundial",
+    "preferences": "Preferencias",
+    "favoriteTeams": "Selecciones favoritas",
+    "favoriteStadiums": "Estadios favoritos",
+    "notifications": "Notificaciones",
+    "timezone": "Zona horaria",
+    "language": "Idioma de la aplicación",
+    "languageHint": "La interfaz y las noticias se mostrarán en este idioma",
+    "saved": "Preferencias guardadas",
+    "saveError": "Error guardando preferencias",
+    "agenda": "Mi agenda",
+    "trips": "Mis viajes",
+    "feed": "Mi feed"
+  },
+  "pollas": {
+    "title": "Pollas",
+    "createPolla": "Crear polla",
+    "joinPolla": "Unirse a polla",
+    "ranking": "Clasificación",
+    "predictions": "Predicciones",
+    "myPredictions": "Mis predicciones"
+  },
+  "tickets": {
+    "title": "Entradas",
+    "available": "Disponibles",
+    "category": "Categoría",
+    "buy": "Comprar"
+  },
+  "album": {
+    "title": "Mi álbum",
+    "coins": "Monedas",
+    "packs": "Sobres",
+    "missions": "Misiones",
+    "complete": "Completo",
+    "stickers": "Cromos"
+  },
+  "matches": {
+    "title": "Partidos",
+    "live": "En vivo",
+    "scheduled": "Programado",
+    "finished": "Finalizado",
+    "halfTime": "Descanso"
+  },
+  "qualifiers": {
+    "title": "Eliminatorias",
+    "uefa": "UEFA",
+    "conmebol": "CONMEBOL",
+    "concacaf": "CONCACAF",
+    "caf": "CAF",
+    "afc": "AFC",
+    "ofc": "OFC"
+  }
+}

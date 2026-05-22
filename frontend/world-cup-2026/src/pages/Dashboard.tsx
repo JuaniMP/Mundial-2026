@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import {
   fetchAllMatches,
@@ -10,12 +11,7 @@ import {
   formatMatchDate,
   statusBadge,
 } from '../services/footballApi';
-import type {
-  FdMatch,
-  FdStandingsGroup,
-  QualifierFixture,
-  Confederation,
-} from '../types';
+import type { FdMatch, FdStandingsGroup, QualifierFixture, Confederation } from '../types';
 import {
   ExternalLink,
   ChevronRight,
@@ -78,122 +74,175 @@ function getFlagUrl(tla: string): string {
 
 // ─── Hero Section ─────────────────────────────────────────────────────────────
 
-/* ── Carousel slides: each slide is a different photo arrangement ── */
-interface HeroPhoto {
-  src: string;
-  left: string;
-  top: string;
-  w: number;
-  h: number;
-  rotate: number;
-  z: number;
-}
-
-const CAROUSEL_SLIDES: HeroPhoto[][] = [
-  /* Slide 0: Players in action */
-  [
-    { src: '/assets/hero/action1.jpg', left: '-3%', top: '5%', w: 280, h: 400, rotate: -5, z: 1 },
-    { src: '/assets/hero/action2.jpg', left: '10%', top: '30%', w: 260, h: 380, rotate: 3, z: 2 },
-    { src: '/assets/hero/action3.jpg', left: '22%', top: '2%', w: 270, h: 410, rotate: -3, z: 3 },
-    { src: '/assets/hero/action4.jpg', left: '30%', top: '40%', w: 240, h: 350, rotate: 4, z: 2 },
-    { src: '/assets/hero/action5.jpg', left: '56%', top: '3%', w: 270, h: 400, rotate: 3, z: 3 },
-    { src: '/assets/hero/action6.jpg', left: '65%', top: '35%', w: 250, h: 370, rotate: -2, z: 2 },
-    { src: '/assets/hero/action7.jpg', left: '77%', top: '2%', w: 280, h: 420, rotate: 5, z: 1 },
-    { src: '/assets/hero/action8.jpg', left: '87%', top: '28%', w: 260, h: 380, rotate: -4, z: 2 },
-  ],
-  /* Slide 1: Stadiums & fans */
-  [
-    { src: '/assets/hero/stadium1.jpg', left: '-2%', top: '8%', w: 300, h: 420, rotate: -4, z: 1 },
-    { src: '/assets/hero/fans1.jpg', left: '12%', top: '35%', w: 250, h: 360, rotate: 3, z: 2 },
-    { src: '/assets/hero/stadium2.jpg', left: '24%', top: '0%', w: 280, h: 400, rotate: -2, z: 3 },
-    { src: '/assets/hero/player1.jpg', left: '33%', top: '38%', w: 230, h: 340, rotate: 5, z: 2 },
-    { src: '/assets/hero/stadium3.jpg', left: '55%', top: '4%', w: 290, h: 410, rotate: 2, z: 3 },
-    { src: '/assets/hero/player2.jpg', left: '66%', top: '32%', w: 260, h: 380, rotate: -3, z: 2 },
-    { src: '/assets/hero/fans2.jpg', left: '78%', top: '0%', w: 270, h: 400, rotate: 4, z: 1 },
-    { src: '/assets/hero/player3.jpg', left: '88%', top: '25%', w: 250, h: 370, rotate: -5, z: 2 },
-  ],
-  /* Slide 2: Mix */
-  [
-    { src: '/assets/hero/player2.jpg', left: '-1%', top: '3%', w: 270, h: 390, rotate: -6, z: 1 },
-    { src: '/assets/hero/stadium1.jpg', left: '11%', top: '32%', w: 280, h: 400, rotate: 2, z: 2 },
-    { src: '/assets/hero/action5.jpg', left: '23%', top: '1%', w: 260, h: 400, rotate: -2, z: 3 },
-    { src: '/assets/hero/fans2.jpg', left: '32%', top: '42%', w: 240, h: 340, rotate: 4, z: 2 },
-    { src: '/assets/hero/player3.jpg', left: '57%', top: '5%', w: 280, h: 410, rotate: 3, z: 3 },
-    { src: '/assets/hero/action2.jpg', left: '67%', top: '30%', w: 250, h: 370, rotate: -4, z: 2 },
-    { src: '/assets/hero/stadium3.jpg', left: '79%', top: '3%', w: 270, h: 400, rotate: 5, z: 1 },
-    { src: '/assets/hero/action7.jpg', left: '89%', top: '26%', w: 260, h: 380, rotate: -3, z: 2 },
-  ],
+const COVER_FLOW_IMAGES = [
+  '/assets/hero/action1.jpg',
+  '/assets/hero/action2.jpg',
+  '/assets/hero/action3.jpg',
+  '/assets/hero/action4.jpg',
+  '/assets/hero/action5.jpg',
+  '/assets/hero/action6.jpg',
+  '/assets/hero/action7.jpg',
+  '/assets/hero/action8.jpg',
+  '/assets/hero/player1.jpg',
 ];
 
-function HeroSection() {
-  const [slide, setSlide] = useState(0);
-  const total = CAROUSEL_SLIDES.length;
+// ─── Hero backdrop image (host countries flag-art) ───────────────────────────
 
-  /* Auto-rotate every 5s */
+function HeroBackdrop() {
+  return (
+    <div
+      aria-hidden
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 0,
+        pointerEvents: 'none',
+        background: '#f5f1e8',
+        overflow: 'hidden',
+      }}
+    >
+      <img
+        src="/assets/hosts-backdrop.png"
+        alt=""
+        style={{
+          position: 'absolute',
+          inset: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'center',
+          imageRendering: 'auto',
+        }}
+        onError={(e) => {
+          // Hide cleanly if user hasn't dropped the file yet
+          (e.currentTarget as HTMLImageElement).style.display = 'none';
+        }}
+      />
+      {/* Soft vignette so center cards/title pop */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background:
+            'radial-gradient(ellipse at center, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 45%, rgba(255,255,255,0) 80%)',
+        }}
+      />
+    </div>
+  );
+}
+
+function HeroSection() {
+  const { t } = useTranslation();
+  const [currentIndex, setCurrentIndex] = useState(2); // Start with center image
+  const total = COVER_FLOW_IMAGES.length;
+
   useEffect(() => {
     const timer = setInterval(() => {
-      setSlide((s) => (s + 1) % total);
-    }, 5000);
+      setCurrentIndex((prev) => (prev + 1) % total);
+    }, 4000);
     return () => clearInterval(timer);
   }, [total]);
 
-  const goNext = () => setSlide((s) => (s + 1) % total);
-  const goPrev = () => setSlide((s) => (s - 1 + total) % total);
+  const goNext = () => setCurrentIndex((s) => (s + 1) % total);
+  const goPrev = () => setCurrentIndex((s) => (s - 1 + total) % total);
+
+  // Helper to calculate styles for cover flow
+  const getCardStyle = (index: number) => {
+    // Relative offset from current index, wrapped to shortest path around the ring
+    let offset = index - currentIndex;
+    const half = Math.floor(total / 2);
+    if (offset > half) offset -= total;
+    if (offset < -half) offset += total;
+
+    const absOffset = Math.abs(offset);
+    const sign = Math.sign(offset);
+
+    // Continuous scaling for any number of cards
+    let scale = 1;
+    let translateX = 0;
+    let zIndex = 10;
+    let opacity = 1;
+    let brightness = 1;
+
+    if (absOffset === 0) {
+      scale = 1;
+      translateX = 0;
+      zIndex = 20;
+    } else if (absOffset === 1) {
+      scale = 0.94;
+      translateX = sign * 38;
+      zIndex = 15;
+      opacity = 0.95;
+      brightness = 0.82;
+    } else if (absOffset === 2) {
+      scale = 0.84;
+      translateX = sign * 70;
+      zIndex = 10;
+      opacity = 0.9;
+      brightness = 0.68;
+    } else if (absOffset === 3) {
+      scale = 0.72;
+      translateX = sign * 98;
+      zIndex = 5;
+      opacity = 0.75;
+      brightness = 0.55;
+    } else {
+      scale = 0.6;
+      translateX = sign * 122;
+      zIndex = 1;
+      opacity = 0.6;
+      brightness = 0.45;
+    }
+
+    return {
+      position: 'absolute' as const,
+      top: '50%',
+      left: '50%',
+      width: '380px',
+      height: '520px',
+      marginLeft: '-190px',
+      marginTop: '-260px',
+      borderRadius: '16px',
+      overflow: 'hidden',
+      transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+      transform: `translateX(${translateX}%) scale(${scale})`,
+      zIndex,
+      opacity,
+      filter: `brightness(${brightness})`,
+      boxShadow: offset === 0 ? '0 20px 50px rgba(0,0,0,0.5)' : '0 10px 20px rgba(0,0,0,0.3)',
+      border: offset === 0 ? '3px solid rgba(255,255,255,0.9)' : '2px solid rgba(255,255,255,0.4)',
+    };
+  };
 
   return (
     <section
       style={{
         position: 'relative',
         overflow: 'hidden',
-        minHeight: '100vh',
-        backgroundColor: 'transparent',
+        minHeight: '680px',
+        height: 'calc(100vh - 120px)',
+        maxHeight: 820,
+        backgroundColor: '#ffffff',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
       }}
     >
-      {/* ── Photo slides ── */}
-      {CAROUSEL_SLIDES.map((photos, idx) => (
-        <div
-          key={idx}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 2,
-            pointerEvents: 'none',
-            opacity: idx === slide ? 1 : 0,
-            transition: 'opacity 0.8s ease-in-out',
-          }}
-        >
-          {photos.map((photo, i) => (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                left: photo.left,
-                top: photo.top,
-                width: photo.w,
-                height: photo.h,
-                borderRadius: 12,
-                overflow: 'hidden',
-                transform: `rotate(${photo.rotate}deg)`,
-                zIndex: photo.z,
-                boxShadow:
-                  '0 8px 30px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12)',
-                border: '3px solid rgba(255,255,255,0.7)',
-              }}
-            >
-              <img
-                src={photo.src}
-                alt=""
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ))}
-        </div>
-      ))}
+      {/* ── Colorful flag-inspired background ── */}
+      <HeroBackdrop />
+
+      {/* ── Cover Flow Carousel ── */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
+        {COVER_FLOW_IMAGES.map((src, i) => (
+          <div key={i} style={getCardStyle(i)}>
+            <img
+              src={src}
+              alt={`Player ${i}`}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+        ))}
+      </div>
 
       {/* ── Navigation arrows ── */}
       <button
@@ -201,15 +250,15 @@ function HeroSection() {
         onClick={goPrev}
         style={{
           position: 'absolute',
-          left: 20,
+          left: 30,
           top: '50%',
           transform: 'translateY(-50%)',
-          width: 42,
-          height: 42,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
           background: 'rgba(255,255,255,0.9)',
           border: 'none',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -218,31 +267,25 @@ function HeroSection() {
           zIndex: 20,
           transition: 'transform 0.15s',
         }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform =
-            'translateY(-50%) scale(1.08)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform =
-            'translateY(-50%)';
-        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(-50%)')}
       >
-        <ChevronLeft size={22} />
+        <ChevronLeft size={24} />
       </button>
       <button
         aria-label="Next"
         onClick={goNext}
         style={{
           position: 'absolute',
-          right: 20,
+          right: 30,
           top: '50%',
           transform: 'translateY(-50%)',
-          width: 42,
-          height: 42,
+          width: 48,
+          height: 48,
           borderRadius: '50%',
           background: 'rgba(255,255,255,0.9)',
           border: 'none',
-          boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
@@ -251,16 +294,10 @@ function HeroSection() {
           zIndex: 20,
           transition: 'transform 0.15s',
         }}
-        onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform =
-            'translateY(-50%) scale(1.08)';
-        }}
-        onMouseLeave={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.transform =
-            'translateY(-50%)';
-        }}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-50%) scale(1.1)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(-50%)')}
       >
-        <ChevronRight size={22} />
+        <ChevronRight size={24} />
       </button>
 
       {/* ── LAYER TOP: Headline + CTA ── */}
@@ -280,87 +317,74 @@ function HeroSection() {
       >
         <h1
           style={{
-            fontFamily: "'Oswald', sans-serif",
-            fontWeight: 700,
-            fontSize: 'clamp(48px, 8vw, 96px)',
-            lineHeight: 1,
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'clamp(28px, 3.4vw, 44px)',
+            lineHeight: 1.05,
             color: '#ffffff',
-            letterSpacing: '0.02em',
+            letterSpacing: '0.015em',
             textTransform: 'uppercase',
             margin: 0,
-            textShadow:
-              '0 0 4px #000, 0 0 8px #000, 0 0 16px #000, 0 0 32px #000, 0 0 64px rgba(0,0,0,0.95), 0 0 120px rgba(0,0,0,0.8)',
+            background: '#000000',
+            padding: '12px 18px',
+            borderRadius: '4px',
+            display: 'inline-block',
+            width: 'auto',
+            whiteSpace: 'nowrap',
+            textAlign: 'center',
           }}
         >
-          The World's Game.
+          {t('dashboard.heroTitle1')}
           <br />
-          <span style={{ color: '#C8102E' }}>Your</span> Tournament.
+          {t('dashboard.heroTitle2')}
           <br />
-          2026.
+          {t('dashboard.heroTitle3')}
         </h1>
 
-        {/* CTA pill */}
-        <Link
-          to="/matches"
+        {/* Celebravoxia pill */}
+        <button
           style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'rgba(255,255,255,0.9)',
-            backdropFilter: 'blur(10px)',
-            WebkitBackdropFilter: 'blur(10px)',
+            marginTop: 20,
+            background: '#ffffff',
             color: '#0D1B2A',
-            fontFamily: "'Oswald', sans-serif",
-            fontWeight: 700,
-            fontSize: 13,
-            letterSpacing: '0.06em',
-            padding: '10px 26px',
+            border: 'none',
             borderRadius: 9999,
-            textDecoration: 'none',
+            padding: '8px 22px',
+            fontFamily: 'Inter, system-ui, sans-serif',
+            fontWeight: 600,
+            fontSize: 12,
+            letterSpacing: '0.04em',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
             pointerEvents: 'auto',
-            marginTop: 18,
-            border: '1px solid rgba(0,0,0,0.06)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-            transition: 'transform 0.18s, background 0.18s',
-          }}
-          onMouseEnter={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.background = '#0D1B2A';
-            el.style.color = '#ffffff';
-            el.style.transform = 'translateY(-2px)';
-          }}
-          onMouseLeave={(e) => {
-            const el = e.currentTarget as HTMLAnchorElement;
-            el.style.background = 'rgba(255,255,255,0.9)';
-            el.style.color = '#0D1B2A';
-            el.style.transform = '';
           }}
         >
-          MATCHES <ChevronRight size={14} />
-        </Link>
+          Celebravoxia
+        </button>
 
         {/* Carousel dots */}
         <div
           style={{
             display: 'flex',
             gap: 8,
-            marginTop: 16,
+            marginTop: 24,
             pointerEvents: 'auto',
           }}
         >
-          {CAROUSEL_SLIDES.map((_, i) => (
+          {COVER_FLOW_IMAGES.map((_, i) => (
             <button
               key={i}
-              onClick={() => setSlide(i)}
+              onClick={() => setCurrentIndex(i)}
               style={{
-                width: i === slide ? 28 : 8,
-                height: 8,
-                borderRadius: 4,
-                background: i === slide ? '#ffffff' : 'rgba(255,255,255,0.4)',
+                width: i === currentIndex ? 30 : 10,
+                height: 10,
+                borderRadius: 5,
+                background: i === currentIndex ? '#ffffff' : 'rgba(255,255,255,0.5)',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease',
                 padding: 0,
+                boxShadow: '0 2px 5px rgba(0,0,0,0.5)',
               }}
             />
           ))}
@@ -373,25 +397,17 @@ function HeroSection() {
 // ─── Match Center Section ─────────────────────────────────────────────────────
 
 function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
+  const { t } = useTranslation();
   const upcoming = matches
     .filter((m) => m.status === 'TIMED' || m.status === 'SCHEDULED')
-    .sort(
-      (a, b) =>
-        new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
-    )
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
     .slice(0, 3);
-  const live = matches.find(
-    (m) => m.status === 'LIVE' || m.status === 'IN_PLAY',
-  );
+  const live = matches.find((m) => m.status === 'LIVE' || m.status === 'IN_PLAY');
   const featured =
     live ??
     matches
       .filter((m) => m.status === 'FINISHED')
-      .sort(
-        (a, b) =>
-          new Date(b.utcDate).getTime() -
-          new Date(a.utcDate).getTime(),
-      )[0];
+      .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())[0];
 
   return (
     <section style={{ padding: '24px' }}>
@@ -408,8 +424,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
         <div
           style={{
             height: 4,
-            background:
-              'linear-gradient(90deg, #006847 0%, #009c3b 50%, #006847 100%)',
+            background: 'linear-gradient(90deg, #006847 0%, #009c3b 50%, #006847 100%)',
           }}
         />
 
@@ -435,7 +450,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                 lineHeight: 1,
               }}
             >
-              MATCH CENTER
+              {t('dashboard.matchCenter')}
             </h2>
             <p
               style={{
@@ -445,7 +460,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                 margin: '2px 0 0',
               }}
             >
-              Real-time scores, upcoming fixtures &amp; standings
+              {t('dashboard.matchCenterSubtitle')}
             </p>
           </div>
           <Link
@@ -462,7 +477,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
               letterSpacing: '0.06em',
             }}
           >
-            VIEW ALL <ExternalLink size={12} />
+            {t('common.viewAll').toUpperCase()} <ExternalLink size={12} />
           </Link>
         </div>
 
@@ -491,7 +506,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                 margin: '0 0 10px',
               }}
             >
-              UPCOMING FIXT.
+              {t('dashboard.upcomingFixt')}
             </p>
             {upcoming.length === 0 ? (
               <p
@@ -501,7 +516,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                   color: '#9ca3af',
                 }}
               >
-                No upcoming matches
+                {t('dashboard.noUpcoming')}
               </p>
             ) : (
               upcoming.map((m) => (
@@ -626,7 +641,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                   }}
                 />
               )}
-              {live ? 'LIVE SCORE' : 'LAST RESULT'}
+              {live ? t('dashboard.liveScore') : t('dashboard.lastResult')}
             </p>
 
             {featured ? (
@@ -641,8 +656,8 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                 >
                   <span
                     style={{
-                      fontFamily: "'Oswald', sans-serif",
-                      fontSize: 72,
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 84,
                       color: '#0D1B2A',
                       lineHeight: 0.9,
                       letterSpacing: '0.02em',
@@ -652,8 +667,8 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                   </span>
                   <span
                     style={{
-                      fontFamily: "'Oswald', sans-serif",
-                      fontSize: 26,
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 32,
                       color: '#9ca3af',
                       letterSpacing: '0.08em',
                     }}
@@ -662,8 +677,8 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                   </span>
                   <span
                     style={{
-                      fontFamily: "'Oswald', sans-serif",
-                      fontSize: 72,
+                      fontFamily: 'var(--font-display)',
+                      fontSize: 84,
                       color: '#0D1B2A',
                       lineHeight: 0.9,
                       letterSpacing: '0.02em',
@@ -747,7 +762,7 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
                   color: '#9ca3af',
                 }}
               >
-                No match data
+                {t('dashboard.noFeatured')}
               </p>
             )}
           </div>
@@ -761,9 +776,8 @@ function MatchCenterSection({ matches }: { matches: FdMatch[] }) {
 }
 
 function GroupSnippet() {
-  const [group, setGroup] = useState<FdStandingsGroup | null>(
-    null,
-  );
+  const { t } = useTranslation();
+  const [group, setGroup] = useState<FdStandingsGroup | null>(null);
 
   useEffect(() => {
     fetchStandings()
@@ -786,8 +800,8 @@ function GroupSnippet() {
         }}
       >
         {group
-          ? `GROUP ${group.group?.replace('GROUP_', '') ?? ''}`
-          : 'GROUP'}
+          ? `${t('dashboard.group')} ${group.group?.replace('GROUP_', '') ?? ''}`
+          : t('dashboard.group')}
       </p>
       {!group ? (
         <p
@@ -797,7 +811,7 @@ function GroupSnippet() {
             color: '#9ca3af',
           }}
         >
-          Loading...
+          {t('common.loading')}
         </p>
       ) : (
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -918,7 +932,7 @@ function GroupSnippet() {
 
 // ─── Qualifiers / Eliminatorias Section ───────────────────────────────────────
 
-function QualifiersSection() {
+export function QualifiersSection() {
   const [conf, setConf] = useState<Confederation>('CONMEBOL');
   const [fixtures, setFixtures] = useState<QualifierFixture[]>([]);
   const [standings, setStandings] = useState<FdStandingsGroup[]>([]);
@@ -926,41 +940,34 @@ function QualifiersSection() {
   const [tab, setTab] = useState<'matches' | 'standings'>('matches');
 
   useEffect(() => {
-    setLoading(true);
+    let cancelled = false;
     Promise.all([
       fetchQualifierMatches(conf).catch(() => []),
       fetchQualifierStandings(conf).catch(() => []),
     ]).then(([m, s]) => {
-      setFixtures(m);
-      setStandings(s);
-      setLoading(false);
+      if (!cancelled) {
+        setFixtures(m);
+        setStandings(s);
+        setLoading(false);
+      }
     });
+    return () => {
+      cancelled = true;
+    };
   }, [conf]);
 
   /* Split fixtures into recent results + upcoming */
   const finished = fixtures
     .filter((f) => f.status === 'FINISHED')
-    .sort(
-      (a, b) =>
-        new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime(),
-    )
+    .sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
     .slice(0, 6);
 
   const upcoming = fixtures
-    .filter(
-      (f) =>
-        f.status === 'SCHEDULED' ||
-        f.status === 'TIMED',
-    )
-    .sort(
-      (a, b) =>
-        new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime(),
-    )
+    .filter((f) => f.status === 'SCHEDULED' || f.status === 'TIMED')
+    .sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
     .slice(0, 6);
 
-  const live = fixtures.filter(
-    (f) => f.status === 'IN_PLAY' || f.status === 'PAUSED',
-  );
+  const live = fixtures.filter((f) => f.status === 'IN_PLAY' || f.status === 'PAUSED');
 
   const displayMatches = [...live, ...upcoming, ...finished].slice(0, 8);
 
@@ -979,8 +986,7 @@ function QualifiersSection() {
         <div
           style={{
             height: 4,
-            background:
-              'linear-gradient(90deg, #C8102E 0%, #002868 50%, #006847 100%)',
+            background: 'linear-gradient(90deg, #C8102E 0%, #002868 50%, #006847 100%)',
           }}
         />
 
@@ -1051,12 +1057,8 @@ function QualifiersSection() {
                   letterSpacing: '0.08em',
                   padding: '6px 14px',
                   borderRadius: 6,
-                  border:
-                    tab === t.id
-                      ? '1.5px solid #002868'
-                      : '1.5px solid rgba(0,0,0,0.1)',
-                  background:
-                    tab === t.id ? '#002868' : 'transparent',
+                  border: tab === t.id ? '1.5px solid #002868' : '1.5px solid rgba(0,0,0,0.1)',
+                  background: tab === t.id ? '#002868' : 'transparent',
                   color: tab === t.id ? '#ffffff' : '#374151',
                   cursor: 'pointer',
                   transition: 'all 0.15s',
@@ -1081,7 +1083,10 @@ function QualifiersSection() {
           {CONFEDERATIONS.map((c) => (
             <button
               key={c.id}
-              onClick={() => setConf(c.id)}
+              onClick={() => {
+                setLoading(true);
+                setConf(c.id);
+              }}
               style={{
                 fontFamily: "'Oswald', sans-serif",
                 fontWeight: 700,
@@ -1089,16 +1094,9 @@ function QualifiersSection() {
                 letterSpacing: '0.06em',
                 padding: '10px 18px',
                 border: 'none',
-                borderBottom:
-                  conf === c.id
-                    ? '3px solid #006847'
-                    : '3px solid transparent',
-                background:
-                  conf === c.id
-                    ? 'rgba(0,104,71,0.06)'
-                    : 'transparent',
-                color:
-                  conf === c.id ? '#006847' : '#6b7280',
+                borderBottom: conf === c.id ? '3px solid #006847' : '3px solid transparent',
+                background: conf === c.id ? 'rgba(0,104,71,0.06)' : 'transparent',
+                color: conf === c.id ? '#006847' : '#6b7280',
                 cursor: 'pointer',
                 transition: 'all 0.15s',
                 whiteSpace: 'nowrap',
@@ -1145,36 +1143,28 @@ function QualifiersSection() {
                 No hay partidos disponibles para {conf}.
                 <br />
                 <span style={{ fontSize: 11 }}>
-                  Asegúrate de que la API key de API-Football esté
-                  configurada.
+                  Asegúrate de que la API key de API-Football esté configurada.
                 </span>
               </p>
             ) : (
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns:
-                    'repeat(auto-fill, minmax(300px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
                   gap: 10,
                 }}
               >
                 {displayMatches.map((fix) => {
-                  const { date, time } = formatMatchDate(
-                    fix.utcDate,
-                  );
+                  const { date, time } = formatMatchDate(fix.utcDate);
                   const badge = statusBadge(fix.status);
-                  const isLive =
-                    fix.status === 'IN_PLAY' ||
-                    fix.status === 'PAUSED';
+                  const isLive = fix.status === 'IN_PLAY' || fix.status === 'PAUSED';
                   const isFinished = fix.status === 'FINISHED';
 
                   return (
                     <div
                       key={fix.id}
                       style={{
-                        background: isLive
-                          ? 'rgba(200,16,46,0.04)'
-                          : '#f8f9fa',
+                        background: isLive ? 'rgba(200,16,46,0.04)' : '#f8f9fa',
                         border: isLive
                           ? '1.5px solid rgba(200,16,46,0.3)'
                           : '1px solid rgba(0,0,0,0.06)',
@@ -1258,8 +1248,7 @@ function QualifiersSection() {
                           )}
                           <span
                             style={{
-                              fontFamily:
-                                "'Oswald', sans-serif",
+                              fontFamily: "'Oswald', sans-serif",
                               fontWeight: 700,
                               fontSize: 14,
                               color: '#0D1B2A',
@@ -1269,8 +1258,7 @@ function QualifiersSection() {
                               whiteSpace: 'nowrap',
                             }}
                           >
-                            {fix.homeTeam.shortName ??
-                              fix.homeTeam.name}
+                            {fix.homeTeam.shortName ?? fix.homeTeam.name}
                           </span>
                         </div>
 
@@ -1280,9 +1268,7 @@ function QualifiersSection() {
                             fontFamily: "'Oswald', sans-serif",
                             fontWeight: 700,
                             fontSize: isFinished || isLive ? 22 : 14,
-                            color: isLive
-                              ? '#C8102E'
-                              : '#0D1B2A',
+                            color: isLive ? '#C8102E' : '#0D1B2A',
                             letterSpacing: '0.04em',
                             padding: '0 10px',
                             textAlign: 'center',
@@ -1306,8 +1292,7 @@ function QualifiersSection() {
                         >
                           <span
                             style={{
-                              fontFamily:
-                                "'Oswald', sans-serif",
+                              fontFamily: "'Oswald', sans-serif",
                               fontWeight: 700,
                               fontSize: 14,
                               color: '#0D1B2A',
@@ -1318,8 +1303,7 @@ function QualifiersSection() {
                               textAlign: 'right',
                             }}
                           >
-                            {fix.awayTeam.shortName ??
-                              fix.awayTeam.name}
+                            {fix.awayTeam.shortName ?? fix.awayTeam.name}
                           </span>
                           {fix.awayTeam.crest && (
                             <img
@@ -1354,178 +1338,161 @@ function QualifiersSection() {
                 })}
               </div>
             )
+          ) : /* ── Standings view ── */
+          standings.length === 0 ? (
+            <p
+              style={{
+                fontFamily: "'Oswald', sans-serif",
+                fontSize: 13,
+                color: '#9ca3af',
+                textAlign: 'center',
+                padding: 30,
+              }}
+            >
+              No hay tabla de posiciones disponible para {conf}.
+            </p>
           ) : (
-            /* ── Standings view ── */
-            standings.length === 0 ? (
-              <p
-                style={{
-                  fontFamily: "'Oswald', sans-serif",
-                  fontSize: 13,
-                  color: '#9ca3af',
-                  textAlign: 'center',
-                  padding: 30,
-                }}
-              >
-                No hay tabla de posiciones disponible para {conf}.
-              </p>
-            ) : (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns:
-                    standings.length > 1
-                      ? 'repeat(auto-fill, minmax(340px, 1fr))'
-                      : '1fr',
-                  gap: 16,
-                }}
-              >
-                {standings.map((grp, gIdx) => (
-                  <div key={gIdx}>
-                    <p
-                      style={{
-                        fontFamily: "'Oswald', sans-serif",
-                        fontWeight: 700,
-                        fontSize: 13,
-                        letterSpacing: '0.1em',
-                        color: '#0D1B2A',
-                        margin: '0 0 8px',
-                      }}
-                    >
-                      {grp.group?.replace('GROUP_', 'GRUPO ') ??
-                        `GRUPO ${gIdx + 1}`}
-                    </p>
-                    <table
-                      style={{
-                        width: '100%',
-                        borderCollapse: 'collapse',
-                      }}
-                    >
-                      <thead>
-                        <tr>
-                          {['#', 'EQUIPO', 'PJ', 'G', 'E', 'P', 'GF', 'GC', 'PTS'].map(
-                            (h) => (
-                              <th
-                                key={h}
-                                style={{
-                                  fontFamily:
-                                    "'Oswald', sans-serif",
-                                  fontSize: 10,
-                                  color: '#9ca3af',
-                                  fontWeight: 700,
-                                  textAlign:
-                                    h === 'EQUIPO'
-                                      ? 'left'
-                                      : 'center',
-                                  padding: '0 3px 6px',
-                                  letterSpacing: '0.08em',
-                                }}
-                              >
-                                {h}
-                              </th>
-                            ),
-                          )}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {grp.table.map((entry) => (
-                          <tr
-                            key={entry.team.id}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns:
+                  standings.length > 1 ? 'repeat(auto-fill, minmax(340px, 1fr))' : '1fr',
+                gap: 16,
+              }}
+            >
+              {standings.map((grp, gIdx) => (
+                <div key={gIdx}>
+                  <p
+                    style={{
+                      fontFamily: "'Oswald', sans-serif",
+                      fontWeight: 700,
+                      fontSize: 13,
+                      letterSpacing: '0.1em',
+                      color: '#0D1B2A',
+                      margin: '0 0 8px',
+                    }}
+                  >
+                    {grp.group?.replace('GROUP_', 'GRUPO ') ?? `GRUPO ${gIdx + 1}`}
+                  </p>
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                    }}
+                  >
+                    <thead>
+                      <tr>
+                        {['#', 'EQUIPO', 'PJ', 'G', 'E', 'P', 'GF', 'GC', 'PTS'].map((h) => (
+                          <th
+                            key={h}
                             style={{
-                              borderBottom:
-                                '1px solid rgba(0,0,0,0.04)',
+                              fontFamily: "'Oswald', sans-serif",
+                              fontSize: 10,
+                              color: '#9ca3af',
+                              fontWeight: 700,
+                              textAlign: h === 'EQUIPO' ? 'left' : 'center',
+                              padding: '0 3px 6px',
+                              letterSpacing: '0.08em',
                             }}
                           >
-                            <td
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {grp.table.map((entry) => (
+                        <tr
+                          key={entry.team.id}
+                          style={{
+                            borderBottom: '1px solid rgba(0,0,0,0.04)',
+                          }}
+                        >
+                          <td
+                            style={{
+                              fontFamily: "'Oswald', sans-serif",
+                              fontWeight: 700,
+                              fontSize: 12,
+                              color: '#9ca3af',
+                              textAlign: 'center',
+                              padding: '5px 3px',
+                            }}
+                          >
+                            {entry.position}
+                          </td>
+                          <td style={{ padding: '5px 3px' }}>
+                            <div
                               style={{
-                                fontFamily:
-                                  "'Oswald', sans-serif",
-                                fontWeight: 700,
-                                fontSize: 12,
-                                color: '#9ca3af',
-                                textAlign: 'center',
-                                padding: '5px 3px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5,
                               }}
                             >
-                              {entry.position}
-                            </td>
-                            <td style={{ padding: '5px 3px' }}>
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: 5,
-                                }}
-                              >
-                                {entry.team.crest && (
-                                  <img
-                                    src={entry.team.crest}
-                                    alt=""
-                                    style={{
-                                      width: 16,
-                                      height: 16,
-                                      objectFit: 'contain',
-                                    }}
-                                  />
-                                )}
-                                <span
+                              {entry.team.crest && (
+                                <img
+                                  src={entry.team.crest}
+                                  alt=""
                                   style={{
-                                    fontFamily:
-                                      "'Oswald', sans-serif",
-                                    fontWeight: 700,
-                                    fontSize: 13,
-                                    color: '#0D1B2A',
-                                    letterSpacing: '0.03em',
+                                    width: 16,
+                                    height: 16,
+                                    objectFit: 'contain',
                                   }}
-                                >
-                                  {entry.team.shortName ??
-                                    entry.team.name}
-                                </span>
-                              </div>
-                            </td>
-                            {[
-                              entry.playedGames,
-                              entry.won,
-                              entry.draw,
-                              entry.lost,
-                              entry.goalsFor,
-                              entry.goalsAgainst,
-                            ].map((val, vi) => (
-                              <td
-                                key={vi}
+                                />
+                              )}
+                              <span
                                 style={{
-                                  fontFamily:
-                                    "'Oswald', sans-serif",
+                                  fontFamily: "'Oswald', sans-serif",
                                   fontWeight: 700,
                                   fontSize: 13,
-                                  color: '#374151',
-                                  textAlign: 'center',
-                                  padding: '5px 3px',
+                                  color: '#0D1B2A',
+                                  letterSpacing: '0.03em',
                                 }}
                               >
-                                {val}
-                              </td>
-                            ))}
+                                {entry.team.shortName ?? entry.team.name}
+                              </span>
+                            </div>
+                          </td>
+                          {[
+                            entry.playedGames,
+                            entry.won,
+                            entry.draw,
+                            entry.lost,
+                            entry.goalsFor,
+                            entry.goalsAgainst,
+                          ].map((val, vi) => (
                             <td
+                              key={vi}
                               style={{
-                                fontFamily:
-                                  "'Oswald', sans-serif",
-                                fontSize: 15,
+                                fontFamily: "'Oswald', sans-serif",
                                 fontWeight: 700,
-                                color: '#006847',
+                                fontSize: 13,
+                                color: '#374151',
                                 textAlign: 'center',
                                 padding: '5px 3px',
                               }}
                             >
-                              {entry.points}
+                              {val}
                             </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ))}
-              </div>
-            )
+                          ))}
+                          <td
+                            style={{
+                              fontFamily: "'Oswald', sans-serif",
+                              fontSize: 15,
+                              fontWeight: 700,
+                              color: '#006847',
+                              textAlign: 'center',
+                              padding: '5px 3px',
+                            }}
+                          >
+                            {entry.points}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -1535,7 +1502,7 @@ function QualifiersSection() {
 
 // ─── Gamification Section ─────────────────────────────────────────────────────
 
-function GamificationSection() {
+export function GamificationSection() {
   const cards = [
     {
       icon: '📔',
@@ -2024,8 +1991,7 @@ export function FanHubPanel() {
               padding: '8px 10px',
               marginBottom: 6,
               background: selectedPred === idx ? 'rgba(0,104,71,0.07)' : '#f8f9fa',
-              border:
-                selectedPred === idx ? '1.5px solid #006847' : '1.5px solid transparent',
+              border: selectedPred === idx ? '1.5px solid #006847' : '1.5px solid transparent',
               borderRadius: 8,
               cursor: 'pointer',
               transition: 'all 0.15s',
@@ -2121,6 +2087,9 @@ export function FanHubPanel() {
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
+import { NewsSection } from '../components/NewsSection';
+import { FanHubSection } from '../components/FanHubSection';
+
 export function Dashboard() {
   const { token } = useAuth();
   const [matches, setMatches] = useState<FdMatch[]>([]);
@@ -2137,28 +2106,37 @@ export function Dashboard() {
       style={{
         position: 'relative',
         minHeight: '100vh',
+        backgroundColor: '#f0f2f5',
       }}
     >
-      {/* ── Global BG: FIFA brand art across entire dashboard ── */}
-      <div
-        style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundImage: 'url(/assets/hero-bg.png)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
-          opacity: 0.85,
-          zIndex: 0,
-        }}
-      />
-
       {/* ── Content layers on top ── */}
       <div style={{ position: 'relative', zIndex: 1 }}>
         <HeroSection />
-        <MatchCenterSection matches={matches} />
-        <QualifiersSection />
-        <GamificationSection />
+
+        {/* ── Dashboard Two-Column Layout ── */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '24px',
+            padding: '24px',
+            maxWidth: '1440px',
+            margin: '0 auto',
+            alignItems: 'flex-start',
+          }}
+        >
+          {/* Left/Center Column */}
+          <div style={{ flex: '1 1 70%', minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+            <MatchCenterSection matches={matches} />
+            <div style={{ padding: '24px 0 0 0' }}>
+              <NewsSection />
+            </div>
+          </div>
+
+          {/* Right Column (Fan Hub) */}
+          <div style={{ flex: '1 1 30%', minWidth: '320px' }}>
+            <FanHubSection />
+          </div>
+        </div>
       </div>
     </main>
   );
