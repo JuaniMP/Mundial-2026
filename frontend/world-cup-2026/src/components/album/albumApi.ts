@@ -22,7 +22,7 @@ export interface AlbumStats {
 // ─── Auth ────────────────────────────────────────────────────────────────────
 
 function authHeader() {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
@@ -32,7 +32,7 @@ function authHeader() {
  */
 export function extractUserId(): number {
   try {
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token');
     if (!token) return 1;
     const payload = JSON.parse(atob(token.split('.')[1]));
     const id = payload.id ?? payload.userId ?? payload.user_id;

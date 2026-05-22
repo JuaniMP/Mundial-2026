@@ -77,4 +77,48 @@ public class SoporteController {
     public ResponseEntity<ApiResponse<List<NotificacionResponse>>> getNotificaciones(@PathVariable Integer usuarioId) {
         return ResponseEntity.ok(ApiResponse.success(soporteService.getNotificacionesByUsuario(usuarioId), "Notificaciones"));
     }
+
+    // ════════════════════════════════════════════════════════════════════
+    //  DASHBOARD DE SOPORTE — buscador, línea de tiempo y acciones
+    // ════════════════════════════════════════════════════════════════════
+
+    /** Buscador centralizado: ID de aficionado, correo o ID de transacción. */
+    @GetMapping("/buscar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
+    public ResponseEntity<ApiResponse<SoporteBusquedaResponse>> buscar(@RequestParam("q") String q) {
+        return ResponseEntity.ok(ApiResponse.success(
+                soporteService.buscarUsuario(q), "Aficionado encontrado"));
+    }
+
+    /** Línea de tiempo cronológica de un aficionado. */
+    @GetMapping("/timeline/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
+    public ResponseEntity<ApiResponse<List<TimelineEventResponse>>> timeline(@PathVariable Integer usuarioId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                soporteService.getTimeline(usuarioId), "Línea de tiempo"));
+    }
+
+    /** Acción correctiva: reenviar el correo de confirmación de una entrada. */
+    @PostMapping("/acciones/reenviar-confirmacion/{entradaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reenviarConfirmacion(@PathVariable Integer entradaId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                soporteService.reenviarConfirmacion(entradaId), "Confirmación reenviada"));
+    }
+
+    /** Acción correctiva: reactivar una reserva expirada/liberada por error. */
+    @PostMapping("/acciones/reactivar-reserva/{entradaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> reactivarReserva(@PathVariable Integer entradaId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                soporteService.reactivarReserva(entradaId), "Reserva reactivada"));
+    }
+
+    /** Acción correctiva: procesar un reembolso simulado de la pasarela sandbox. */
+    @PostMapping("/acciones/reembolso/{entradaId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> procesarReembolso(@PathVariable Integer entradaId) {
+        return ResponseEntity.ok(ApiResponse.success(
+                soporteService.procesarReembolso(entradaId), "Reembolso simulado procesado"));
+    }
 }

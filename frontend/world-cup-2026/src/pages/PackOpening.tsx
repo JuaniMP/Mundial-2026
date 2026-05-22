@@ -7,6 +7,7 @@ import type { LaminaAlbum } from '../components/album/albumApi';
 import { CromoCard } from '../components/album/CromoCard';
 import { getTeamForLamina, getSlotInTeam } from '../components/album/teamColors';
 import { parseRareza } from '../components/album/rarityUtils';
+import { scopedKey } from '../utils/userScope';
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -124,11 +125,11 @@ export function PackOpening() {
   const [cards, setCards] = useState<LaminaAlbum[]>([]);
   const [pastedIds, setPastedIds] = useState<Set<number>>(new Set());
   const [coins, setCoins] = useState<number>(() => {
-    const raw = localStorage.getItem(COINS_KEY);
+    const raw = localStorage.getItem(scopedKey(COINS_KEY));
     return raw ? parseInt(raw, 10) : 100;
   });
   const [packs, setPacks] = useState<number>(() => {
-    const raw = localStorage.getItem(PACKS_KEY);
+    const raw = localStorage.getItem(scopedKey(PACKS_KEY));
     return raw ? parseInt(raw, 10) : 3;
   });
   const [err, setErr] = useState<string | null>(null);
@@ -138,10 +139,10 @@ export function PackOpening() {
 
   // Sync coins/packs to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem(COINS_KEY, String(coins));
+    localStorage.setItem(scopedKey(COINS_KEY), String(coins));
   }, [coins]);
   useEffect(() => {
-    localStorage.setItem(PACKS_KEY, String(packs));
+    localStorage.setItem(scopedKey(PACKS_KEY), String(packs));
   }, [packs]);
 
   const handleOpen = useCallback(async () => {

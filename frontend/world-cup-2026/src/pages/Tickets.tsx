@@ -20,7 +20,7 @@ const stripePromise = STRIPE_PK && !STRIPE_PK.includes('REEMPLAZA') ? loadStripe
 const API = 'http://localhost:8082/api/v1';
 
 function getHeaders() {
-  const t = localStorage.getItem('token');
+  const t = sessionStorage.getItem('token');
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 

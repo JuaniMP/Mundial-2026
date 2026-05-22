@@ -12,8 +12,9 @@ import java.util.Optional;
 public interface PrediccionRepository extends JpaRepository<Prediccion, Integer> {
     List<Prediccion> findByUsuarioId(Integer usuarioId);
     List<Prediccion> findByPollaId(Integer pollaId);
-    List<Prediccion> findByPartidoId(Integer partidoId);
-    Optional<Prediccion> findByUsuarioIdAndPollaIdAndPartidoId(Integer usuarioId, Integer pollaId, Integer partidoId);
+    List<Prediccion> findByApiPartidoId(Long apiPartidoId);
+    List<Prediccion> findByPollaIdAndApiPartidoId(Integer pollaId, Long apiPartidoId);
+    Optional<Prediccion> findByUsuarioIdAndPollaIdAndApiPartidoId(Integer usuarioId, Integer pollaId, Long apiPartidoId);
 
     @Query("SELECT p FROM Prediccion p WHERE p.polla.id = :pollaId ORDER BY p.puntosObtenidos DESC")
     List<Prediccion> findTopByPollaIdOrderByPuntosDesc(Integer pollaId);

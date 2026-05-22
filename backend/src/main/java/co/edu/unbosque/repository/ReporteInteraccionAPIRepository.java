@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface ReporteInteraccionAPIRepository extends JpaRepository<ReporteInteraccionAPI, Integer> {
-    List<ReporteInteraccionAPI> findByAliadoId(Integer aliadoId);
+    List<ReporteInteraccionAPI> findByAliadoIdUsuario(Integer aliadoId);
     List<ReporteInteraccionAPI> findByFechaCorte(LocalDate fechaCorte);
 }
