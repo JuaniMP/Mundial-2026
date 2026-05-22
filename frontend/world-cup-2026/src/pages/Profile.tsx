@@ -600,6 +600,9 @@ function AvatarPicker() {
     '/assets/avatars/avatar-1.png',
     '/assets/avatars/avatar-2.png',
     '/assets/avatars/avatar-3.png',
+    '/assets/avatar-1.png',
+    '/assets/avatar-2.png',
+    '/assets/avatar-3.png',
   ];
 
   // On mount or when opening, probe repository public assets and include them
