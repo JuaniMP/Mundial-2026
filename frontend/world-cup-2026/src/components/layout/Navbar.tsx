@@ -111,6 +111,11 @@ export function Navbar() {
                 {item.label}
               </NavLink>
             ))}
+            {(user?.rol === 'ADMIN' || user?.rol === 'SOPORTE') && (
+              <NavLink to="/soporte" className={({ isActive }) => navLinkStyle(isActive)}>
+                SOPORTE
+              </NavLink>
+            )}
           </div>
 
           {/* Spacer */}
@@ -384,6 +389,27 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
+          {(user?.rol === 'ADMIN' || user?.rol === 'SOPORTE') && (
+            <NavLink
+              to="/soporte"
+              onClick={() => setShowMobile(false)}
+              style={({ isActive }) => ({
+                display: 'block',
+                padding: '14px 24px',
+                fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                fontWeight: 700,
+                fontSize: 14,
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                color: isActive ? '#006847' : '#0D1B2A',
+                borderLeft: isActive ? '3px solid #006847' : '3px solid transparent',
+                background: isActive ? 'rgba(0,104,71,0.06)' : 'none',
+              })}
+            >
+              Soporte
+            </NavLink>
+          )}
           <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', marginTop: 8, paddingTop: 8 }}>
             {user && (
               <div style={{ padding: '10px 24px' }}>
