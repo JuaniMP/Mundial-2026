@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Pencil, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -12,7 +12,7 @@ const DEFAULT_PUBLIC_ASSETS = [
   '/assets/avatar-5.png',
 ];
 
-export default function AvatarPicker(): JSX.Element {
+export default function AvatarPicker() {
   const { user, updateUser } = useAuth();
   const [open, setOpen] = useState(false);
   const [publicAvatars, setPublicAvatars] = useState<string[]>(() => user?.avatarCustomUrls ?? []);
@@ -31,7 +31,7 @@ export default function AvatarPicker(): JSX.Element {
       const found: string[] = [];
       for (const url of DEFAULT_PUBLIC_ASSETS) {
         try {
-          // eslint-disable-next-line no-await-in-loop
+           
           if (await probe(url)) found.push(url);
         } catch {
           // ignore
@@ -39,9 +39,22 @@ export default function AvatarPicker(): JSX.Element {
       }
       if (!mounted) return;
       const merged = [...(user?.avatarCustomUrls ?? []), ...found.filter((f) => !(user?.avatarCustomUrls ?? []).includes(f))];
-      setPublicAvatars(merged.slice(0, 5));
-      if (merged.length && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0)) {
-        updateUser({ avatarCustomUrls: merged.slice(0, 3) });
+      // Prioritize specific images requested: avatar-1 and avatar-5, then fill up to 5
+      const prioritized: string[] = [];
+      const ensurePush = (u?: string) => {
+        if (!u) return;
+        if (merged.includes(u) && !prioritized.includes(u)) prioritized.push(u);
+      };
+      ensurePush('/assets/avatar-1.png');
+      ensurePush('/assets/avatar-5.png');
+      for (const u of merged) {
+        if (prioritized.length >= 5) break;
+        if (!prioritized.includes(u)) prioritized.push(u);
+      }
+      setPublicAvatars(prioritized);
+      if (prioritized.length && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0)) {
+        // set the first prioritized image as the default selected avatar
+        updateUser({ avatarCustomUrls: [prioritized[0]] });
       }
     })();
     return () => {
