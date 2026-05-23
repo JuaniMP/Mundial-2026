@@ -29,10 +29,10 @@ public class FcmService {
     /**
      * Send a push notification to a single FCM device token.
      */
-    public void sendToToken(String token, String title, String body) {
+    public boolean sendToToken(String token, String title, String body) {
         if (!isReady() || token == null || token.isBlank()) {
             log.debug("FCM not ready or no token — skip sendToToken");
-            return;
+            return false;
         }
         try {
             Message msg = Message.builder()
@@ -46,8 +46,10 @@ public class FcmService {
                     .build();
             String response = FirebaseMessaging.getInstance().send(msg);
             log.info("📱 FCM sent to token → {}", response);
+            return true;
         } catch (FirebaseMessagingException e) {
             log.error("❌ FCM sendToToken failed: {}", e.getMessage());
+            return false;
         }
     }
 

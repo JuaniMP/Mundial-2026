@@ -115,8 +115,8 @@ public class BackofficeDTOs {
     public static class ComunicadoMasivoRequest {
         private String titulo;
         private String mensaje;
-        private String segmento;        // "TODOS" | "CIUDAD" | "PARTIDO" | "ROL"
-        private String segmentoValor;   // valor del segmento (ej: "Monterrey", id partido, "AFICIONADO")
+        private String segmento;        // "TODOS" | "CIUDAD" | "PARTIDO" | "ESTADIO" | "ROL"
+        private String segmentoValor;   // valor del segmento (ej: "Monterrey", id partido, "SoFi Stadium")
         private List<String> canales;   // ["APP", "EMAIL", "PUSH"]
     }
 
