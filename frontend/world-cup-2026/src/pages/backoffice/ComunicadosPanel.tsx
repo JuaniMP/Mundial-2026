@@ -11,8 +11,11 @@ import { Input, Select } from './shared/FormFields';
 export function ComunicadosPanel() {
   const [titulo, setTitulo] = useState('');
   const [mensaje, setMensaje] = useState('');
-  const [segmento, setSegmento] = useState<'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ROL'>('TODOS');
+  const [segmento, setSegmento] = useState<'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL'>(
+    'TODOS',
+  );
   const [segmentoValor, setSegmentoValor] = useState('');
+  const [canales, setCanales] = useState<Array<'APP' | 'PUSH'>>(['APP', 'PUSH']);
   const [progreso, setProgreso] = useState<ComunicadoProgreso | null>(null);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +43,10 @@ export function ComunicadosPanel() {
       setError('Especifica el valor del segmento.');
       return;
     }
+    if (canales.length === 0) {
+      setError('Selecciona al menos un canal (APP o PUSH).');
+      return;
+    }
     setWorking(true);
     try {
       const p = await enviarComunicado({
@@ -47,7 +54,7 @@ export function ComunicadosPanel() {
         mensaje,
         segmento,
         segmentoValor: segmento === 'TODOS' ? undefined : segmentoValor,
-        canales: ['APP'],
+        canales,
       });
       setProgreso(p);
     } catch (e) {
@@ -103,11 +110,14 @@ export function ComunicadosPanel() {
           <Select
             label="Segmento"
             value={segmento}
-            onChange={(v) => setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ROL')}
+            onChange={(v) =>
+              setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL')
+            }
             options={[
               { v: 'TODOS', label: 'Todos los usuarios' },
               { v: 'CIUDAD', label: 'Por ciudad' },
-              { v: 'PARTIDO', label: 'Asistentes a partido' },
+              { v: 'PARTIDO', label: 'Por partido (ID API)' },
+              { v: 'ESTADIO', label: 'Por estadio (venue)' },
               { v: 'ROL', label: 'Por rol' },
             ]}
           />
@@ -118,12 +128,53 @@ export function ComunicadosPanel() {
                   ? 'Ciudad'
                   : segmento === 'PARTIDO'
                     ? 'ID partido (api)'
+                    : segmento === 'ESTADIO'
+                      ? 'Nombre del estadio (venue exacto)'
                     : 'Rol (AFICIONADO, OPERADOR, …)'
               }
               value={segmentoValor}
               onChange={setSegmentoValor}
             />
           )}
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
+            Canales
+          </label>
+          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13 }}>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type="checkbox"
+                checked={canales.includes('APP')}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCanales((prev) => (prev.includes('APP') ? prev : [...prev, 'APP']));
+                  } else {
+                    setCanales((prev) => prev.filter((c) => c !== 'APP'));
+                  }
+                }}
+              />
+              APP (centro de notificaciones interno)
+            </label>
+            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <input
+                type="checkbox"
+                checked={canales.includes('PUSH')}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCanales((prev) => (prev.includes('PUSH') ? prev : [...prev, 'PUSH']));
+                  } else {
+                    setCanales((prev) => prev.filter((c) => c !== 'PUSH'));
+                  }
+                }}
+              />
+              PUSH (Firebase FCM)
+            </label>
+          </div>
+          <p style={{ margin: '6px 0 0', fontSize: 12, color: '#6b7280' }}>
+            PUSH requiere que el usuario tenga token FCM registrado y permisos activos en el navegador.
+          </p>
         </div>
 
         {error && (

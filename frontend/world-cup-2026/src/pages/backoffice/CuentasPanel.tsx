@@ -30,7 +30,22 @@ export function CuentasPanel() {
   };
 
   useEffect(() => {
-    buscar('');
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await buscarUsuarios('');
+        if (!cancelled) setUsuarios(data);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message ?? 'Error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const handleBloquear = async () => {

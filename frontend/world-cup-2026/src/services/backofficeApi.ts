@@ -77,9 +77,9 @@ export interface ResultadoManualResponse {
 export interface ComunicadoRequest {
   titulo: string;
   mensaje: string;
-  segmento: 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ROL';
+  segmento: 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL';
   segmentoValor?: string;
-  canales?: string[];
+  canales?: Array<'APP' | 'PUSH' | 'EMAIL'>;
 }
 
 export interface ComunicadoProgreso {

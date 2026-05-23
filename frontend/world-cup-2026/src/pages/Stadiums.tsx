@@ -91,10 +91,13 @@ export function Stadiums() {
   // Si venimos con navigation state (p. ej. desde Matches) seleccionar el estadio indicado
   const location = useLocation();
   useEffect(() => {
-    const state = (location.state as any) ?? {};
+    const state = (location.state as { stadiumId?: number } | null) ?? {};
     if (state?.stadiumId && stadiums.length > 0) {
       const found = stadiums.find((s) => s.id === state.stadiumId);
-      if (found) setSelected(found);
+      if (found) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setSelected(found);
+      }
     }
   }, [location, stadiums]);
 
