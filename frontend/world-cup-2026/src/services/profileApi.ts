@@ -14,6 +14,7 @@ export interface Preferencias {
   canalesNotificacion: string[];
   zonaHorariaPreferida?: string | null;
   wizardCompletado: boolean;
+  idioma?: 'es' | 'en';
 }
 
 export interface AgendaItem {
@@ -88,7 +89,9 @@ export async function getViajes(): Promise<RecordatorioViaje[]> {
   return unwrapList<RecordatorioViaje>(data);
 }
 
-export async function addViaje(v: Omit<RecordatorioViaje, 'id' | 'enCurso' | 'alerta' | 'offsetHoras'>): Promise<RecordatorioViaje> {
+export async function addViaje(
+  v: Omit<RecordatorioViaje, 'id' | 'enCurso' | 'alerta' | 'offsetHoras'>,
+): Promise<RecordatorioViaje> {
   const { data } = await axios.post(`${BASE}/viajes`, v, { headers: authHeaders() });
   return unwrap<RecordatorioViaje>(data);
 }

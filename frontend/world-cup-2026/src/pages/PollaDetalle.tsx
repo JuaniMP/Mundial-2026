@@ -91,10 +91,9 @@ export function PollaDetalle() {
       setDrafts(initial);
     } catch (e) {
       console.error('Error cargando polla:', e);
-      const msg =
-        axios.isAxiosError(e)
-          ? (e.response?.data?.message as string) || `${e.response?.status ?? ''} ${e.message}`
-          : 'No se pudo cargar la polla.';
+      const msg = axios.isAxiosError(e)
+        ? (e.response?.data?.message as string) || `${e.response?.status ?? ''} ${e.message}`
+        : 'No se pudo cargar la polla.';
       setError(msg);
     } finally {
       setLoading(false);
@@ -137,8 +136,8 @@ export function PollaDetalle() {
     setDrafts((d) => ({
       ...d,
       [matchId]: {
-        home: field === 'home' ? value : d[matchId]?.home ?? 0,
-        away: field === 'away' ? value : d[matchId]?.away ?? 0,
+        home: field === 'home' ? value : (d[matchId]?.home ?? 0),
+        away: field === 'away' ? value : (d[matchId]?.away ?? 0),
       },
     }));
   };
@@ -188,7 +187,13 @@ export function PollaDetalle() {
         <div className="card-base p-12 text-center mt-8">
           <AlertCircle className="w-10 h-10 mx-auto text-text-muted/50" />
           <p className="text-text-secondary mt-3">No se encontró la polla.</p>
-          <Button className="mt-4" variant="outline" icon={ArrowLeft} iconPosition="left" onClick={() => navigate('/pollas')}>
+          <Button
+            className="mt-4"
+            variant="outline"
+            icon={ArrowLeft}
+            iconPosition="left"
+            onClick={() => navigate('/pollas')}
+          >
             Volver a Pollas
           </Button>
         </div>
@@ -265,11 +270,17 @@ export function PollaDetalle() {
       {/* Mis stats */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 animate-fade-in-up delay-150">
         <div className="card-base p-5">
-          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Mis puntos</p>
-          <p className="font-headline font-extrabold text-3xl text-text-primary mt-1">{misPuntos}</p>
+          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">
+            Mis puntos
+          </p>
+          <p className="font-headline font-extrabold text-3xl text-text-primary mt-1">
+            {misPuntos}
+          </p>
         </div>
         <div className="card-base p-5">
-          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Mi posición</p>
+          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">
+            Mi posición
+          </p>
           <p className="font-headline font-extrabold text-3xl text-text-primary mt-1">
             {miPosicion ? `#${miPosicion}` : '—'}
             {miPosicion && (
@@ -278,7 +289,9 @@ export function PollaDetalle() {
           </p>
         </div>
         <div className="card-base p-5">
-          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">Mis predicciones</p>
+          <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">
+            Mis predicciones
+          </p>
           <p className="font-headline font-extrabold text-3xl text-text-primary mt-1">
             {misPredicciones.length}
           </p>
@@ -335,10 +348,10 @@ export function PollaDetalle() {
                     r.premio === 'ORO'
                       ? 'bg-yellow-100 text-yellow-700'
                       : r.premio === 'PLATA'
-                      ? 'bg-gray-200 text-gray-700'
-                      : r.premio === 'BRONCE'
-                      ? 'bg-amber-100 text-amber-700'
-                      : 'bg-bg-hover text-text-secondary'
+                        ? 'bg-gray-200 text-gray-700'
+                        : r.premio === 'BRONCE'
+                          ? 'bg-amber-100 text-amber-700'
+                          : 'bg-bg-hover text-text-secondary'
                   }`}
                 >
                   {r.premio ? <Medal className="w-5 h-5" /> : `#${r.posicion}`}
@@ -358,7 +371,9 @@ export function PollaDetalle() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-headline font-extrabold text-xl text-text-primary">{r.puntos}</p>
+                  <p className="font-headline font-extrabold text-xl text-text-primary">
+                    {r.puntos}
+                  </p>
                   <p className="text-[10px] uppercase tracking-widest text-text-muted">puntos</p>
                 </div>
               </div>
@@ -381,13 +396,18 @@ export function PollaDetalle() {
               const { date, time } = formatMatchDate(m.utcDate);
               const justSaved = savedFlash === m.id;
               return (
-                <div key={m.id} className="card-base p-5 flex flex-col md:flex-row md:items-center gap-4">
+                <div
+                  key={m.id}
+                  className="card-base p-5 flex flex-col md:flex-row md:items-center gap-4"
+                >
                   <div className="md:w-44 flex-shrink-0">
                     <p className="text-[10px] uppercase tracking-widest text-text-muted font-bold">
                       {date}
                     </p>
                     <p className="text-sm font-bold text-text-primary">{time}</p>
-                    {m.venue && <p className="text-xs text-text-muted mt-0.5 truncate">{m.venue}</p>}
+                    {m.venue && (
+                      <p className="text-xs text-text-muted mt-0.5 truncate">{m.venue}</p>
+                    )}
                   </div>
 
                   <div className="flex-1 flex items-center justify-center gap-3">
@@ -423,7 +443,13 @@ export function PollaDetalle() {
                         onClick={() => guardar(m)}
                         disabled={saving === m.id}
                       >
-                        {saving === m.id ? 'Guardando…' : justSaved ? 'Guardada' : yaPredijo ? 'Actualizar' : 'Guardar'}
+                        {saving === m.id
+                          ? 'Guardando…'
+                          : justSaved
+                            ? 'Guardada'
+                            : yaPredijo
+                              ? 'Actualizar'
+                              : 'Guardar'}
                       </Button>
                     )}
                     {yaPredijo && yaPredijo.puntosObtenidos > 0 && (
@@ -474,7 +500,9 @@ function TeamSide({
   side: 'home' | 'away';
 }) {
   return (
-    <div className={`flex items-center gap-2 min-w-0 ${side === 'home' ? '' : 'flex-row-reverse text-right'}`}>
+    <div
+      className={`flex items-center gap-2 min-w-0 ${side === 'home' ? '' : 'flex-row-reverse text-right'}`}
+    >
       {crest ? (
         <img src={crest} alt={name} className="w-8 h-8 object-contain flex-shrink-0" />
       ) : (

@@ -37,6 +37,7 @@ public class PerfilService {
                     .canalesNotificacion(List.of("APP"))
                     .zonaHorariaPreferida(null)
                     .wizardCompletado(false)
+                    .idioma("es")
                     .build();
         }
         return PreferenciasResponse.builder()
@@ -45,6 +46,7 @@ public class PerfilService {
                 .canalesNotificacion(splitCsv(p.getCanalesNotificacion()))
                 .zonaHorariaPreferida(p.getZonaHorariaPreferida())
                 .wizardCompletado(Boolean.TRUE.equals(p.getWizardCompletado()))
+                .idioma(p.getIdioma() == null ? "es" : p.getIdioma())
                 .build();
     }
 
@@ -70,6 +72,8 @@ public class PerfilService {
             p.setZonaHorariaPreferida(req.getZonaHorariaPreferida());
         if (req.getWizardCompletado() != null)
             p.setWizardCompletado(req.getWizardCompletado());
+        if (req.getIdioma() != null && (req.getIdioma().equals("es") || req.getIdioma().equals("en")))
+            p.setIdioma(req.getIdioma());
 
         // También guardamos selección favorita única en Usuario (la primera) si hay
         if (req.getSeleccionesFavoritas() != null && !req.getSeleccionesFavoritas().isEmpty()) {

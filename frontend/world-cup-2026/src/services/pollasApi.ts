@@ -85,7 +85,9 @@ export async function getRanking(id: number): Promise<RankingEntry[]> {
 }
 
 export async function getMisPredicciones(pollaId: number): Promise<Prediccion[]> {
-  const { data } = await axios.get(`${BASE}/${pollaId}/mis-predicciones`, { headers: authHeaders() });
+  const { data } = await axios.get(`${BASE}/${pollaId}/mis-predicciones`, {
+    headers: authHeaders(),
+  });
   return (data?.data as Prediccion[]) ?? [];
 }
 

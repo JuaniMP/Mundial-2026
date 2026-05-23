@@ -18,4 +18,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     boolean existsByEmail(String email);
     List<Usuario> findByRolId(Integer rolId);
+
+    @Query("SELECT u FROM Usuario u WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :q, '%')) OR LOWER(u.email) LIKE LOWER(CONCAT('%', :q, '%'))")
+    List<Usuario> searchByNombreOrEmail(String q);
+
+    List<Usuario> findByCiudadIgnoreCase(String ciudad);
 }

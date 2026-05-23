@@ -3,6 +3,8 @@ import { Search, LogOut, ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { hasRole } from '../../utils/roles';
+import { getAvatarUrl } from '../../utils/avatar';
 
 const navLinkStyle = (isActive: boolean): string =>
   `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 ${
@@ -46,6 +48,7 @@ export function Navbar() {
   ];
 
   const displayName = t('nav.myHub');
+  const pillLabel = user?.name ? user.name.split(' ')[0] : displayName;
 
   return (
     <>
@@ -107,11 +110,6 @@ export function Navbar() {
                 {item.label}
               </NavLink>
             ))}
-            {(user?.rol === 'ADMIN' || user?.rol === 'SOPORTE') && (
-              <NavLink to="/soporte" className={({ isActive }) => navLinkStyle(isActive)}>
-                SOPORTE
-              </NavLink>
-            )}
           </div>
 
           {/* Spacer */}
@@ -163,7 +161,7 @@ export function Navbar() {
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 9999,
-                padding: '8px 20px',
+                padding: '6px 14px',
                 fontFamily: "'Space Grotesk', system-ui, sans-serif",
                 fontWeight: 700,
                 fontSize: 12,
@@ -171,7 +169,7 @@ export function Navbar() {
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 6,
+                gap: 8,
                 transition: 'background 0.15s',
               }}
               onMouseEnter={(e) =>
@@ -181,8 +179,22 @@ export function Navbar() {
                 ((e.currentTarget as HTMLButtonElement).style.background = '#002868')
               }
             >
-              {displayName}
-              <ChevronDown size={13} />
+              {user ? (
+                <>
+                  <img
+                    src={getAvatarUrl(user)}
+                    alt={user.name ?? 'avatar'}
+                    style={{ width: 24, height: 24, borderRadius: 9999, objectFit: 'cover' }}
+                  />
+                  <span style={{ display: 'inline-block', minWidth: 0 }}>{pillLabel}</span>
+                  <ChevronDown size={13} />
+                </>
+              ) : (
+                <>
+                  {pillLabel}
+                  <ChevronDown size={13} />
+                </>
+              )}
             </button>
 
             {showHubMenu && (
@@ -217,23 +229,26 @@ export function Navbar() {
                     >
                       {t('common.signedInAs')}
                     </p>
-                    <p
-                      style={{
-                        fontSize: 13,
-                        color: '#0D1B2A',
-                        fontWeight: 600,
-                        fontFamily: 'Inter, sans-serif',
-                        margin: '2px 0 0',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {user.email}
-                    </p>
+                        <p
+                          style={{
+                            fontSize: 13,
+                            color: '#0D1B2A',
+                            fontWeight: 600,
+                            fontFamily: 'Inter, sans-serif',
+                            margin: '2px 0 0',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {user.name ?? user.email}
+                        </p>
                   </div>
                 )}
                 {[
+                  ...(hasRole(user?.rol, ['ADMIN'])
+                    ? [{ to: '/backoffice', label: '🏢 Backoffice' }]
+                    : []),
                   { to: '/profile', label: `👤 ${t('nav.profile')}` },
                   { to: '/pollas', label: `🎯 ${t('nav.pollas')}` },
                   { to: '/album', label: `📔 ${t('nav.collection')}` },
@@ -382,9 +397,9 @@ export function Navbar() {
               {item.label}
             </NavLink>
           ))}
-          {(user?.rol === 'ADMIN' || user?.rol === 'SOPORTE') && (
+          {hasRole(user?.rol, ['ADMIN']) && (
             <NavLink
-              to="/soporte"
+              to="/backoffice"
               onClick={() => setShowMobile(false)}
               style={({ isActive }) => ({
                 display: 'block',
@@ -400,7 +415,7 @@ export function Navbar() {
                 background: isActive ? 'rgba(0,104,71,0.06)' : 'none',
               })}
             >
-              Soporte
+              Backoffice
             </NavLink>
           )}
           <div style={{ borderTop: '1px solid rgba(0,0,0,0.08)', marginTop: 8, paddingTop: 8 }}>
