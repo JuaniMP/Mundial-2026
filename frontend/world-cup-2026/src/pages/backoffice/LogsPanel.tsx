@@ -22,7 +22,22 @@ export function LogsPanel() {
   };
 
   useEffect(() => {
-    ejecutar();
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await buscarLogs(filtro);
+        if (!cancelled) setLogs(data);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message ?? 'Error');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

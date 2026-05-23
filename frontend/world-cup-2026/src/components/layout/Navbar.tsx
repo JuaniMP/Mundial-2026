@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Search, LogOut, ChevronDown, Menu, X } from 'lucide-react';
+import { LogOut, ChevronDown, Menu, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,7 @@ import { hasRole } from '../../utils/roles';
 import { getAvatarUrl } from '../../utils/avatar';
 
 const navLinkStyle = (isActive: boolean): string =>
-  `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 ${
+  `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 uppercase ${
     isActive
       ? 'text-[#006847] border-[#006847]'
       : 'text-[#374151] border-transparent hover:text-[#0D1B2A] hover:border-[#0D1B2A]'
@@ -26,9 +26,13 @@ export function Navbar() {
     navigate('/login');
   };
 
+  const isLoggedIn = Boolean(user);
+  const pillLabel = user?.name ? user.name.split(' ')[0] : 'INICIAR SESIÓN';
+
   const LEFT_NAV = [
     { to: '/pollas', label: t('nav.fanZone') },
     { to: '/matches', label: t('nav.matches') },
+    { to: '/album', label: t('nav.collection') },
   ];
   const RIGHT_NAV = [
     { to: '/tickets', label: t('nav.tickets') },
@@ -38,17 +42,20 @@ export function Navbar() {
   const MOBILE_NAV = [
     { to: '/', label: t('nav.home'), exact: true },
     { to: '/matches', label: t('nav.matches'), exact: false },
+    { to: '/album', label: t('nav.collection'), exact: false },
     { to: '/standings', label: t('nav.standings'), exact: false },
     { to: '/tickets', label: t('nav.tickets'), exact: false },
     { to: '/teams', label: t('nav.teams'), exact: false },
-    { to: '/album', label: t('nav.album'), exact: false },
     { to: '/pollas', label: t('nav.pollas'), exact: false },
-    { to: '/superpolla', label: t('nav.predictor'), exact: false },
-    { to: '/profile', label: t('nav.profile'), exact: false },
+    ...(isLoggedIn
+      ? [
+          { to: '/superpolla', label: t('nav.predictor'), exact: false },
+          { to: '/profile', label: t('nav.profile'), exact: false },
+        ]
+      : []),
   ];
 
-  const displayName = t('nav.myHub');
-  const pillLabel = user?.name ? user.name.split(' ')[0] : displayName;
+  
 
   return (
     <>
@@ -77,39 +84,23 @@ export function Navbar() {
             gap: 8,
           }}
         >
-          {/* Search icon */}
-          <button
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '8px',
-              color: '#374151',
-              display: 'flex',
-              alignItems: 'center',
-              borderRadius: 6,
-              transition: 'background 0.15s',
-            }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLButtonElement).style.background = '#f0f2f5')
-            }
-            onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.background = 'none')}
-            aria-label="Search"
-          >
-            <Search size={18} />
-          </button>
-
           {/* Left nav links */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginLeft: 8 }}>
-            {LEFT_NAV.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) => navLinkStyle(isActive)}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginLeft: 12 }}>
+              {LEFT_NAV.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={({ isActive }) => navLinkStyle(isActive)}
+                  onClick={(e) => {
+                    if (item.to === '/album' && !isLoggedIn) {
+                      e.preventDefault();
+                      navigate('/login');
+                    }
+                  }}
+                >
+                  {item.label}
+                </NavLink>
+              ))}
           </div>
 
           {/* Spacer */}
@@ -155,7 +146,13 @@ export function Navbar() {
           {/* MY HUB pill button */}
           <div style={{ position: 'relative' }}>
             <button
-              onClick={() => setShowHubMenu((v) => !v)}
+              onClick={() => {
+                if (!isLoggedIn) {
+                  navigate('/login');
+                  return;
+                }
+                setShowHubMenu((v) => !v);
+              }}
               style={{
                 background: '#002868',
                 color: '#ffffff',
@@ -179,11 +176,11 @@ export function Navbar() {
                 ((e.currentTarget as HTMLButtonElement).style.background = '#002868')
               }
             >
-              {user ? (
+              {isLoggedIn ? (
                 <>
                   <img
-                    src={getAvatarUrl(user)}
-                    alt={user.name ?? 'avatar'}
+                    src={getAvatarUrl(user ?? undefined)}
+                    alt={user?.name ?? 'avatar'}
                     style={{ width: 24, height: 24, borderRadius: 9999, objectFit: 'cover' }}
                   />
                   <span style={{ display: 'inline-block', minWidth: 0 }}>{pillLabel}</span>
@@ -192,7 +189,6 @@ export function Navbar() {
               ) : (
                 <>
                   {pillLabel}
-                  <ChevronDown size={13} />
                 </>
               )}
             </button>
@@ -251,7 +247,6 @@ export function Navbar() {
                     : []),
                   { to: '/profile', label: `👤 ${t('nav.profile')}` },
                   { to: '/pollas', label: `🎯 ${t('nav.pollas')}` },
-                  { to: '/album', label: `📔 ${t('nav.collection')}` },
                 ].map((item) => (
                   <NavLink
                     key={item.to}
@@ -311,6 +306,38 @@ export function Navbar() {
         </div>
       </nav>
 
+      {!isLoggedIn && (
+        <div
+          className="hidden md:flex"
+          style={{
+            position: 'fixed',
+            top: 64,
+            left: 0,
+            right: 0,
+            zIndex: 45,
+            background: 'rgba(0, 40, 104, 0.93)',
+            color: '#ffffff',
+            borderBottom: '1px solid rgba(255,255,255,0.18)',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1280,
+              width: '100%',
+              padding: '8px 24px',
+              fontFamily: "'Space Grotesk', system-ui, sans-serif",
+              fontSize: 12,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              textAlign: 'center',
+            }}
+          >
+            Modo vista previa · Inicia sesión para desbloquear todo el contenido
+          </div>
+        </div>
+      )}
+
       {/* ══════ Mobile Navbar ══════ */}
       <nav
         style={{
@@ -358,6 +385,30 @@ export function Navbar() {
         </button>
       </nav>
 
+      {!isLoggedIn && (
+        <div
+          className="md:hidden"
+          style={{
+            position: 'fixed',
+            top: 56,
+            left: 0,
+            right: 0,
+            zIndex: 45,
+            background: 'rgba(0, 40, 104, 0.93)',
+            color: '#ffffff',
+            borderBottom: '1px solid rgba(255,255,255,0.18)',
+            padding: '6px 12px',
+            fontFamily: "'Space Grotesk', system-ui, sans-serif",
+            fontSize: 11,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+            textAlign: 'center',
+          }}
+        >
+          Modo vista previa · Inicia sesión
+        </div>
+      )}
+
       {/* Mobile Menu Overlay */}
       {showMobile && (
         <div
@@ -379,7 +430,15 @@ export function Navbar() {
               key={item.to}
               to={item.to}
               end={item.exact}
-              onClick={() => setShowMobile(false)}
+              onClick={(e) => {
+                if (item.to === '/album' && !isLoggedIn) {
+                  e.preventDefault();
+                  setShowMobile(false);
+                  navigate('/login');
+                  return;
+                }
+                setShowMobile(false);
+              }}
               style={({ isActive }) => ({
                 display: 'block',
                 padding: '14px 24px',
@@ -433,29 +492,57 @@ export function Navbar() {
                 </p>
               </div>
             )}
-            <button
-              onClick={handleLogout}
-              style={{
-                width: '100%',
-                padding: '14px 24px',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                fontFamily: "'Space Grotesk', system-ui, sans-serif",
-                fontWeight: 700,
-                fontSize: 14,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: '#C8102E',
-                textAlign: 'left',
-              }}
-            >
-              <LogOut size={16} />
-              {t('common.signOut')}
-            </button>
+            {isLoggedIn ? (
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: '100%',
+                  padding: '14px 24px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: '#C8102E',
+                  textAlign: 'left',
+                }}
+              >
+                <LogOut size={16} />
+                {t('common.signOut')}
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  setShowMobile(false);
+                  navigate('/login');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '14px 24px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 10,
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  fontWeight: 700,
+                  fontSize: 14,
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  color: '#002868',
+                  textAlign: 'left',
+                }}
+              >
+                {pillLabel}
+              </button>
+            )}
           </div>
         </div>
       )}

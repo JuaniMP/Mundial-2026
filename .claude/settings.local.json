@@ -197,7 +197,8 @@
       "Bash(findstr \":8082 \\\\|:5174 \")",
       "Bash(start \"Backend-SpringBoot\" cmd /k \"mvnw.cmd spring-boot:run 2>&1\")",
       "Bash(ls \"C:\\\\Users\\\\juame\\\\Mundial-2026\\\\backend/target/\"/*.jar 2>/dev/null | head -5)",
-      "Bash(curl -s http://localhost:8082/api/v1/health)"
+      "Bash(curl -s http://localhost:8082/api/v1/health)",
+      "Bash(git rev-list *)"
     ]
   }
 }

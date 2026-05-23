@@ -341,26 +341,54 @@ function HeroSection() {
           {t('dashboard.heroTitle3')}
         </h1>
 
-        {/* Celebravoxia pill */}
-        <button
+        {/* Celebravoxia: thumbnail link to official song */}
+        <a
+          href="https://youtu.be/fcnDmrtj6Sk?si=TBrddS6S26mHZGKv"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir canción oficial del Mundial"
           style={{
+            display: 'inline-block',
             marginTop: 20,
-            background: '#ffffff',
-            color: '#0D1B2A',
-            border: 'none',
             borderRadius: 9999,
-            padding: '8px 22px',
-            fontFamily: 'Inter, system-ui, sans-serif',
-            fontWeight: 600,
-            fontSize: 12,
-            letterSpacing: '0.04em',
-            cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.18)',
+            overflow: 'hidden',
+            textDecoration: 'none',
+            boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
             pointerEvents: 'auto',
           }}
         >
-          Celebravoxia
-        </button>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 220,
+              height: 48,
+              backgroundImage: 'url(https://img.youtube.com/vi/fcnDmrtj6Sk/hqdefault.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              color: '#ffffff',
+              fontWeight: 700,
+              fontFamily: 'Inter, system-ui, sans-serif',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 10,
+                background: 'rgba(0,0,0,0.4)',
+                padding: '8px 16px',
+                borderRadius: 9999,
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 3v18l15-9L5 3z" fill="#fff" />
+              </svg>
+              <span style={{ fontSize: 12, letterSpacing: '0.04em' }}>Video musical del Mundial</span>
+            </div>
+          </div>
+        </a>
 
         {/* Carousel dots */}
         <div
@@ -2134,7 +2162,49 @@ export function Dashboard() {
 
           {/* Right Column (Fan Hub) */}
           <div style={{ flex: '1 1 30%', minWidth: '320px' }}>
-            <FanHubSection />
+            {token ? (
+              <FanHubSection />
+            ) : (
+              <section
+                style={{
+                  borderRadius: 16,
+                  padding: 24,
+                  background: 'rgba(255,255,255,0.78)',
+                  border: '1px solid rgba(13,27,42,0.12)',
+                  backdropFilter: 'blur(8px)',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
+                }}
+              >
+                <h3
+                  style={{
+                    margin: 0,
+                    color: '#0D1B2A',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: 28,
+                  }}
+                >
+                  FAN HUB BLOQUEADO
+                </h3>
+                <p style={{ marginTop: 12, marginBottom: 16, color: '#374151', lineHeight: 1.6 }}>
+                  Inicia sesión para ver tu álbum, tus pollas, el predictor y tu ranking.
+                </p>
+                <Link
+                  to="/login"
+                  style={{
+                    display: 'inline-block',
+                    textDecoration: 'none',
+                    background: '#002868',
+                    color: '#fff',
+                    padding: '10px 18px',
+                    borderRadius: 999,
+                    fontWeight: 700,
+                    letterSpacing: '0.03em',
+                  }}
+                >
+                  INICIAR SESIÓN
+                </Link>
+              </section>
+            )}
           </div>
         </div>
       </div>

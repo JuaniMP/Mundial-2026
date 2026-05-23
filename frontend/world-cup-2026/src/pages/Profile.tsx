@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { createPortal } from 'react-dom';
 import AvatarPicker from '../components/AvatarPicker';
 import {
   Settings,
@@ -21,13 +20,12 @@ import {
   Newspaper,
   ArrowRight,
   Check,
-  Pencil,
-  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../context/useLanguage';
 import { Button, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
+import { useFcm } from '../hooks/useFcm';
 import {
   getPreferencias,
   savePreferencias,
@@ -43,7 +41,7 @@ import {
   type RecordatorioViaje,
   type FeedItem,
 } from '../services/profileApi';
-import { buildAvatarSeed, getAvatarUrl, parseAvatarSeed, DEFAULT_AVATAR_SEEDS } from '../utils/avatar';
+// Avatar utilities are used in the dedicated AvatarPicker component
 
 // ── Datos auxiliares para el wizard ───────────────────────────────────────────
 import { TEAMS } from '../data/teams';
@@ -90,7 +88,8 @@ const ZONAS = [
 type Tab = 'preferencias' | 'agenda' | 'feed' | 'viajes';
 
 export function Profile() {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
+  const { permission, registered, isConfigured, requestAndRegister, disable } = useFcm(token);
   const [tab, setTab] = useState<Tab>('preferencias');
   const [error, setError] = useState<string | null>(null);
 
@@ -243,6 +242,11 @@ export function Profile() {
       {!loading && tab === 'preferencias' && (
         <PreferenciasPanel
           prefs={prefs}
+          permission={permission}
+          registered={registered}
+          isConfigured={isConfigured}
+          requestAndRegister={requestAndRegister}
+          disablePush={disable}
           wizardStep={wizardStep}
           setWizardStep={setWizardStep}
           draftSelecciones={draftSelecciones}
@@ -284,6 +288,11 @@ export function Profile() {
 
 function PreferenciasPanel(props: {
   prefs: Preferencias | null;
+  permission: NotificationPermission | 'unsupported';
+  registered: boolean;
+  isConfigured: boolean;
+  requestAndRegister: () => Promise<boolean>;
+  disablePush: () => Promise<void>;
   wizardStep: number;
   setWizardStep: (n: number) => void;
   draftSelecciones: string[];
@@ -300,6 +309,11 @@ function PreferenciasPanel(props: {
 }) {
   const {
     prefs,
+    permission,
+    registered,
+    isConfigured,
+    requestAndRegister,
+    disablePush,
     wizardStep,
     setWizardStep,
     draftSelecciones,
@@ -393,6 +407,50 @@ function PreferenciasPanel(props: {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="mt-3 rounded-lg border border-border bg-bg-elevated p-4">
+              <p className="text-sm font-semibold text-text-primary">Push en este navegador</p>
+              {!isConfigured && (
+                <p className="mt-1 text-xs text-secondary-dim">
+                  Firebase web no está configurado en el frontend. Revisa `VITE_FIREBASE_*`.
+                </p>
+              )}
+              {isConfigured && permission === 'unsupported' && (
+                <p className="mt-1 text-xs text-secondary-dim">
+                  Este navegador no soporta notificaciones push web.
+                </p>
+              )}
+              {isConfigured && permission !== 'unsupported' && (
+                <p className="mt-1 text-xs text-text-secondary">
+                  Estado: {permission === 'granted' ? 'Permitidas' : permission === 'denied' ? 'Bloqueadas' : 'Sin configurar'}
+                  {registered ? ' · Token registrado' : ' · Sin token registrado'}
+                </p>
+              )}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <Button
+                  variant="primary"
+                  icon={Bell}
+                  iconPosition="left"
+                  onClick={async () => {
+                    await requestAndRegister();
+                  }}
+                  disabled={!isConfigured || permission === 'unsupported'}
+                >
+                  Activar push en este navegador
+                </Button>
+                <Button
+                  variant="outline"
+                  icon={Trash2}
+                  iconPosition="left"
+                  onClick={async () => {
+                    await disablePush();
+                  }}
+                  disabled={!registered}
+                >
+                  Desactivar push aquí
+                </Button>
+              </div>
             </div>
           </div>
         )}

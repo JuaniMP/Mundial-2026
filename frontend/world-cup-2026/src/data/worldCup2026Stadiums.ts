@@ -250,7 +250,7 @@ export const WORLD_CUP_2026_STADIUMS: EstadioApi[] = [
 // Normalización y búsqueda robusta de estadios por nombre/alias
 export function findStadiumByName(name?: string): EstadioApi | undefined {
   if (!name) return undefined;
-  const norm = (s: string) => s.toLowerCase().replace(/[.,'’"\/\-]+/g, '').trim();
+  const norm = (s: string) => s.toLowerCase().replace(new RegExp("[.,'’\"/\\-]+", 'g'), '').trim();
   const q = norm(name);
 
   // Alias map para variantes informales a id del estadio
