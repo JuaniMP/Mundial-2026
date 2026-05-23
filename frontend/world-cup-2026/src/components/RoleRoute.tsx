@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { hasRole } from '../utils/roles';
 
 interface RoleRouteProps {
   children: React.ReactNode;
@@ -9,7 +10,7 @@ interface RoleRouteProps {
 export const RoleRoute = ({ children, allowedRoles }: RoleRouteProps) => {
   const { user } = useAuth();
 
-  if (!user?.rol || !allowedRoles.includes(user.rol)) {
+  if (!hasRole(user?.rol, allowedRoles)) {
     return <Navigate to="/" replace />;
   }
 

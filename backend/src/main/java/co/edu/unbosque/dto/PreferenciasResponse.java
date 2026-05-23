@@ -14,4 +14,5 @@ public class PreferenciasResponse {
     private List<String> canalesNotificacion;
     private String zonaHorariaPreferida;
     private boolean wizardCompletado;
+    private String idioma;
 }

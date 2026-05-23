@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { createPortal } from 'react-dom';
+import AvatarPicker from '../components/AvatarPicker';
 import {
   Settings,
   Bell,
@@ -592,312 +593,9 @@ function PrefCard({
 }
 
 // ── AvatarPicker ────────────────────────────────────────────────────────────
-function AvatarPicker() {
-  const [open, setOpen] = useState(false);
-  const { user, updateUser } = useAuth();
-  const [customs, setCustoms] = useState<string[]>(() => user?.avatarCustomUrls ?? []);
-  const DEFAULT_ASSET_URLS = [
-    '/assets/avatars/avatar-1.png',
-    '/assets/avatars/avatar-2.png',
-    '/assets/avatars/avatar-3.png',
-    '/assets/avatar-1.png',
-    '/assets/avatar-2.png',
-    '/assets/avatar-3.png',
-  ];
+// AvatarPicker moved to components/AvatarPicker.tsx
 
-  // On mount or when opening, probe repository public assets and include them.
-  // Use Image() to verify the resource actually loads (avoids HEAD issues and false positives).
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const found: string[] = [];
-        const probe = (url: string) =>
-          new Promise<boolean>((resolve) => {
-            const img = new Image();
-            img.onload = () => resolve(true);
-            img.onerror = () => resolve(false);
-            img.src = url;
-          });
-
-        for (const url of DEFAULT_ASSET_URLS) {
-          try {
-            // eslint-disable-next-line no-await-in-loop
-            const ok = await probe(url);
-            if (ok) found.push(url);
-          } catch {
-            // ignore
-          }
-        }
-        if (!mounted) return;
-        const userCustoms = user?.avatarCustomUrls ?? [];
-        const merged = [...userCustoms, ...found.filter((f) => !userCustoms.includes(f))].slice(0, 3);
-        console.debug('AvatarPicker: found public avatars', { found, userCustoms, merged });
-        setCustoms(merged);
-        if (merged.length && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0)) {
-          console.debug('AvatarPicker: persisting merged avatarCustomUrls', merged);
-          updateUser({ avatarCustomUrls: merged });
-        }
-      } catch {
-        // noop
-      }
-    })();
-    return () => {
-      mounted = false;
-    };
-  }, [user?.avatarCustomUrls, updateUser]);
-
-  const options = DEFAULT_AVATAR_SEEDS;
-
-  const parsed = parseAvatarSeed(user?.avatarSeed);
-  const current = buildAvatarSeed(parsed.style, parsed.seed);
-
-  const modalContent = (
-    <div className="fixed inset-0 z-[80] bg-black/55 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl rounded-2xl bg-bg-card border border-border shadow-2xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-border flex items-center justify-between">
-          <div>
-            <h3 className="font-headline font-bold text-lg text-text-primary">Elige tu avatar</h3>
-            <p className="text-sm text-text-muted">Mascotas del mundial y fans con camiseta.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            className="w-8 h-8 rounded-lg hover:bg-bg-elevated flex items-center justify-center text-text-secondary"
-            title="Cerrar"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="p-3 text-xs text-text-muted">Detectados: {customs.length} avatar(s) — {customs.join(', ') || 'ninguno'}</div>
-        <div className="p-5 overflow-auto max-h-[56vh]">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {/* If customs found, show ONLY them (user requested to keep only the 3 images) */}
-          {customs && customs.length > 0 ? (
-            <>
-              {customs.map((url, idx) => {
-                const key = `custom-only-${idx}`;
-                const selected = user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
-                const chooseCustom = () => {
-                  console.debug('AvatarPicker: choose custom', url);
-                  updateUser({ avatarCustomUrls: [url] });
-                  setOpen(false);
-                };
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={chooseCustom}
-                    className={`relative rounded-xl p-3 border transition-all text-left ${
-                      selected
-                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
-                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
-                    }`}
-                  >
-                    <img
-                      src={url}
-                      alt={`Avatar ${idx + 1}`}
-                      className="w-14 h-14 rounded-full object-cover mb-2"
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        el.onerror = null;
-                        el.src = getAvatarUrl(user ?? undefined);
-                      }}
-                    />
-                    <p className="text-xs font-semibold text-text-primary leading-tight">Avatar {idx + 1}</p>
-                    {selected && (
-                      <span className="absolute top-2 right-2 text-primary">
-                        <Check className="w-4 h-4" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              {/* Add two extra seed options to make 5 choices total */}
-              {options.slice(0, 2).map((opt) => {
-                const key = buildAvatarSeed(opt.style, opt.seed);
-                const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
-                const selectedSeed = parsed && buildAvatarSeed(parsed.style, parsed.seed) === key && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
-                const chooseSeed = () => {
-                  console.debug('AvatarPicker: choose seed', key);
-                  updateUser({ avatarSeed: key });
-                  updateUser({ avatarCustomUrls: [] });
-                  setOpen(false);
-                };
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={chooseSeed}
-                    className={`relative rounded-xl p-3 border transition-all text-left ${
-                      selectedSeed
-                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
-                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
-                    }`}
-                  >
-                    <img
-                      src={url}
-                      alt={opt.label}
-                      className="w-14 h-14 rounded-full object-cover mb-2"
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        el.onerror = null;
-                        el.src = getAvatarUrl(user ?? undefined);
-                      }}
-                    />
-                    <p className="text-xs font-semibold text-text-primary leading-tight">{opt.label}</p>
-                    {selectedSeed && (
-                      <span className="absolute top-2 right-2 text-primary">
-                        <Check className="w-4 h-4" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </>
-          ) : (
-            // Fallback: show seeds + upload options when no customs
-            <>
-              {options.map((opt) => {
-                const key = buildAvatarSeed(opt.style, opt.seed);
-                const selected = key === current && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
-                const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => {
-                      updateUser({ avatarSeed: key });
-                      // clear custom selection when choosing a seed
-                      updateUser({ avatarCustomUrls: [] });
-                      setOpen(false);
-                    }}
-                    className={`relative rounded-xl p-3 border transition-all text-left ${
-                      selected
-                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
-                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
-                    }`}
-                  >
-                    <img
-                      src={url}
-                      alt={opt.label}
-                      className="w-14 h-14 rounded-full object-cover mb-2"
-                      onError={(e) => {
-                        const el = e.currentTarget as HTMLImageElement;
-                        el.onerror = null;
-                        el.src = getAvatarUrl(user ?? undefined);
-                      }}
-                    />
-                    <p className="text-xs font-semibold text-text-primary leading-tight">{opt.label}</p>
-                    {selected && (
-                      <span className="absolute top-2 right-2 text-primary">
-                        <Check className="w-4 h-4" />
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-
-              {Array.from({ length: 3 }).map((_, idx) => {
-                const url = customs[idx];
-                const key = `custom-${idx}`;
-                const selected = !!url && user?.avatarCustomUrls && user.avatarCustomUrls[0] === url;
-                return (
-                  <div
-                    key={key}
-                    className={`relative rounded-xl p-3 border transition-all text-left ${
-                      selected
-                        ? 'border-primary bg-primary-subtle ring-1 ring-primary/40'
-                        : 'border-border hover:border-primary/50 hover:bg-bg-elevated'
-                    }`}
-                  >
-                    {url ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          updateUser({ avatarCustomUrls: [url] });
-                          setOpen(false);
-                        }}
-                        className="flex flex-col items-start text-left"
-                      >
-                        <img
-                          src={url}
-                          alt={`Personal ${idx + 1}`}
-                          className="w-14 h-14 rounded-full object-cover mb-2"
-                          onError={(e) => {
-                            const el = e.currentTarget as HTMLImageElement;
-                            el.onerror = null;
-                            el.src = getAvatarUrl(user ?? undefined);
-                          }}
-                        />
-                        <p className="text-xs font-semibold text-text-primary leading-tight">Personal {idx + 1}</p>
-                        {selected && (
-                          <span className="absolute top-2 right-2 text-primary">
-                            <Check className="w-4 h-4" />
-                          </span>
-                        )}
-                      </button>
-                    ) : (
-                      <label className="flex flex-col items-start cursor-pointer">
-                        <div className="w-14 h-14 rounded-full bg-bg-elevated mb-2 flex items-center justify-center text-text-muted">+</div>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = () => {
-                              const dataUrl = String(reader.result ?? '');
-                              const next = [...customs];
-                              next[idx] = dataUrl;
-                              setCustoms(next);
-                              // persist all customs into user
-                              updateUser({ avatarCustomUrls: next.filter(Boolean) });
-                            };
-                            reader.readAsDataURL(file);
-                          }}
-                        />
-                        <p className="text-xs font-semibold text-text-primary leading-tight">Subir imagen</p>
-                      </label>
-                    )}
-                  </div>
-                );
-              })}
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      <div className="relative shrink-0">
-        <img
-          alt={user?.name ?? 'avatar'}
-          className="w-16 h-16 rounded-full object-cover border-2 border-white/20 shadow-lg"
-          src={getAvatarUrl(user ?? undefined)}
-        />
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          title="Editar avatar"
-          className="absolute -bottom-1 -right-1 w-7 h-7 rounded-full bg-white text-[#0D1B2A] border border-white/60 flex items-center justify-center shadow-md hover:bg-gray-100"
-        >
-          <Pencil className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {open && createPortal(modalContent, document.body)}
-    </>
-  );
-}
-
-// ─── Agenda ──────────────────────────────────────────────────────────────────
+// --- Agenda ---------------------------------------------------------------
 
 function AgendaPanel({
   agenda,
@@ -909,12 +607,19 @@ function AgendaPanel({
   setError: (s: string | null) => void;
 }) {
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    titulo: string;
+    descripcion: string;
+    fechaInicio: string;
+    tipo: AgendaItem['tipo'];
+    prioridad: AgendaItem['prioridad'];
+    ubicacion: string;
+  }>({
     titulo: '',
     descripcion: '',
     fechaInicio: '',
-    tipo: 'CUSTOM' as AgendaItem['tipo'],
-    prioridad: 'MEDIA' as AgendaItem['prioridad'],
+    tipo: 'CUSTOM',
+    prioridad: 'MEDIA',
     ubicacion: '',
   });
   const [busy, setBusy] = useState(false);

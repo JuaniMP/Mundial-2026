@@ -15,4 +15,6 @@ public class PreferenciasRequest {
     private List<String> canalesNotificacion;
     private String zonaHorariaPreferida;
     private Boolean wizardCompletado;
+    /** "es" o "en" */
+    private String idioma;
 }

@@ -246,3 +246,42 @@ export const WORLD_CUP_2026_STADIUMS: EstadioApi[] = [
     equipoLocal: 'Rayados de Monterrey',
   },
 ];
+
+// Normalización y búsqueda robusta de estadios por nombre/alias
+export function findStadiumByName(name?: string): EstadioApi | undefined {
+  if (!name) return undefined;
+  const norm = (s: string) => s.toLowerCase().replace(/[.,'’"\/\-]+/g, '').trim();
+  const q = norm(name);
+
+  // Alias map para variantes informales a id del estadio
+  const aliases: Record<string, number> = {
+    'los angeles stadium': 6, // mapear a SoFi Stadium
+    'sofi stadium': 6,
+    'san francisco bay area stadium': 10, // Levi's Stadium (Santa Clara)
+    'toronto stadium': 12, // BMO Field
+    'bc place vancouver': 13,
+    'mexico city stadium': 14, // Estadio Azteca
+    'mexico city': 14,
+    'dallas stadium': 1, // AT&T Stadium
+    'houston stadium': 4, // NRG
+    'new york new jersey stadium': 8, // MetLife
+  };
+
+  // 1) coincidencia exacta con nombre normalizado
+  const exact = WORLD_CUP_2026_STADIUMS.find((s) => norm(s.nombre) === q);
+  if (exact) return exact;
+
+  // 2) includes en nombre o ciudad
+  const includes = WORLD_CUP_2026_STADIUMS.find((s) => norm(s.nombre).includes(q) || norm(s.ciudad).includes(q));
+  if (includes) return includes;
+
+  // 3) alias map
+  const aliasedId = aliases[q];
+  if (aliasedId) return WORLD_CUP_2026_STADIUMS.find((s) => s.id === aliasedId);
+
+  // 4) buscar si la query contiene la ciudad o parte del nombre
+  const partial = WORLD_CUP_2026_STADIUMS.find((s) => q.includes(norm(s.ciudad)) || q.includes(norm(s.nombre)));
+  if (partial) return partial;
+
+  return undefined;
+}
