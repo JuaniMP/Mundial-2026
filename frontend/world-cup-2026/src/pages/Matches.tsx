@@ -15,6 +15,7 @@ import { ROUND_OF_32_MOCK } from '../data/mockData';
 import { WORLD_CUP_2026_STADIUMS, findStadiumByName } from '../data/worldCup2026Stadiums';
 import { useNavigate } from 'react-router-dom';
 
+
 const STAGES = [
   { key: 'ALL', label: 'Todos' },
   { key: 'GROUP_STAGE', label: 'Fase Grupos' },
@@ -29,6 +30,7 @@ export function Matches() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeStage, setActiveStage] = useState('ALL');
+  
 
   const load = async () => {
     setLoading(true);
@@ -55,7 +57,7 @@ export function Matches() {
   let usingFallback = false;
   if (activeStage === 'ROUND_OF_32' && filtered.length === 0) {
     // Console log para debugging
-    // eslint-disable-next-line no-console
+     
     console.info('Fallback activo: mostrando partidos provisionales ROUND_OF_32');
     displayedMatches = ROUND_OF_32_MOCK as unknown as FdMatch[];
     usingFallback = true;
@@ -68,7 +70,7 @@ export function Matches() {
     return acc;
   }, {});
 
-  const navigate = useNavigate();
+  // navigation not used here
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-xl mx-auto w-full pb-28 md:pb-12">
@@ -170,6 +172,7 @@ export function Matches() {
 }
 
 function MatchRow({ match }: { match: FdMatch }) {
+  const navigate = useNavigate();
   const { time } = formatMatchDate(match.utcDate);
   const { label: statusLabel, color: statusColor } = statusBadge(match.status);
   const isFinished = match.status === 'FINISHED';

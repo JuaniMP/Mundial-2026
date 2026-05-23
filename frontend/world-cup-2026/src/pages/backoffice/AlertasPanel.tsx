@@ -21,8 +21,22 @@ export function AlertasPanel() {
   };
 
   useEffect(() => {
-    cargar(soloAbiertas);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    let cancelled = false;
+    (async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const data = await listarAlertas(soloAbiertas);
+        if (!cancelled) setAlertas(data);
+      } catch (e) {
+        if (!cancelled) setError((e as Error).message ?? 'Error cargando alertas');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [soloAbiertas]);
 
   const handleRevisar = async (a: Alerta) => {

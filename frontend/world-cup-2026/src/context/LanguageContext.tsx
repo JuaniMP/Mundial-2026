@@ -1,32 +1,14 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext';
 import { getPreferencias, savePreferencias } from '../services/profileApi';
+import { readInitialLang, STORAGE_KEY, type AppLang } from './languageUtils';
+import { LanguageContext } from './languageContextObject';
 
-export type AppLang = 'es' | 'en';
+// LanguageContext and its value type live in languageContextObject.ts
 
-interface LanguageContextValue {
-  lang: AppLang;
-  setLang: (l: AppLang) => Promise<void>;
-  toggle: () => Promise<void>;
-  syncing: boolean;
-}
-
-const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
-
-const STORAGE_KEY = 'wc2026_lang';
-
-function readInitialLang(): AppLang {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'es' || stored === 'en') return stored;
-  } catch {
-    // ignore
-  }
-  const nav = (typeof navigator !== 'undefined' ? navigator.language : 'es') || 'es';
-  return nav.toLowerCase().startsWith('en') ? 'en' : 'es';
-}
+// helpers moved to languageUtils.ts
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const { i18n } = useTranslation();
@@ -49,6 +31,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSyncing(true);
     getPreferencias()
       .then((p) => {
@@ -96,8 +79,4 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useLanguage(): LanguageContextValue {
-  const ctx = useContext(LanguageContext);
-  if (!ctx) throw new Error('useLanguage must be used within LanguageProvider');
-  return ctx;
-}
+// `useLanguage` moved to `src/context/useLanguage.ts`

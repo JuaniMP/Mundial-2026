@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useLanguage } from '../context/LanguageContext';
+import { useLanguage } from '../context/useLanguage';
 
 interface GNewsArticle {
   title: string;
@@ -50,9 +50,15 @@ export function NewsSection() {
   const [articles, setArticles] = useState<GNewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(id);
+  }, []);
 
   function formatRelative(iso: string): string {
-    const diff = Date.now() - new Date(iso).getTime();
+    const diff = now - new Date(iso).getTime();
     const minutes = Math.floor(diff / 60000);
     if (minutes < 1) return t('news.relative.now');
     if (minutes < 60) return t('news.relative.minutes', { n: minutes });
@@ -64,20 +70,28 @@ export function NewsSection() {
   }
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
+    // defer to next microtask to avoid triggering cascading renders synchronously
+    Promise.resolve().then(() => {
+      setLoading(true);
+      setError(null);
+    });
 
     const cached = loadCache(lang);
     if (cached && cached.length > 0) {
-      setArticles(cached);
-      setLoading(false);
+      // defer to avoid synchronous setState in effect
+      Promise.resolve().then(() => {
+        setArticles(cached);
+        setLoading(false);
+      });
       return;
     }
 
     const apiKey = import.meta.env.VITE_GNEWS_API_KEY as string | undefined;
     if (!apiKey) {
-      setError(t('news.missingKey'));
-      setLoading(false);
+      Promise.resolve().then(() => {
+        setError(t('news.missingKey'));
+        setLoading(false);
+      });
       return;
     }
 

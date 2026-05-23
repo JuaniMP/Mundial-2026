@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { createPortal } from 'react-dom';
 import AvatarPicker from '../components/AvatarPicker';
 import {
   Settings,
@@ -21,13 +20,11 @@ import {
   Newspaper,
   ArrowRight,
   Check,
-  Pencil,
-  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../context/useLanguage';
 import { Button, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { useLanguage } from '../context/LanguageContext';
 import {
   getPreferencias,
   savePreferencias,
@@ -43,7 +40,7 @@ import {
   type RecordatorioViaje,
   type FeedItem,
 } from '../services/profileApi';
-import { buildAvatarSeed, getAvatarUrl, parseAvatarSeed, DEFAULT_AVATAR_SEEDS } from '../utils/avatar';
+// Avatar utilities are used in the dedicated AvatarPicker component
 
 // ── Datos auxiliares para el wizard ───────────────────────────────────────────
 import { TEAMS } from '../data/teams';
