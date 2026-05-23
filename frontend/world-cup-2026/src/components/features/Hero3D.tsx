@@ -1,6 +1,7 @@
 import { Suspense, useRef, useState, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useTexture, Environment, ContactShadows, OrbitControls } from '@react-three/drei';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -161,6 +162,7 @@ function MascotSprite({ spritePath, mouse }: MascotSpriteProps) {
 
 // ─── Hero 3D (exported) ───────────────────────────────────────────────────────
 export function Hero3D() {
+  const { t } = useTranslation();
   const [active, setActive] = useState<MascotId>('alce');
   const mouse = useRef({ x: 0, y: 0 });
 
@@ -249,18 +251,32 @@ export function Hero3D() {
         style={{
           display: 'flex',
           gap: 10,
+          flexDirection: 'column',
           justifyContent: 'center',
           paddingBottom: 14,
           paddingTop: 6,
           flexShrink: 0,
+          alignItems: 'center',
         }}
       >
+        <div
+          style={{
+            fontFamily: 'Anton, sans-serif',
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            color: 'rgba(246,239,226,.55)',
+            textTransform: 'uppercase',
+          }}
+        >
+          {t('hero3d.selectMascot')}
+        </div>
         {MASCOTS.map((m) => {
           const on = active === m.id;
           return (
             <button
               key={m.id}
               onClick={() => setActive(m.id)}
+              aria-label={t('hero3d.selectMascotAria', { mascot: m.label, country: m.country })}
               style={{
                 background: on ? m.color : 'transparent',
                 color: on ? '#fff' : 'rgba(246,239,226,.7)',
@@ -296,7 +312,11 @@ export function Hero3D() {
           whiteSpace: 'nowrap',
         }}
       >
-        ⬢ {activeMascot.label.toLowerCase()} · {activeMascot.country}
+        ⬢{' '}
+        {t('hero3d.activeMascot', {
+          mascot: activeMascot.label.toLowerCase(),
+          country: activeMascot.country,
+        })}
       </div>
     </div>
   );

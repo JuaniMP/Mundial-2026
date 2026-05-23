@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -86,6 +87,16 @@ export function Stadiums() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
+
+  // Si venimos con navigation state (p. ej. desde Matches) seleccionar el estadio indicado
+  const location = useLocation();
+  useEffect(() => {
+    const state = (location.state as any) ?? {};
+    if (state?.stadiumId && stadiums.length > 0) {
+      const found = stadiums.find((s) => s.id === state.stadiumId);
+      if (found) setSelected(found);
+    }
+  }, [location, stadiums]);
 
   const filtered = stadiums.filter(
     (s) =>
