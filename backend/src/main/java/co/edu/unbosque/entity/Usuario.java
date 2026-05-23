@@ -47,6 +47,19 @@ public class Usuario {
     @Column(name = "fcm_token", length = 255)
     private String fcmToken;
 
+    @Column(name = "ciudad", length = 100)
+    private String ciudad;
+
+    @Column(name = "bloqueado")
+    @Builder.Default
+    private Boolean bloqueado = false;
+
+    @Column(name = "razon_bloqueo", length = 500)
+    private String razonBloqueo;
+
+    @Column(name = "fecha_bloqueo")
+    private LocalDateTime fechaBloqueo;
+
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Album> albumes;
 

@@ -224,13 +224,18 @@ export function groupLabel(group: string | null): string {
 export function stageLabel(stage: string): string {
   const labels: Record<string, string> = {
     GROUP_STAGE: 'Fase de Grupos',
-    ROUND_OF_16: 'Octavos de Final',
+    ROUND_OF_32: 'Ronda de 32',
+    ROUND_OF_16: 'Ronda de 32',
     QUARTER_FINALS: 'Cuartos de Final',
     SEMI_FINALS: 'Semifinales',
     THIRD_PLACE: 'Tercer Lugar',
     FINAL: 'Final',
   };
   return labels[stage] ?? stage;
+}
+
+export function normalizeStage(stage: string): string {
+  return stage === 'ROUND_OF_16' ? 'ROUND_OF_32' : stage;
 }
 
 export type BadgeVariant = 'primary' | 'accent' | 'danger' | 'secondary';

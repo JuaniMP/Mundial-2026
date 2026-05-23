@@ -23,6 +23,7 @@ import { Pollas } from './pages/Pollas';
 import { PollaDetalle } from './pages/PollaDetalle';
 import { Profile } from './pages/Profile';
 import { Backoffice } from './pages/backoffice';
+import { Soporte } from './pages/Soporte';
 
 function App() {
   return (
@@ -44,6 +45,21 @@ function App() {
                     <Routes>
                       <Route path="/" element={<Backoffice />} />
                       <Route path="*" element={<Navigate to="/backoffice" replace />} />
+                    </Routes>
+                  </RoleRoute>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Support Dashboard - Separate Layout (No Navbar) */}
+            <Route
+              path="/soporte/*"
+              element={
+                <PrivateRoute>
+                  <RoleRoute allowedRoles={['ADMIN', 'SOPORTE']}>
+                    <Routes>
+                      <Route path="/" element={<Soporte />} />
+                      <Route path="*" element={<Navigate to="/soporte" replace />} />
                     </Routes>
                   </RoleRoute>
                 </PrivateRoute>

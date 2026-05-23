@@ -13,12 +13,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { Button, PageHeader, StatCard } from '../components/ui';
-import {
-  getMisPollas,
-  crearPolla,
-  unirseAPolla,
-  type PollaResumen,
-} from '../services/pollasApi';
+import { getMisPollas, crearPolla, unirseAPolla, type PollaResumen } from '../services/pollasApi';
 
 export function Pollas() {
   const navigate = useNavigate();
@@ -95,9 +90,7 @@ export function Pollas() {
   };
 
   const totalPuntos = pollas.reduce((s, p) => s + (p.misPuntos ?? 0), 0);
-  const mejorPosicion = pollas.length
-    ? Math.min(...pollas.map((p) => p.miPosicion ?? 99))
-    : 0;
+  const mejorPosicion = pollas.length ? Math.min(...pollas.map((p) => p.miPosicion ?? 99)) : 0;
   const totalAmigos = pollas.reduce((s, p) => s + Math.max(0, (p.totalParticipantes ?? 1) - 1), 0);
 
   return (
@@ -123,9 +116,9 @@ export function Pollas() {
               Juega la quiniela del Mundial con tu gente
             </h2>
             <p className="mt-2 text-white/70 max-w-xl">
-              Crea una polla, comparte el código de invitación y predice los marcadores.
-              Acierta el ganador para 5 puntos y el marcador exacto para 10. Al final
-              repartimos premios: 🥇 Oro, 🥈 Plata, 🥉 Bronce.
+              Crea una polla, comparte el código de invitación y predice los marcadores. Acierta el
+              ganador para 5 puntos y el marcador exacto para 10. Al final repartimos premios: 🥇
+              Oro, 🥈 Plata, 🥉 Bronce.
             </p>
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row gap-3 mt-6">
@@ -159,18 +152,16 @@ export function Pollas() {
             value={pollas.length}
             icon={Trophy}
             iconColor="text-primary"
-            subtitle={pollas.length === 0 ? 'Crea o únete a una' : `${totalAmigos} compitiendo contigo`}
+            subtitle={
+              pollas.length === 0 ? 'Crea o únete a una' : `${totalAmigos} compitiendo contigo`
+            }
           />
           <StatCard
             label="Puntos totales"
             value={totalPuntos}
             icon={Crown}
             iconColor="text-secondary"
-            subtitle={
-              mejorPosicion === 0
-                ? '—'
-                : `Mejor puesto: #${mejorPosicion}`
-            }
+            subtitle={mejorPosicion === 0 ? '—' : `Mejor puesto: #${mejorPosicion}`}
           />
         </div>
       </section>
@@ -225,7 +216,11 @@ export function Pollas() {
             <Button variant="ghost" onClick={() => setShowJoin(false)} disabled={busy}>
               Cancelar
             </Button>
-            <Button variant="primary" onClick={handleUnirse} disabled={busy || !codigoUnirse.trim()}>
+            <Button
+              variant="primary"
+              onClick={handleUnirse}
+              disabled={busy || !codigoUnirse.trim()}
+            >
               {busy ? 'Uniendo…' : 'Unirme'}
             </Button>
           </div>
@@ -254,14 +249,24 @@ export function Pollas() {
               Aún no estás en ninguna polla
             </h3>
             <p className="text-text-secondary max-w-md">
-              Crea una con un grupo de amigos o usa un código de invitación para
-              unirte a una existente.
+              Crea una con un grupo de amigos o usa un código de invitación para unirte a una
+              existente.
             </p>
             <div className="flex gap-2 mt-2">
-              <Button variant="primary" icon={Plus} iconPosition="left" onClick={() => setShowCreate(true)}>
+              <Button
+                variant="primary"
+                icon={Plus}
+                iconPosition="left"
+                onClick={() => setShowCreate(true)}
+              >
                 Crear mi primera polla
               </Button>
-              <Button variant="outline" icon={LogIn} iconPosition="left" onClick={() => setShowJoin(true)}>
+              <Button
+                variant="outline"
+                icon={LogIn}
+                iconPosition="left"
+                onClick={() => setShowJoin(true)}
+              >
                 Tengo un código
               </Button>
             </div>
@@ -286,21 +291,27 @@ export function Pollas() {
                   <h3 className="font-headline font-extrabold text-xl text-text-primary mt-1 leading-tight">
                     {p.nombre}
                   </h3>
-                  <p className="text-xs text-text-muted mt-1">
-                    creada por {p.nombreCreador}
-                  </p>
+                  <p className="text-xs text-text-muted mt-1">creada por {p.nombreCreador}</p>
                 </div>
 
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
-                    <p className="text-[10px] uppercase tracking-widest text-text-muted">Mis puntos</p>
-                    <p className="font-headline font-bold text-2xl text-text-primary">{p.misPuntos}</p>
+                    <p className="text-[10px] uppercase tracking-widest text-text-muted">
+                      Mis puntos
+                    </p>
+                    <p className="font-headline font-bold text-2xl text-text-primary">
+                      {p.misPuntos}
+                    </p>
                   </div>
                   <div className="flex-1">
-                    <p className="text-[10px] uppercase tracking-widest text-text-muted">Posición</p>
+                    <p className="text-[10px] uppercase tracking-widest text-text-muted">
+                      Posición
+                    </p>
                     <p className="font-headline font-bold text-2xl text-text-primary">
                       #{p.miPosicion}
-                      <span className="text-sm text-text-muted font-normal">/{p.totalParticipantes}</span>
+                      <span className="text-sm text-text-muted font-normal">
+                        /{p.totalParticipantes}
+                      </span>
                     </p>
                   </div>
                 </div>
@@ -311,7 +322,8 @@ export function Pollas() {
                 >
                   <div className="flex items-center gap-2 text-xs text-text-muted">
                     <Users className="w-3.5 h-3.5" />
-                    {p.totalParticipantes} {p.totalParticipantes === 1 ? 'participante' : 'participantes'}
+                    {p.totalParticipantes}{' '}
+                    {p.totalParticipantes === 1 ? 'participante' : 'participantes'}
                   </div>
                   <span
                     role="button"

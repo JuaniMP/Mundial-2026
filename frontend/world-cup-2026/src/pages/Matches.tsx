@@ -4,17 +4,21 @@ import {
   fetchAllMatches,
   formatMatchDate,
   groupLabel,
+  normalizeStage,
   stageLabel,
   statusBadge,
   type BadgeVariant,
 } from '../services/footballApi';
 import { Calendar, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { Badge } from '../components/ui/Badge';
+import { ROUND_OF_32_MOCK } from '../data/mockData';
+import { WORLD_CUP_2026_STADIUMS, findStadiumByName } from '../data/worldCup2026Stadiums';
+import { useNavigate } from 'react-router-dom';
 
 const STAGES = [
   { key: 'ALL', label: 'Todos' },
   { key: 'GROUP_STAGE', label: 'Fase Grupos' },
-  { key: 'ROUND_OF_16', label: 'Octavos' },
+  { key: 'ROUND_OF_32', label: 'Ronda de 32' },
   { key: 'QUARTER_FINALS', label: 'Cuartos' },
   { key: 'SEMI_FINALS', label: 'Semis' },
   { key: 'FINAL', label: 'Final' },
@@ -44,14 +48,27 @@ export function Matches() {
     load();
   }, []);
 
-  const filtered = activeStage === 'ALL' ? matches : matches.filter((m) => m.stage === activeStage);
+  const filtered = activeStage === 'ALL' ? matches : matches.filter((m) => normalizeStage(m.stage) === activeStage);
+
+  // Si no hay partidos para ROUND_OF_32, usar fallback mock y avisar
+  let displayedMatches: FdMatch[] = filtered;
+  let usingFallback = false;
+  if (activeStage === 'ROUND_OF_32' && filtered.length === 0) {
+    // Console log para debugging
+    // eslint-disable-next-line no-console
+    console.info('Fallback activo: mostrando partidos provisionales ROUND_OF_32');
+    displayedMatches = ROUND_OF_32_MOCK as unknown as FdMatch[];
+    usingFallback = true;
+  }
 
   // Agrupar por fecha para mostrar secciones
-  const byDate = filtered.reduce<Record<string, FdMatch[]>>((acc, m) => {
+  const byDate = displayedMatches.reduce<Record<string, FdMatch[]>>((acc, m) => {
     const { date } = formatMatchDate(m.utcDate);
     acc[date] = [...(acc[date] ?? []), m];
     return acc;
   }, {});
+
+  const navigate = useNavigate();
 
   return (
     <main className="pt-20 md:pt-24 px-4 md:px-8 max-w-screen-xl mx-auto w-full pb-28 md:pb-12">
@@ -132,6 +149,13 @@ export function Matches() {
               <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider">
                 {date}
               </h2>
+            {usingFallback && (
+              <div className="mb-4">
+                <div className="inline-block bg-yellow-50 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
+                  Mostrando partidos provisionales (fallback)
+                </div>
+              </div>
+            )}
               <div className="flex-1 h-px bg-border" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -220,11 +244,34 @@ function MatchRow({ match }: { match: FdMatch }) {
       </div>
 
       {/* Venue */}
+      {/* No mostrar estadio/ciudad para partidos de fase de grupos */}
       {match.venue && (
-        <div className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 text-text-muted">
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="text-xs truncate">{match.venue}</span>
-        </div>
+        (() => {
+          // Buscar el estadio en la lista oficial por nombre (coincidencia robusta)
+          const found = findStadiumByName(match.venue ?? undefined) ?? WORLD_CUP_2026_STADIUMS.find((s) => match.venue?.includes(s.nombre));
+          const venueLabel = found ? `${found.nombre} • ${found.ciudad}` : match.venue;
+
+          return (
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => {
+                if (found) navigate('/stadiums', { state: { stadiumId: found.id } });
+                else navigate('/stadiums');
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  if (found) navigate('/stadiums', { state: { stadiumId: found.id } });
+                  else navigate('/stadiums');
+                }
+              }}
+              className="mt-3 pt-3 border-t border-border flex items-center gap-1.5 text-text-muted cursor-pointer"
+            >
+              <MapPin className="w-3.5 h-3.5 shrink-0" />
+              <span className="text-xs truncate">{venueLabel}</span>
+            </div>
+          );
+        })()
       )}
     </div>
   );

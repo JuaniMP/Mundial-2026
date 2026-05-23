@@ -8,6 +8,8 @@ interface User {
   name: string;
   rol?: string;
   seleccionFavorita?: string;
+  avatarSeed?: string;
+  avatarCustomUrls?: string[];
 }
 
 interface AuthContextType {
@@ -24,6 +26,7 @@ interface AuthContextType {
   ) => Promise<string>;
   logout: () => void;
   clearError: () => void;
+  updateUser: (patch: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -59,7 +62,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           const status = err.response?.status;
           const localToken = sessionStorage.getItem('token');
           const tokenLooksBroken =
-            !localToken || localToken === 'null' || localToken === 'undefined' || !localToken.includes('.');
+            !localToken ||
+            localToken === 'null' ||
+            localToken === 'undefined' ||
+            !localToken.includes('.');
           // 401 = token expirado/inválido. 403 con token corrupto = JWT malformado.
           if (status === 401 || (status === 403 && tokenLooksBroken)) {
             setUser(null);
@@ -185,9 +191,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const clearError = () => setError(null);
 
+  const updateUser = (patch: Partial<User>) => {
+    setUser((prev) => {
+      const next = { ...(prev ?? {}), ...(patch ?? {}) } as User;
+      // Ensure avatarCustomUrls is always an array if provided as single string
+      if (patch.avatarCustomUrls && !Array.isArray(patch.avatarCustomUrls)) {
+        next.avatarCustomUrls = [String(patch.avatarCustomUrls)];
+      }
+      sessionStorage.setItem('user', JSON.stringify(next));
+      return next;
+    });
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, token, loading, error, login, register, logout, clearError }}
+      value={{ user, token, loading, error, login, register, logout, clearError, updateUser }}
     >
       {children}
     </AuthContext.Provider>

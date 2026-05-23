@@ -40,4 +40,9 @@ public class PerfilPreferencias {
 
     @Column(name = "zona_horaria_preferida", length = 50)
     private String zonaHorariaPreferida;
+
+    /** Código ISO 639-1 del idioma preferido: "es" o "en". */
+    @Column(name = "idioma", length = 5)
+    @Builder.Default
+    private String idioma = "es";
 }
