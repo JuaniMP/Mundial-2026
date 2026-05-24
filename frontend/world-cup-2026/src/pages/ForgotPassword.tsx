@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Button } from '../components/ui/Button';
-import { Mail, AlertCircle, CheckCircle, ArrowLeft, KeyRound, Lock, Eye, EyeOff } from 'lucide-react';
+import {
+  Mail,
+  AlertCircle,
+  CheckCircle,
+  ArrowLeft,
+  KeyRound,
+  Lock,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 
 const API_BASE_URL = 'http://localhost:8082/api/v1';
 
@@ -116,9 +125,13 @@ export const ForgotPassword = () => {
   };
 
   const passwordStrength = (() => {
-    const score = [newPassword.length >= 8, /[A-Z]/.test(newPassword), /[a-z]/.test(newPassword), /\d/.test(newPassword), /[^A-Za-z0-9]/.test(newPassword)]
-      .filter(Boolean)
-      .length;
+    const score = [
+      newPassword.length >= 8,
+      /[A-Z]/.test(newPassword),
+      /[a-z]/.test(newPassword),
+      /\d/.test(newPassword),
+      /[^A-Za-z0-9]/.test(newPassword),
+    ].filter(Boolean).length;
 
     if (!newPassword) return { label: 'Sin escribir', className: 'bg-border', width: '0%' };
     if (score <= 2) return { label: 'Débil', className: 'bg-red-500', width: '33%' };
@@ -253,7 +266,11 @@ export const ForgotPassword = () => {
                         className="absolute right-3 top-3 text-text-muted hover:text-text-primary transition-colors"
                         aria-label={showNewPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                       >
-                        {showNewPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showNewPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
                       </button>
                     </div>
                     <div className="mt-3">
@@ -264,7 +281,10 @@ export const ForgotPassword = () => {
                         />
                       </div>
                       <p className="mt-2 text-xs text-text-muted">
-                        Fortaleza: <span className="text-text-primary font-semibold">{passwordStrength.label}</span>
+                        Fortaleza:{' '}
+                        <span className="text-text-primary font-semibold">
+                          {passwordStrength.label}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -295,9 +315,15 @@ export const ForgotPassword = () => {
                         type="button"
                         onClick={() => setShowConfirmPassword((value) => !value)}
                         className="absolute right-3 top-3 text-text-muted hover:text-text-primary transition-colors"
-                        aria-label={showConfirmPassword ? 'Ocultar confirmación' : 'Mostrar confirmación'}
+                        aria-label={
+                          showConfirmPassword ? 'Ocultar confirmación' : 'Mostrar confirmación'
+                        }
                       >
-                        {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showConfirmPassword ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
                       </button>
                     </div>
                   </div>

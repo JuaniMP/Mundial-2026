@@ -31,14 +31,16 @@ export default function AvatarPicker() {
       const found: string[] = [];
       for (const url of DEFAULT_PUBLIC_ASSETS) {
         try {
-           
           if (await probe(url)) found.push(url);
         } catch {
           // ignore
         }
       }
       if (!mounted) return;
-      const merged = [...(user?.avatarCustomUrls ?? []), ...found.filter((f) => !(user?.avatarCustomUrls ?? []).includes(f))];
+      const merged = [
+        ...(user?.avatarCustomUrls ?? []),
+        ...found.filter((f) => !(user?.avatarCustomUrls ?? []).includes(f)),
+      ];
       // Prioritize specific images requested: avatar-1 and avatar-5, then fill up to 5
       const prioritized: string[] = [];
       const ensurePush = (u?: string) => {
@@ -92,10 +94,16 @@ export default function AvatarPicker() {
         <div className="px-4 py-3 border-b border-border flex items-center justify-between">
           <div>
             <h3 className="font-headline font-bold text-lg text-text-primary">Elige tu avatar</h3>
-            <p className="text-sm text-text-muted">Selecciona una imagen o elige una de las opciones generadas.</p>
+            <p className="text-sm text-text-muted">
+              Selecciona una imagen o elige una de las opciones generadas.
+            </p>
           </div>
           <div className="flex items-center gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="p-2 rounded-md hover:bg-bg-elevated">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="p-2 rounded-md hover:bg-bg-elevated"
+            >
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -112,10 +120,16 @@ export default function AvatarPicker() {
                   type="button"
                   onClick={() => choosePublic(url)}
                   className={`relative rounded-xl p-2 border transition-all ${
-                    selected ? 'border-primary bg-primary-subtle' : 'border-border hover:border-primary/50'
+                    selected
+                      ? 'border-primary bg-primary-subtle'
+                      : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <img src={url} alt={`avatar-${idx + 1}`} className="w-full h-24 object-cover rounded-full mb-1" />
+                  <img
+                    src={url}
+                    alt={`avatar-${idx + 1}`}
+                    className="w-full h-24 object-cover rounded-full mb-1"
+                  />
                   {selected && (
                     <span className="absolute top-2 right-2 text-primary">
                       <Check className="w-4 h-4" />
@@ -131,17 +145,26 @@ export default function AvatarPicker() {
             {DEFAULT_AVATAR_SEEDS.slice(0, 2).map((opt) => {
               const key = buildAvatarSeed(opt.style, opt.seed);
               const url = `https://api.dicebear.com/7.x/${encodeURIComponent(opt.style)}/svg?seed=${encodeURIComponent(opt.seed)}`;
-              const selected = parsedSeed && buildAvatarSeed(parsedSeed.style, parsedSeed.seed) === key && (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
+              const selected =
+                parsedSeed &&
+                buildAvatarSeed(parsedSeed.style, parsedSeed.seed) === key &&
+                (!user?.avatarCustomUrls || user.avatarCustomUrls.length === 0);
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => chooseSeed(opt)}
                   className={`relative rounded-xl p-2 border transition-all ${
-                    selected ? 'border-primary bg-primary-subtle' : 'border-border hover:border-primary/50'
+                    selected
+                      ? 'border-primary bg-primary-subtle'
+                      : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  <img src={url} alt={opt.label} className="w-full h-24 object-cover rounded-full mb-1" />
+                  <img
+                    src={url}
+                    alt={opt.label}
+                    className="w-full h-24 object-cover rounded-full mb-1"
+                  />
                   {selected && (
                     <span className="absolute top-2 right-2 text-primary">
                       <Check className="w-4 h-4" />
@@ -159,7 +182,11 @@ export default function AvatarPicker() {
   return (
     <div className="relative shrink-0">
       <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white/20 shadow-lg">
-        <img src={getAvatarUrl(user ?? undefined)} alt={user?.name ?? 'avatar'} className="w-full h-full object-cover" />
+        <img
+          src={getAvatarUrl(user ?? undefined)}
+          alt={user?.name ?? 'avatar'}
+          className="w-full h-full object-cover"
+        />
       </div>
       <button
         type="button"

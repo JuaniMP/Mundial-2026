@@ -110,9 +110,7 @@ export function ComunicadosPanel() {
           <Select
             label="Segmento"
             value={segmento}
-            onChange={(v) =>
-              setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL')
-            }
+            onChange={(v) => setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL')}
             options={[
               { v: 'TODOS', label: 'Todos los usuarios' },
               { v: 'CIUDAD', label: 'Por ciudad' },
@@ -130,7 +128,7 @@ export function ComunicadosPanel() {
                     ? 'ID partido (api)'
                     : segmento === 'ESTADIO'
                       ? 'Nombre del estadio (venue exacto)'
-                    : 'Rol (AFICIONADO, OPERADOR, …)'
+                      : 'Rol (AFICIONADO, OPERADOR, …)'
               }
               value={segmentoValor}
               onChange={setSegmentoValor}
@@ -173,7 +171,8 @@ export function ComunicadosPanel() {
             </label>
           </div>
           <p style={{ margin: '6px 0 0', fontSize: 12, color: '#6b7280' }}>
-            PUSH requiere que el usuario tenga token FCM registrado y permisos activos en el navegador.
+            PUSH requiere que el usuario tenga token FCM registrado y permisos activos en el
+            navegador.
           </p>
         </div>
 

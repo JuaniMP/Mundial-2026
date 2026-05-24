@@ -55,8 +55,6 @@ export function Navbar() {
       : []),
   ];
 
-  
-
   return (
     <>
       {/* ══════ Desktop Navbar ══════ */}
@@ -86,21 +84,21 @@ export function Navbar() {
         >
           {/* Left nav links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginLeft: 12 }}>
-              {LEFT_NAV.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) => navLinkStyle(isActive)}
-                  onClick={(e) => {
-                    if (item.to === '/album' && !isLoggedIn) {
-                      e.preventDefault();
-                      navigate('/login');
-                    }
-                  }}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+            {LEFT_NAV.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => navLinkStyle(isActive)}
+                onClick={(e) => {
+                  if (item.to === '/album' && !isLoggedIn) {
+                    e.preventDefault();
+                    navigate('/login');
+                  }
+                }}
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </div>
 
           {/* Spacer */}
@@ -187,9 +185,7 @@ export function Navbar() {
                   <ChevronDown size={13} />
                 </>
               ) : (
-                <>
-                  {pillLabel}
-                </>
+                <>{pillLabel}</>
               )}
             </button>
 
@@ -225,20 +221,20 @@ export function Navbar() {
                     >
                       {t('common.signedInAs')}
                     </p>
-                        <p
-                          style={{
-                            fontSize: 13,
-                            color: '#0D1B2A',
-                            fontWeight: 600,
-                            fontFamily: 'Inter, sans-serif',
-                            margin: '2px 0 0',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {user.name ?? user.email}
-                        </p>
+                    <p
+                      style={{
+                        fontSize: 13,
+                        color: '#0D1B2A',
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
+                        margin: '2px 0 0',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {user.name ?? user.email}
+                    </p>
                   </div>
                 )}
                 {[

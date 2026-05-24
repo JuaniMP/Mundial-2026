@@ -15,7 +15,6 @@ import { ROUND_OF_32_MOCK } from '../data/mockData';
 import { WORLD_CUP_2026_STADIUMS, findStadiumByName } from '../data/worldCup2026Stadiums';
 import { useNavigate } from 'react-router-dom';
 
-
 const STAGES = [
   { key: 'ALL', label: 'Todos' },
   { key: 'GROUP_STAGE', label: 'Fase Grupos' },
@@ -30,7 +29,6 @@ export function Matches() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeStage, setActiveStage] = useState('ALL');
-  
 
   const load = async () => {
     setLoading(true);
@@ -50,14 +48,17 @@ export function Matches() {
     load();
   }, []);
 
-  const filtered = activeStage === 'ALL' ? matches : matches.filter((m) => normalizeStage(m.stage) === activeStage);
+  const filtered =
+    activeStage === 'ALL'
+      ? matches
+      : matches.filter((m) => normalizeStage(m.stage) === activeStage);
 
   // Si no hay partidos para ROUND_OF_32, usar fallback mock y avisar
   let displayedMatches: FdMatch[] = filtered;
   let usingFallback = false;
   if (activeStage === 'ROUND_OF_32' && filtered.length === 0) {
     // Console log para debugging
-     
+
     console.info('Fallback activo: mostrando partidos provisionales ROUND_OF_32');
     displayedMatches = ROUND_OF_32_MOCK as unknown as FdMatch[];
     usingFallback = true;
@@ -151,13 +152,13 @@ export function Matches() {
               <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider">
                 {date}
               </h2>
-            {usingFallback && (
-              <div className="mb-4">
-                <div className="inline-block bg-yellow-50 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
-                  Mostrando partidos provisionales (fallback)
+              {usingFallback && (
+                <div className="mb-4">
+                  <div className="inline-block bg-yellow-50 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
+                    Mostrando partidos provisionales (fallback)
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
               <div className="flex-1 h-px bg-border" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -248,10 +249,12 @@ function MatchRow({ match }: { match: FdMatch }) {
 
       {/* Venue */}
       {/* No mostrar estadio/ciudad para partidos de fase de grupos */}
-      {match.venue && (
+      {match.venue &&
         (() => {
           // Buscar el estadio en la lista oficial por nombre (coincidencia robusta)
-          const found = findStadiumByName(match.venue ?? undefined) ?? WORLD_CUP_2026_STADIUMS.find((s) => match.venue?.includes(s.nombre));
+          const found =
+            findStadiumByName(match.venue ?? undefined) ??
+            WORLD_CUP_2026_STADIUMS.find((s) => match.venue?.includes(s.nombre));
           const venueLabel = found ? `${found.nombre} • ${found.ciudad}` : match.venue;
 
           return (
@@ -274,8 +277,7 @@ function MatchRow({ match }: { match: FdMatch }) {
               <span className="text-xs truncate">{venueLabel}</span>
             </div>
           );
-        })()
-      )}
+        })()}
     </div>
   );
 }

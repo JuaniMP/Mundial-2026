@@ -382,10 +382,18 @@ function HeroSection() {
                 borderRadius: 9999,
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path d="M5 3v18l15-9L5 3z" fill="#fff" />
               </svg>
-              <span style={{ fontSize: 12, letterSpacing: '0.04em' }}>Video musical del Mundial</span>
+              <span style={{ fontSize: 12, letterSpacing: '0.04em' }}>
+                Video musical del Mundial
+              </span>
             </div>
           </div>
         </a>
