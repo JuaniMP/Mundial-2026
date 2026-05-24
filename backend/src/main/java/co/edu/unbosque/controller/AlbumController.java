@@ -38,6 +38,17 @@ public class AlbumController {
         return ResponseEntity.ok(ApiResponse.success(albumService.getLaminasAlbum(usuarioId), "Laminas del album"));
     }
 
+    @GetMapping("/paquetes-abiertos/{usuarioId}")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Long>>> getPaquetesAbiertos(@PathVariable Integer usuarioId) {
+        long abiertos = albumService.getPaquetesAbiertosUsuario(usuarioId);
+        return ResponseEntity.ok(ApiResponse.success(java.util.Map.of("abiertos", abiertos), "Paquetes abiertos"));
+    }
+
+    @GetMapping("/todas/{usuarioId}")
+    public ResponseEntity<ApiResponse<List<LaminaAlbumResponse>>> getAllLaminas(@PathVariable Integer usuarioId) {
+        return ResponseEntity.ok(ApiResponse.success(albumService.getAllLaminasConEstado(usuarioId), "Todas las laminas con estado"));
+    }
+
     @PostMapping("/pegar/{usuarioId}/{laminaId}")
     public ResponseEntity<ApiResponse<AlbumResponse>> pegarLamina(
             @PathVariable Integer usuarioId,

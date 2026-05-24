@@ -11,7 +11,7 @@ import co.edu.unbosque.exception.ResourceNotFoundException;
 import co.edu.unbosque.repository.NotificacionRepository;
 import co.edu.unbosque.repository.PrediccionRepository;
 import co.edu.unbosque.repository.UsuarioRepository;
-import co.edu.unbosque.service.FcmService;
+import co.edu.unbosque.service.FirebaseService;
 import co.edu.unbosque.service.FootballDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -42,8 +42,8 @@ public class ComunicadosMasivosService {
     private final NotificacionRepository notificacionRepository;
     private final PrediccionRepository prediccionRepository;
     private final FootballDataService footballDataService;
-    private final FcmService fcmService;
     private final AuditLogger auditLogger;
+    private final FirebaseService firebaseService;
 
     /** Tracking en memoria; suficiente para una sola instancia. Migrar a Redis si se escala. */
     private final Map<String, ComunicadoProgreso> progreso = new ConcurrentHashMap<>();
@@ -86,14 +86,7 @@ public class ComunicadosMasivosService {
                     Math.min(i + batchSize, destinatarios.size()));
             for (Usuario u : batch) {
                 try {
-                    boolean ok = true;
-                    if (canales.contains("APP")) {
-                        ok &= guardarNotificacionInApp(u, titulo, mensaje);
-                    }
-                    if (canales.contains("PUSH")) {
-                        ok &= enviarPush(u, titulo, mensaje);
-                    }
-
+                    boolean ok = enviarAUsuario(u, titulo, mensaje, canales);
                     ComunicadoProgreso p = progreso.get(trackingId);
                     if (p != null) {
                         if (ok) {
@@ -121,26 +114,42 @@ public class ComunicadosMasivosService {
         }
     }
 
-    private boolean guardarNotificacionInApp(Usuario destinatario, String titulo, String mensaje) {
+    /**
+     * Envía el comunicado a un usuario por todos los canales indicados.
+     * Siempre guarda en la BD (in-app), y si el usuario tiene token FCM y el
+     * canal PUSH está activo también envía la notificación push via Firebase.
+     */
+    private boolean enviarAUsuario(Usuario destinatario, String titulo, String mensaje,
+                                    Set<String> canales) {
+        boolean ok = true;
+
+        // Canal in-app: siempre guardamos en BD
         try {
+            String canalDb = canales.contains("PUSH") ? "PUSH" : "APP";
             Notificacion n = Notificacion.builder()
                     .mensaje("[" + titulo + "] " + mensaje)
-                    .canal("APP")
+                    .canal(canalDb)
                     .fechaEnvio(LocalDateTime.now())
                     .destinatario(destinatario)
                     .build();
             notificacionRepository.save(n);
-            return true;
         } catch (Exception e) {
-            return false;
+            ok = false;
         }
-    }
 
-    private boolean enviarPush(Usuario destinatario, String titulo, String mensaje) {
-        if (destinatario == null || destinatario.getFcmToken() == null || destinatario.getFcmToken().isBlank()) {
-            return false;
+        // Canal PUSH: envío via Firebase FCM si el usuario tiene token
+        if (canales.contains("PUSH")) {
+            String fcmToken = destinatario.getFcmToken();
+            if (fcmToken != null && !fcmToken.isBlank()) {
+                boolean pushOk = firebaseService.sendPush(fcmToken, titulo, mensaje);
+                if (!pushOk) {
+                    // Push falló pero la notificación in-app ya fue guardada — no contamos como fallo total
+                    // (el usuario lo verá en la campanita de todas formas)
+                }
+            }
         }
-        return fcmService.sendToToken(destinatario.getFcmToken(), titulo, mensaje);
+
+        return ok;
     }
 
     private Set<String> normalizarCanales(List<String> canalesReq) {
@@ -155,7 +164,7 @@ public class ComunicadosMasivosService {
             }
         }
         if (canales.isEmpty()) {
-            canales.add("APP");
+            canales.add("PUSH");
         }
         return canales;
     }

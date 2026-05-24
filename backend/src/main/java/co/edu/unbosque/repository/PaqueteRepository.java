@@ -10,4 +10,5 @@ import java.util.List;
 public interface PaqueteRepository extends JpaRepository<Paquete, Integer> {
     List<Paquete> findByUsuarioId(Integer usuarioId);
     List<Paquete> findByEstado(String estado);
+    long countByUsuarioId(Integer usuarioId);
 }

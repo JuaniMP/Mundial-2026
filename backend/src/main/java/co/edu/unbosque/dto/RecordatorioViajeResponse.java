@@ -17,6 +17,8 @@ public class RecordatorioViajeResponse {
     private String notas;
     /** Diferencia horaria respecto a la zona del usuario (ej. "+3h", "-2h"). */
     private String offsetHoras;
+    /** Duración estimada del viaje según fechas seleccionadas. */
+    private String duracionEstimada;
     /** Si la fecha actual está dentro del rango del viaje. */
     private boolean enCurso;
     /** Mensaje contextual: ej "Llegas mañana a Nueva York. UTC-5." */
