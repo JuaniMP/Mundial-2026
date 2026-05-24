@@ -3,6 +3,87 @@ import type { SeleccionResponse, JugadorResponse } from '../types';
 import { fetchSelecciones, fetchJugadoresBySeleccion } from '../services/footballApi';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 
+// ── Static metadata: groups, confederation, coach ─────────────────────────────
+// API returns empty grupo/confederacion → we fill from here using codigoFifa
+interface TeamMeta {
+  grupo: string;
+  confederacion: string;
+  coach: string;
+}
+
+const TEAM_META: Record<string, TeamMeta> = {
+  // GROUP A
+  MEX: { grupo: 'A', confederacion: 'CONCACAF', coach: 'Javier Aguirre' },
+  RSA: { grupo: 'A', confederacion: 'CAF', coach: 'Hugo Broos' },
+  KOR: { grupo: 'A', confederacion: 'AFC', coach: 'Hong Myung-bo' },
+  CZE: { grupo: 'A', confederacion: 'UEFA', coach: 'Ivan Hašek' },
+  // GROUP B
+  CAN: { grupo: 'B', confederacion: 'CONCACAF', coach: 'Jesse Marsch' },
+  BIH: { grupo: 'B', confederacion: 'UEFA', coach: 'Sergej Barbarez' },
+  QAT: { grupo: 'B', confederacion: 'AFC', coach: 'Marquez Lopez' },
+  SUI: { grupo: 'B', confederacion: 'UEFA', coach: 'Murat Yakin' },
+  // GROUP C
+  BRA: { grupo: 'C', confederacion: 'CONMEBOL', coach: 'Dorival Júnior' },
+  MAR: { grupo: 'C', confederacion: 'CAF', coach: 'Walid Regragui' },
+  HAI: { grupo: 'C', confederacion: 'CONCACAF', coach: 'Marc Collat' },
+  SCO: { grupo: 'C', confederacion: 'UEFA', coach: 'Steve Clarke' },
+  // GROUP D
+  USA: { grupo: 'D', confederacion: 'CONCACAF', coach: 'Mauricio Pochettino' },
+  PAR: { grupo: 'D', confederacion: 'CONMEBOL', coach: 'Gustavo Alfaro' },
+  AUS: { grupo: 'D', confederacion: 'AFC', coach: 'Tony Popovic' },
+  TUR: { grupo: 'D', confederacion: 'UEFA', coach: 'Vincenzo Montella' },
+  // GROUP E
+  GER: { grupo: 'E', confederacion: 'UEFA', coach: 'Julian Nagelsmann' },
+  CUW: { grupo: 'E', confederacion: 'CONCACAF', coach: 'Remko Bicentini' },
+  CIV: { grupo: 'E', confederacion: 'CAF', coach: 'Emerse Faé' },
+  ECU: { grupo: 'E', confederacion: 'CONMEBOL', coach: 'Sebastián Páez' },
+  // GROUP F
+  NED: { grupo: 'F', confederacion: 'UEFA', coach: 'Ronald Koeman' },
+  JPN: { grupo: 'F', confederacion: 'AFC', coach: 'Hajime Moriyasu' },
+  SWE: { grupo: 'F', confederacion: 'UEFA', coach: 'Jon Dahl Tomasson' },
+  TUN: { grupo: 'F', confederacion: 'CAF', coach: 'Khaled Ben Yahia' },
+  // GROUP G
+  BEL: { grupo: 'G', confederacion: 'UEFA', coach: 'Domenico Tedesco' },
+  EGY: { grupo: 'G', confederacion: 'CAF', coach: 'Hossam Hassan' },
+  IRN: { grupo: 'G', confederacion: 'AFC', coach: 'Amir Ghalenoei' },
+  NZL: { grupo: 'G', confederacion: 'OFC', coach: 'Darren Bazeley' },
+  // GROUP H
+  ESP: { grupo: 'H', confederacion: 'UEFA', coach: 'Luis de la Fuente' },
+  CPV: { grupo: 'H', confederacion: 'CAF', coach: 'Pedro Brito' },
+  KSA: { grupo: 'H', confederacion: 'AFC', coach: 'Hervé Renard' },
+  URY: { grupo: 'H', confederacion: 'CONMEBOL', coach: 'Marcelo Bielsa' },
+  // GROUP I
+  FRA: { grupo: 'I', confederacion: 'UEFA', coach: 'Didier Deschamps' },
+  SEN: { grupo: 'I', confederacion: 'CAF', coach: 'Aliou Cissé' },
+  IRQ: { grupo: 'I', confederacion: 'AFC', coach: 'Jesús Casas' },
+  NOR: { grupo: 'I', confederacion: 'UEFA', coach: 'Ståle Solbakken' },
+  // GROUP J
+  ARG: { grupo: 'J', confederacion: 'CONMEBOL', coach: 'Lionel Scaloni' },
+  ALG: { grupo: 'J', confederacion: 'CAF', coach: 'Vladimir Petković' },
+  AUT: { grupo: 'J', confederacion: 'UEFA', coach: 'Ralf Rangnick' },
+  JOR: { grupo: 'J', confederacion: 'AFC', coach: 'Hussein Ammouta' },
+  // GROUP K
+  POR: { grupo: 'K', confederacion: 'UEFA', coach: 'Roberto Martínez' },
+  COD: { grupo: 'K', confederacion: 'CAF', coach: 'Sébastien Migné' },
+  UZB: { grupo: 'K', confederacion: 'AFC', coach: 'Srecko Katanec' },
+  COL: { grupo: 'K', confederacion: 'CONMEBOL', coach: 'Néstor Lorenzo' },
+  // GROUP L
+  ENG: { grupo: 'L', confederacion: 'UEFA', coach: 'Thomas Tuchel' },
+  CRO: { grupo: 'L', confederacion: 'UEFA', coach: 'Zlatko Dalić' },
+  GHA: { grupo: 'L', confederacion: 'CAF', coach: 'Otto Addo' },
+  PAN: { grupo: 'L', confederacion: 'CONCACAF', coach: 'Thomas Christiansen' },
+};
+
+function getMeta(codigoFifa: string): TeamMeta {
+  return (
+    TEAM_META[codigoFifa] ?? {
+      grupo: '?',
+      confederacion: '—',
+      coach: '—',
+    }
+  );
+}
+
 // ── Flag image with emoji fallback ────────────────────────────────────────────
 function FlagImg({ url, pais, size = 40 }: { url?: string; pais: string; size?: number }) {
   const [err, setErr] = useState(false);
@@ -39,16 +120,7 @@ function sortByPos(players: JugadorResponse[]) {
 
 // ── Skeleton card ─────────────────────────────────────────────────────────────
 function SkeletonCard() {
-  return (
-    <div
-      style={{
-        height: 52,
-        borderRadius: 10,
-        background: 'rgba(0,0,0,.06)',
-        animation: 'shimmer 1.5s infinite',
-      }}
-    />
-  );
+  return <div className="glass rounded-xl animate-pulse" style={{ height: 52 }} />;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,81 +166,46 @@ export function Teams() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Derived data
-  const groups = selecciones.reduce<Record<string, SeleccionResponse[]>>((acc, s) => {
-    const g = s.grupo ?? 'X';
+  // Derived data — use static meta for grupo/confederacion
+  const seleccionesConMeta = selecciones.map((s) => ({
+    ...s,
+    _meta: getMeta(s.codigoFifa),
+  }));
+
+  const groups = seleccionesConMeta.reduce<Record<string, typeof seleccionesConMeta>>((acc, s) => {
+    const g = s._meta.grupo;
     return { ...acc, [g]: [...(acc[g] ?? []), s] };
   }, {});
-  const groupKeys = Object.keys(groups).sort();
+
+  const groupKeys = Object.keys(groups)
+    .filter((g) => g !== '?')
+    .sort();
   const filteredGroups =
     activeGroup === 'ALL' ? groupKeys : groupKeys.filter((g) => g === activeGroup);
   const keySquad = sortByPos(jugadores).slice(0, 6);
-  const confeds = new Set(selecciones.map((s) => s.confederacion).filter(Boolean)).size;
+  const confeds = new Set(
+    seleccionesConMeta.map((s) => s._meta.confederacion).filter((c) => c && c !== '—'),
+  ).size;
   const total = selecciones.length || 48;
+  const featuredMeta = featured ? getMeta(featured.codigoFifa) : null;
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: 'var(--color-bg, #f0f2f5)',
-        paddingTop: 80,
-      }}
-    >
-      {/* ── HERO HEADER ────────────────────────────────────────────────────── */}
+    <main style={{ minHeight: '100vh', background: 'var(--color-bg-deep)', paddingTop: 80 }}>
+      {/* ── HERO HEADER ──────────────────────────────────────────────────────── */}
       <section
         style={{
-          background: 'var(--color-bg, #f0f2f5)',
-          borderBottom: '1px solid rgba(0,0,0,.08)',
+          background: 'var(--color-bg-deep)',
+          borderBottom: '1px solid var(--color-border)',
         }}
       >
-        <div
-          style={{
-            maxWidth: 1400,
-            margin: '0 auto',
-            padding: '52px 36px 0',
-          }}
-        >
-          {/* Big title */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
-              gap: 24,
-              alignItems: 'flex-end',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div>
-              <h1
-                style={{
-                  fontFamily: '"Bebas Neue", "Oswald", "Anton", Impact, sans-serif',
-                  fontSize: 'clamp(64px, 10vw, 128px)',
-                  lineHeight: 0.88,
-                  fontWeight: 900,
-                  letterSpacing: '-0.01em',
-                  margin: 0,
-                  color: '#0d1b2a',
-                }}
-              >
-                ALL <span style={{ color: '#C8102E' }}>{total}</span>
-                <br />
-                NATIONS.
-              </h1>
-              <p
-                style={{
-                  fontFamily: '"Inter", system-ui, sans-serif',
-                  fontSize: 15,
-                  color: '#64748b',
-                  marginTop: 20,
-                  maxWidth: 540,
-                  lineHeight: 1.65,
-                }}
-              >
-                {total} nations. 12 groups. One trophy. Explore squads, historical results and the
-                road to the final at the Mercedes-Benz Stadium.
-              </p>
-            </div>
-          </div>
+        <div style={{ maxWidth: 1400, margin: '0 auto', padding: '52px 36px 0' }}>
+          {/* Big title — mismo estilo que Estadios */}
+          <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
+            Selecciones <span className="gradient-text">{total}</span>
+          </h1>
+          <p className="text-text-muted mt-1">
+            FIFA World Cup 2026 — {total} naciones · 12 grupos · USA, Canadá, México
+          </p>
 
           {/* Stats strip */}
           {!loadingTeams && (
@@ -177,20 +214,20 @@ export function Teams() {
                 display: 'grid',
                 gridTemplateColumns: 'repeat(4, 1fr)',
                 marginTop: 40,
-                borderTop: '1px solid rgba(0,0,0,.08)',
+                borderTop: '1px solid var(--color-border)',
               }}
             >
               {[
-                { label: 'Selecciones', value: total, color: '#006847' },
-                { label: 'Confederaciones', value: confeds || 6, color: '#002868' },
-                { label: 'Grupos', value: groupKeys.length || 12, color: '#C8102E' },
-                { label: 'Edición', value: '2026', color: '#006847' },
+                { label: 'Selecciones', value: total, color: 'var(--color-primary)' },
+                { label: 'Confederaciones', value: confeds || 6, color: 'var(--color-accent)' },
+                { label: 'Grupos', value: groupKeys.length || 12, color: 'var(--color-secondary)' },
+                { label: 'Edición', value: '2026', color: 'var(--color-primary)' },
               ].map((stat, i) => (
                 <div
                   key={i}
                   style={{
                     padding: '22px 24px',
-                    borderRight: i < 3 ? '1px solid rgba(0,0,0,.08)' : 'none',
+                    borderRight: i < 3 ? '1px solid var(--color-border)' : 'none',
                   }}
                 >
                   <div
@@ -205,10 +242,10 @@ export function Teams() {
                     {stat.value}
                   </div>
                   <div
+                    className="text-text-muted"
                     style={{
-                      fontFamily: '"Inter", system-ui, sans-serif',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 10,
-                      color: '#64748b',
                       textTransform: 'uppercase',
                       letterSpacing: '0.14em',
                       marginTop: 5,
@@ -223,26 +260,19 @@ export function Teams() {
         </div>
       </section>
 
-      {/* ── MAIN CONTENT ───────────────────────────────────────────────────── */}
-      <div
-        style={{
-          maxWidth: 1400,
-          margin: '0 auto',
-          padding: '44px 36px 100px',
-        }}
-      >
+      {/* ── MAIN CONTENT ─────────────────────────────────────────────────────── */}
+      <div style={{ maxWidth: 1400, margin: '0 auto', padding: '44px 36px 100px' }}>
         {/* Error */}
         {error && (
           <div
+            className="glass rounded-xl"
             style={{
-              background: 'rgba(200,16,46,.08)',
-              border: '1px solid rgba(200,16,46,.2)',
-              borderRadius: 14,
               padding: '16px 20px',
-              color: '#C8102E',
-              fontFamily: 'Inter, sans-serif',
+              color: 'var(--color-secondary)',
+              fontFamily: 'var(--font-headline)',
               fontSize: 14,
               marginBottom: 32,
+              borderColor: 'rgba(200,16,46,.25)',
             }}
           >
             ⚠️ {error}
@@ -260,13 +290,10 @@ export function Teams() {
               gap: 12,
             }}
           >
-            <Loader2 size={26} className="animate-spin" style={{ color: '#006847' }} />
+            <Loader2 size={26} className="animate-spin" style={{ color: 'var(--color-primary)' }} />
             <span
-              style={{
-                fontFamily: 'Inter, sans-serif',
-                color: '#64748b',
-                fontSize: 14,
-              }}
+              className="text-text-muted"
+              style={{ fontFamily: 'var(--font-headline)', fontSize: 14 }}
             >
               Cargando selecciones…
             </span>
@@ -278,19 +305,22 @@ export function Teams() {
             {/* ── FEATURED TEAM + KEY SQUAD ── */}
             {featured && !showRoster && (
               <div
+                className="glass"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '340px 1fr',
+                  gridTemplateColumns: '300px 1fr',
                   borderRadius: 20,
                   overflow: 'hidden',
                   boxShadow: '0 8px 48px rgba(0,0,0,.13)',
                   marginBottom: 52,
+                  border: 'none',
                 }}
               >
                 {/* Left: Featured card */}
                 <div
                   style={{
-                    background: 'linear-gradient(145deg, #002868 0%, #001a4a 100%)',
+                    background:
+                      'linear-gradient(145deg, var(--color-accent) 0%, var(--color-accent-dim) 100%)',
                     color: '#fff',
                     padding: '32px 28px',
                     display: 'flex',
@@ -300,7 +330,7 @@ export function Teams() {
                 >
                   <div
                     style={{
-                      fontFamily: 'Inter, sans-serif',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 9,
                       letterSpacing: '0.22em',
                       textTransform: 'uppercase',
@@ -311,20 +341,13 @@ export function Teams() {
                     FEATURED TEAM
                   </div>
 
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 14,
-                      marginBottom: 22,
-                    }}
-                  >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
                     <FlagImg url={featured.banderaUrl} pais={featured.pais} size={52} />
                     <div>
                       <div
                         style={{
-                          fontFamily: '"Space Grotesk", "Inter", sans-serif',
-                          fontSize: 24,
+                          fontFamily: 'var(--font-headline)',
+                          fontSize: 22,
                           fontWeight: 800,
                           letterSpacing: '-0.02em',
                           lineHeight: 1.1,
@@ -336,13 +359,13 @@ export function Teams() {
                       <div
                         style={{
                           fontSize: 11,
-                          opacity: 0.7,
+                          opacity: 0.65,
                           marginTop: 4,
-                          fontFamily: 'Inter, sans-serif',
-                          letterSpacing: '0.04em',
+                          fontFamily: 'var(--font-headline)',
+                          letterSpacing: '0.06em',
                         }}
                       >
-                        GROUP {featured.grupo} · {featured.confederacion}
+                        GRUPO {featuredMeta?.grupo ?? '—'} · {featuredMeta?.confederacion ?? '—'}
                       </div>
                     </div>
                   </div>
@@ -351,7 +374,7 @@ export function Teams() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 1fr 1fr',
+                      gridTemplateColumns: '1fr 1fr',
                       borderTop: '1px solid rgba(255,255,255,.15)',
                       paddingTop: 20,
                       marginTop: 'auto',
@@ -359,27 +382,28 @@ export function Teams() {
                     }}
                   >
                     {[
-                      { label: 'COACH', value: '—' },
-                      { label: 'APPEARANCES', value: '—' },
-                      { label: 'TITLES', value: '0' },
+                      { label: 'DT', value: featuredMeta?.coach ?? '—' },
+                      { label: 'CONFEDERACIÓN', value: featuredMeta?.confederacion ?? '—' },
                     ].map((stat) => (
                       <div key={stat.label}>
                         <div
                           style={{
                             fontSize: 8,
                             letterSpacing: '0.16em',
-                            opacity: 0.55,
-                            fontFamily: 'Inter, sans-serif',
+                            opacity: 0.5,
+                            fontFamily: 'var(--font-headline)',
                             marginBottom: 5,
+                            textTransform: 'uppercase',
                           }}
                         >
                           {stat.label}
                         </div>
                         <div
                           style={{
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontSize: 15,
+                            fontFamily: 'var(--font-headline)',
+                            fontSize: 12,
                             fontWeight: 700,
+                            lineHeight: 1.3,
                           }}
                         >
                           {stat.value}
@@ -390,12 +414,7 @@ export function Teams() {
                 </div>
 
                 {/* Right: Key Squad */}
-                <div
-                  style={{
-                    background: '#fff',
-                    padding: '28px 28px 22px',
-                  }}
-                >
+                <div style={{ background: 'var(--color-bg-card)', padding: '28px 28px 22px' }}>
                   <div
                     style={{
                       display: 'flex',
@@ -405,56 +424,43 @@ export function Teams() {
                     }}
                   >
                     <span
+                      className="text-text-muted"
                       style={{
-                        fontFamily: '"Space Grotesk", sans-serif',
-                        fontSize: 12,
+                        fontFamily: 'var(--font-headline)',
+                        fontSize: 11,
                         fontWeight: 700,
-                        letterSpacing: '0.16em',
+                        letterSpacing: '0.18em',
                         textTransform: 'uppercase',
-                        color: '#64748b',
                       }}
                     >
-                      KEY SQUAD
+                      PLANTILLA CLAVE
                     </span>
                     <button
                       onClick={() => setShowRoster(true)}
+                      className="glass"
                       style={{
-                        background: 'transparent',
-                        border: '1px solid rgba(0,0,0,.15)',
                         borderRadius: 20,
                         padding: '5px 14px',
                         fontSize: 11,
-                        fontFamily: 'Inter, sans-serif',
+                        fontFamily: 'var(--font-headline)',
                         cursor: 'pointer',
-                        color: '#64748b',
+                        color: 'var(--color-text-secondary)',
                         letterSpacing: '0.04em',
                         transition: 'all .15s',
                       }}
                     >
-                      FULL ROSTER →
+                      PLANTEL COMPLETO →
                     </button>
                   </div>
 
                   {loadingPlayers ? (
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: 8,
-                      }}
-                    >
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {[...Array(6)].map((_, i) => (
                         <SkeletonCard key={i} />
                       ))}
                     </div>
                   ) : keySquad.length > 0 ? (
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr',
-                        gap: 8,
-                      }}
-                    >
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                       {keySquad.map((p) => (
                         <div
                           key={p.id}
@@ -462,9 +468,10 @@ export function Teams() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
-                            background: '#f8fafc',
+                            background: 'var(--color-bg-surface)',
                             borderRadius: 10,
                             padding: '10px 14px',
+                            border: '1px solid var(--color-border)',
                           }}
                         >
                           <div
@@ -472,12 +479,12 @@ export function Teams() {
                               width: 32,
                               height: 32,
                               borderRadius: '50%',
-                              background: '#0d1b2a',
+                              background: 'var(--color-primary)',
                               color: '#fff',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              fontFamily: '"Space Grotesk", sans-serif',
+                              fontFamily: 'var(--font-headline)',
                               fontWeight: 700,
                               fontSize: 13,
                               flexShrink: 0,
@@ -488,21 +495,22 @@ export function Teams() {
                           <div>
                             <div
                               style={{
-                                fontFamily: 'Inter, sans-serif',
+                                fontFamily: 'var(--font-headline)',
                                 fontSize: 12,
-                                fontWeight: 600,
-                                color: '#0d1b2a',
+                                fontWeight: 700,
+                                color: 'var(--color-text-primary)',
                                 lineHeight: 1.2,
                               }}
                             >
                               {p.nombreCompleto.split(' ').slice(-1)[0]}
                             </div>
                             <div
+                              className="text-text-muted"
                               style={{
                                 fontSize: 10,
-                                color: '#94a3b8',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.08em',
+                                fontFamily: 'var(--font-headline)',
                               }}
                             >
                               {p.posicion}
@@ -513,10 +521,10 @@ export function Teams() {
                     </div>
                   ) : (
                     <div
+                      className="text-text-muted"
                       style={{
-                        color: '#94a3b8',
                         fontSize: 13,
-                        fontFamily: 'Inter, sans-serif',
+                        fontFamily: 'var(--font-headline)',
                         padding: '24px 0',
                         textAlign: 'center',
                       }}
@@ -533,18 +541,17 @@ export function Teams() {
               <div style={{ marginBottom: 52 }}>
                 <button
                   onClick={() => setShowRoster(false)}
+                  className="glass"
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: 8,
-                    background: 'transparent',
-                    border: '1px solid rgba(0,0,0,.12)',
                     borderRadius: 10,
                     padding: '8px 16px',
                     cursor: 'pointer',
-                    fontFamily: 'Inter, sans-serif',
+                    fontFamily: 'var(--font-headline)',
                     fontSize: 13,
-                    color: '#64748b',
+                    color: 'var(--color-text-secondary)',
                     marginBottom: 24,
                     transition: 'all .15s',
                   }}
@@ -553,22 +560,16 @@ export function Teams() {
                   Volver
                 </button>
 
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16,
-                    marginBottom: 28,
-                  }}
-                >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
                   <FlagImg url={featured.banderaUrl} pais={featured.pais} size={40} />
                   <h2
                     style={{
-                      fontFamily: '"Space Grotesk", sans-serif',
+                      fontFamily: 'var(--font-headline)',
                       fontSize: 26,
                       fontWeight: 800,
                       margin: 0,
                       letterSpacing: '-0.02em',
+                      color: 'var(--color-text-primary)',
                     }}
                   >
                     {featured.pais} — Plantel Completo
@@ -577,11 +578,8 @@ export function Teams() {
 
                 {jugadores.length === 0 ? (
                   <p
-                    style={{
-                      color: '#94a3b8',
-                      fontFamily: 'Inter, sans-serif',
-                      fontSize: 14,
-                    }}
+                    className="text-text-muted"
+                    style={{ fontFamily: 'var(--font-headline)', fontSize: 14 }}
                   >
                     No hay jugadores registrados aún.
                   </p>
@@ -596,15 +594,13 @@ export function Teams() {
                     {sortByPos(jugadores).map((p) => (
                       <div
                         key={p.id}
+                        className="glass card-base"
                         style={{
-                          background: '#fff',
-                          border: '1px solid rgba(0,0,0,.07)',
                           borderRadius: 12,
                           padding: '13px 16px',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 12,
-                          transition: 'box-shadow .15s',
                         }}
                       >
                         <div
@@ -612,12 +608,12 @@ export function Teams() {
                             width: 36,
                             height: 36,
                             borderRadius: '50%',
-                            background: '#0d1b2a',
+                            background: 'var(--color-primary)',
                             color: '#fff',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontFamily: '"Space Grotesk", sans-serif',
+                            fontFamily: 'var(--font-headline)',
                             fontWeight: 700,
                             fontSize: 14,
                             flexShrink: 0,
@@ -628,22 +624,23 @@ export function Teams() {
                         <div>
                           <div
                             style={{
-                              fontFamily: 'Inter, sans-serif',
-                              fontWeight: 600,
+                              fontFamily: 'var(--font-headline)',
+                              fontWeight: 700,
                               fontSize: 13,
-                              color: '#0d1b2a',
+                              color: 'var(--color-text-primary)',
                               lineHeight: 1.2,
                             }}
                           >
                             {p.nombreCompleto}
                           </div>
                           <div
+                            className="text-text-muted"
                             style={{
                               fontSize: 10,
-                              color: '#94a3b8',
                               textTransform: 'uppercase',
                               letterSpacing: '0.08em',
                               marginTop: 2,
+                              fontFamily: 'var(--font-headline)',
                             }}
                           >
                             {p.posicion}
@@ -671,11 +668,13 @@ export function Teams() {
                 >
                   <h2
                     style={{
-                      fontFamily: '"Space Grotesk", sans-serif',
-                      fontSize: 20,
-                      fontWeight: 700,
-                      letterSpacing: '-0.01em',
+                      fontFamily: 'var(--font-headline)',
+                      fontSize: 18,
+                      fontWeight: 800,
+                      letterSpacing: '0.06em',
+                      textTransform: 'uppercase',
                       margin: 0,
+                      color: 'var(--color-text-primary)',
                     }}
                   >
                     BROWSE BY GROUP
@@ -684,7 +683,7 @@ export function Teams() {
                   {/* Group pills */}
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {['ALL', ...groupKeys].map((g) => {
-                      const active = activeGroup === g;
+                      const isActive = activeGroup === g;
                       return (
                         <button
                           key={g}
@@ -693,15 +692,18 @@ export function Teams() {
                             minWidth: 40,
                             height: 40,
                             borderRadius: '50%',
-                            border: 'none',
-                            background: active ? '#0d1b2a' : 'rgba(0,0,0,.07)',
-                            color: active ? '#fff' : '#0d1b2a',
-                            fontFamily: '"Space Grotesk", sans-serif',
-                            fontWeight: 700,
+                            border: isActive
+                              ? '2px solid var(--color-primary)'
+                              : '1px solid var(--color-border)',
+                            background: isActive ? 'var(--color-primary)' : 'var(--color-bg-card)',
+                            color: isActive ? '#fff' : 'var(--color-text-primary)',
+                            fontFamily: 'var(--font-headline)',
+                            fontWeight: 800,
                             fontSize: g === 'ALL' ? 11 : 14,
                             cursor: 'pointer',
                             transition: 'all .15s',
                             padding: '0 4px',
+                            boxShadow: isActive ? '0 2px 10px rgba(0,104,71,.3)' : 'none',
                           }}
                         >
                           {g}
@@ -712,29 +714,23 @@ export function Teams() {
                 </div>
 
                 {/* Group sections */}
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 48,
-                  }}
-                >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 48 }}>
                   {filteredGroups.map((g) => (
                     <section key={g} id={`group-${g}`}>
                       <h3
                         style={{
-                          fontFamily: 'Inter, sans-serif',
+                          fontFamily: 'var(--font-headline)',
                           fontSize: 11,
-                          fontWeight: 700,
-                          letterSpacing: '0.18em',
+                          fontWeight: 800,
+                          letterSpacing: '0.22em',
                           textTransform: 'uppercase',
-                          color: '#94a3b8',
+                          color: 'var(--color-primary)',
                           marginBottom: 16,
                           paddingBottom: 10,
-                          borderBottom: '1px solid rgba(0,0,0,.07)',
+                          borderBottom: '2px solid var(--color-primary-subtle)',
                         }}
                       >
-                        GROUP {g}
+                        GRUPO {g}
                       </h3>
 
                       <div
@@ -750,35 +746,32 @@ export function Teams() {
                             <button
                               key={s.id}
                               onClick={() => handleSelectTeam(s)}
+                              className={isActive ? '' : 'card-base'}
                               style={{
-                                background: isActive ? '#0d1b2a' : '#fff',
-                                border: isActive ? 'none' : '1px solid rgba(0,0,0,.08)',
+                                background: isActive
+                                  ? 'var(--color-accent)'
+                                  : 'var(--color-bg-card)',
+                                border: isActive
+                                  ? '2px solid var(--color-accent)'
+                                  : '1px solid var(--color-border)',
                                 borderRadius: 14,
                                 padding: '18px 18px 14px',
                                 cursor: 'pointer',
                                 textAlign: 'left',
                                 transition: 'all .18s',
                                 boxShadow: isActive
-                                  ? '0 4px 20px rgba(0,0,0,.18)'
+                                  ? '0 4px 20px rgba(0,40,104,.25)'
                                   : '0 1px 4px rgba(0,0,0,.05)',
-                              }}
-                              onMouseEnter={(e) => {
-                                if (!isActive)
-                                  (e.currentTarget as HTMLButtonElement).style.transform =
-                                    'translateY(-3px)';
-                              }}
-                              onMouseLeave={(e) => {
-                                (e.currentTarget as HTMLButtonElement).style.transform = '';
                               }}
                             >
                               <FlagImg url={s.banderaUrl} pais={s.pais} size={38} />
                               <div
                                 style={{
-                                  fontFamily: '"Space Grotesk", sans-serif',
-                                  fontWeight: 700,
+                                  fontFamily: 'var(--font-headline)',
+                                  fontWeight: 800,
                                   fontSize: 14,
                                   marginTop: 12,
-                                  color: isActive ? '#fff' : '#0d1b2a',
+                                  color: isActive ? '#fff' : 'var(--color-text-primary)',
                                   lineHeight: 1.2,
                                 }}
                               >
@@ -786,15 +779,18 @@ export function Teams() {
                               </div>
                               <div
                                 style={{
-                                  fontFamily: 'Inter, sans-serif',
+                                  fontFamily: 'var(--font-headline)',
                                   fontSize: 10,
-                                  color: isActive ? 'rgba(255,255,255,.5)' : '#94a3b8',
+                                  color: isActive
+                                    ? 'rgba(255,255,255,.55)'
+                                    : 'var(--color-text-muted)',
                                   marginTop: 4,
                                   letterSpacing: '0.1em',
                                   textTransform: 'uppercase',
                                 }}
                               >
-                                {s.codigoFifa}
+                                {s.codigoFifa} · DT:{' '}
+                                {getMeta(s.codigoFifa).coach.split(' ').slice(-1)[0]}
                               </div>
                             </button>
                           );
