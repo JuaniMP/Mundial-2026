@@ -114,7 +114,95 @@ function availLabel(pct: number) {
   return 'AMPLIA DISPONIBILIDAD';
 }
 
-// ── Date formatting ───────────────────────────────────────────────────────────
+// ── Country → Group mapping (API ronda is always "GROUP_STAGE") ───────────────
+const COUNTRY_GROUP: Record<string, string> = {
+  // A
+  Mexico: 'A',
+  'South Africa': 'A',
+  'South Korea': 'A',
+  Czechia: 'A',
+  // B
+  Canada: 'B',
+  'Bosnia-Herzegovina': 'B',
+  Qatar: 'B',
+  Switzerland: 'B',
+  // C
+  Brazil: 'C',
+  Morocco: 'C',
+  Haiti: 'C',
+  Scotland: 'C',
+  // D
+  'United States': 'D',
+  Paraguay: 'D',
+  Australia: 'D',
+  Turkey: 'D',
+  // E
+  Germany: 'E',
+  Curaçao: 'E',
+  'Ivory Coast': 'E',
+  Ecuador: 'E',
+  // F
+  Netherlands: 'F',
+  Japan: 'F',
+  Sweden: 'F',
+  Tunisia: 'F',
+  // G
+  Belgium: 'G',
+  Egypt: 'G',
+  Iran: 'G',
+  'New Zealand': 'G',
+  // H
+  Spain: 'H',
+  'Cape Verde Islands': 'H',
+  'Saudi Arabia': 'H',
+  Uruguay: 'H',
+  // I
+  France: 'I',
+  Senegal: 'I',
+  Iraq: 'I',
+  Norway: 'I',
+  // J
+  Argentina: 'J',
+  Algeria: 'J',
+  Austria: 'J',
+  Jordan: 'J',
+  // K
+  Portugal: 'K',
+  'Congo DR': 'K',
+  Uzbekistan: 'K',
+  Colombia: 'K',
+  // L
+  England: 'L',
+  Croatia: 'L',
+  Ghana: 'L',
+  Panama: 'L',
+};
+
+function getPartidoGroup(p: { seleccionLocal: string; seleccionVisitante: string }): string | null {
+  return COUNTRY_GROUP[p.seleccionLocal] ?? COUNTRY_GROUP[p.seleccionVisitante] ?? null;
+}
+
+// ── Currencies ────────────────────────────────────────────────────────────────
+interface Currency {
+  code: string;
+  symbol: string;
+  rate: number; // vs USD
+  flag: string;
+  decimals: number;
+}
+
+const CURRENCIES: Currency[] = [
+  { code: 'USD', symbol: '$', rate: 1, flag: '🇺🇸', decimals: 2 },
+  { code: 'EUR', symbol: '€', rate: 0.92, flag: '🇪🇺', decimals: 2 },
+  { code: 'GBP', symbol: '£', rate: 0.79, flag: '🇬🇧', decimals: 2 },
+  { code: 'CAD', symbol: 'C$', rate: 1.36, flag: '🇨🇦', decimals: 2 },
+  { code: 'MXN', symbol: '$', rate: 17.5, flag: '🇲🇽', decimals: 0 },
+  { code: 'COP', symbol: '$', rate: 4200, flag: '🇨🇴', decimals: 0 },
+  { code: 'BRL', symbol: 'R$', rate: 5.0, flag: '🇧🇷', decimals: 2 },
+  { code: 'ARS', symbol: '$', rate: 1050, flag: '🇦🇷', decimals: 0 },
+];
+
+// ── Date formatting (always Bogotá timezone for consistency) ──────────────────
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-CO', {
     day: 'numeric',
@@ -124,14 +212,9 @@ function fmtDate(iso: string) {
   });
 }
 
+/** Date key in Bogotá timezone so filter and display always match */
 function dateKey(iso: string) {
-  return new Date(iso).toISOString().slice(0, 10);
-}
-
-/** Extract group letter from ronda string, e.g. "GRUPO_A" → "A" */
-function extractGroup(ronda: string): string | null {
-  const m = ronda?.match(/[A-L]$/i);
-  return m ? m[0].toUpperCase() : null;
+  return new Date(iso).toLocaleDateString('en-CA', { timeZone: 'America/Bogota' });
 }
 
 // ── Stripe card styles ────────────────────────────────────────────────────────
@@ -238,7 +321,7 @@ function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormPro
           </>
         ) : (
           <>
-            <CreditCard size={16} /> Pagar ${total.toFixed(2)} USD
+            <CreditCard size={16} /> Pagar ${total.toFixed(2)} USD (cobro en USD)
           </>
         )}
       </button>
@@ -263,10 +346,20 @@ export function Tickets() {
   const [piId, setPiId] = useState('');
   const [loadingCO, setLoadingCO] = useState(false);
   const [errorMsg, setError] = useState('');
+  const [currencyCode, setCurrencyCode] = useState('USD');
 
   const categoria = selectedTribuna?.categoria ?? 'GENERAL';
-  const precio = selectedTribuna?.precio ?? 80;
-  const total = precio * cantidad;
+  const precioUSD = selectedTribuna?.precio ?? 80;
+  const totalUSD = precioUSD * cantidad;
+
+  const activeCurrency = CURRENCIES.find((c) => c.code === currencyCode) ?? CURRENCIES[0];
+  const precio = precioUSD; // kept for checkout (always USD)
+  const total = totalUSD; // kept for checkout (always USD)
+
+  function fmtPrice(usd: number) {
+    const converted = usd * activeCurrency.rate;
+    return `${activeCurrency.flag} ${activeCurrency.symbol}${converted.toLocaleString('es-CO', { minimumFractionDigits: activeCurrency.decimals, maximumFractionDigits: activeCurrency.decimals })} ${activeCurrency.code}`;
+  }
 
   // Fetch matches
   useEffect(() => {
@@ -288,9 +381,7 @@ export function Tickets() {
   }, [partidos]);
 
   const uniqueGroups = useMemo(() => {
-    const groups = partidos
-      .map((p) => extractGroup(p.ronda))
-      .filter((g): g is string => g !== null);
+    const groups = partidos.map((p) => getPartidoGroup(p)).filter((g): g is string => g !== null);
     return Array.from(new Set(groups)).sort();
   }, [partidos]);
 
@@ -298,10 +389,7 @@ export function Tickets() {
   const filteredPartidos = useMemo(() => {
     return partidos.filter((p) => {
       if (filterDate && dateKey(p.fechaHora) !== filterDate) return false;
-      if (filterGroup) {
-        const g = extractGroup(p.ronda);
-        if (g !== filterGroup) return false;
-      }
+      if (filterGroup && getPartidoGroup(p) !== filterGroup) return false;
       return true;
     });
   }, [partidos, filterDate, filterGroup]);
@@ -497,7 +585,7 @@ export function Tickets() {
               { label: 'Cantidad', value: String(cantidad) },
               {
                 label: 'Precio unitario',
-                value: `$${precio} USD`,
+                value: fmtPrice(precio),
               },
             ].map((row) => (
               <div
@@ -919,10 +1007,29 @@ export function Tickets() {
                           fontFamily: 'Inter, sans-serif',
                           fontSize: 11,
                           color: '#94a3b8',
-                          marginTop: 4,
+                          marginTop: 5,
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '4px 8px',
                         }}
                       >
-                        {p.ronda} · {p.estadioNombre} · {fmtDate(p.fechaHora)}
+                        {getPartidoGroup(p) && (
+                          <span
+                            style={{
+                              background: '#006847',
+                              color: '#fff',
+                              borderRadius: 4,
+                              padding: '1px 6px',
+                              fontSize: 10,
+                              fontWeight: 700,
+                              letterSpacing: '0.06em',
+                            }}
+                          >
+                            GRP {getPartidoGroup(p)}
+                          </span>
+                        )}
+                        <span>🏟️ {p.estadioNombre}</span>
+                        <span>📅 {fmtDate(p.fechaHora)}</span>
                       </div>
                     </button>
                   );
@@ -1047,22 +1154,14 @@ export function Tickets() {
                       <div
                         style={{
                           fontFamily: '"Space Grotesk", sans-serif',
-                          fontSize: 18,
+                          fontSize: 15,
                           fontWeight: 800,
                           color: active ? t.color : '#0d1b2a',
                           marginBottom: 6,
+                          lineHeight: 1.2,
                         }}
                       >
-                        ${t.precio}{' '}
-                        <span
-                          style={{
-                            fontSize: 11,
-                            fontWeight: 500,
-                            color: '#94a3b8',
-                          }}
-                        >
-                          USD
-                        </span>
+                        {fmtPrice(t.precio)}
                       </div>
                       <div
                         style={{
@@ -1214,9 +1313,72 @@ export function Tickets() {
             </div>
           )}
         </div>
-
         {/* ── RIGHT: Order summary ── */}
-        <div style={{ position: 'sticky', top: 100 }}>
+        <div
+          style={{
+            position: 'sticky',
+            top: 100,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+          }}
+        >
+          {/* Currency selector */}
+          <div
+            style={{
+              background: '#fff',
+              borderRadius: 16,
+              padding: '14px 18px',
+              boxShadow: '0 2px 12px rgba(0,0,0,.06)',
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 10,
+                color: '#94a3b8',
+                textTransform: 'uppercase',
+                letterSpacing: '0.12em',
+                marginBottom: 8,
+              }}
+            >
+              💱 Moneda preferida
+            </div>
+            <select
+              value={currencyCode}
+              onChange={(e) => setCurrencyCode(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '8px 12px',
+                borderRadius: 10,
+                border: '1px solid rgba(0,0,0,.1)',
+                fontFamily: '"Space Grotesk", sans-serif',
+                fontWeight: 600,
+                fontSize: 13,
+                background: '#f8fafc',
+                color: '#0d1b2a',
+                cursor: 'pointer',
+              }}
+            >
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.flag} {c.code} — {c.symbol}
+                </option>
+              ))}
+            </select>
+            <p
+              style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: 10,
+                color: '#cbd5e1',
+                marginTop: 6,
+                lineHeight: 1.4,
+              }}
+            >
+              El cobro se procesa en USD. La conversión es referencial.
+            </p>
+          </div>
+
           <div
             style={{
               background: '#fff',
@@ -1269,8 +1431,8 @@ export function Tickets() {
                     : '—',
                 },
                 {
-                  label: 'Precio',
-                  value: selectedTribuna ? `$${precio} USD` : '—',
+                  label: 'Precio unit.',
+                  value: selectedTribuna ? fmtPrice(precio) : '—',
                 },
                 { label: 'Cantidad', value: String(cantidad) },
               ].map((row) => (
@@ -1321,11 +1483,13 @@ export function Tickets() {
                   style={{
                     fontFamily: '"Space Grotesk", sans-serif',
                     fontWeight: 900,
-                    fontSize: 26,
+                    fontSize: 22,
                     color: '#006847',
+                    lineHeight: 1.2,
+                    textAlign: 'right',
                   }}
                 >
-                  ${total} USD
+                  {fmtPrice(total)}
                 </span>
               </div>
             </div>
@@ -1393,7 +1557,8 @@ export function Tickets() {
               🔒 Pago seguro mediante Stripe · Entorno sandbox
             </p>
           </div>
-        </div>
+        </div>{' '}
+        {/* end sticky column */}
       </div>
     </main>
   );
