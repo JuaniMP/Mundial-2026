@@ -1,65 +1,38 @@
 /**
- * Firebase Cloud Messaging — Service Worker
- * Background message handler for WC 2026 Hub.
+ * Firebase Messaging Service Worker
  *
- * The main app sends Firebase config via postMessage after SW registration,
- * so no hardcoded credentials are needed here.
+ * Solo se activa si el proyecto tiene Firebase configurado
+ * (self.__FIREBASE_PROJECT_ID__ debe ser un valor real, no vacío).
+ * Sin configuración el SW se registra pero no hace nada → login funciona normal.
  */
 
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
 
-let initialized = false;
+const projectId = self.__FIREBASE_PROJECT_ID__;
 
-// Receive Firebase config from the main app thread
-self.addEventListener('message', (event) => {
-  if (event.data?.type === 'FIREBASE_CONFIG' && !initialized) {
-    try {
-      firebase.initializeApp(event.data.config);
+// Si Firebase no está configurado → salir sin inicializar
+if (!projectId || projectId === '' || projectId.startsWith('VITE_')) {
+  // No-op: notifications push desactivadas — todo lo demás de la app funciona normal
+} else {
+  firebase.initializeApp({
+    apiKey: self.__FIREBASE_API_KEY__,
+    authDomain: self.__FIREBASE_AUTH_DOMAIN__,
+    projectId: self.__FIREBASE_PROJECT_ID__,
+    storageBucket: self.__FIREBASE_STORAGE_BUCKET__,
+    messagingSenderId: self.__FIREBASE_MESSAGING_SENDER_ID__,
+    appId: self.__FIREBASE_APP_ID__,
+  });
 
-      const messaging = firebase.messaging();
+  const messaging = firebase.messaging();
 
-      // Handle messages received while the app is in the background
-      messaging.onBackgroundMessage((payload) => {
-        const title = payload.notification?.title ?? 'WC 2026';
-        const body = payload.notification?.body ?? '';
-
-        self.registration.showNotification(title, {
-          body,
-          icon: '/favicon.ico',
-          badge: '/favicon.ico',
-          tag: 'wc2026-notification',
-          data: payload.data ?? {},
-          actions: [
-            { action: 'open', title: '📱 Abrir app' },
-            { action: 'dismiss', title: 'Descartar' },
-          ],
-        });
-      });
-
-      initialized = true;
-      console.log('[SW] Firebase Messaging initialized');
-    } catch (err) {
-      console.error('[SW] Firebase init error:', err);
-    }
-  }
-});
-
-// Handle notification click
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  if (event.action === 'dismiss') return;
-
-  event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
-    }),
-  );
-});
+  messaging.onBackgroundMessage((payload) => {
+    const title = payload.notification?.title ?? 'Mundial 2026 Hub';
+    const body = payload.notification?.body ?? '';
+    self.registration.showNotification(title, {
+      body,
+      icon: '/vite.svg',
+      badge: '/vite.svg',
+    });
+  });
+}
