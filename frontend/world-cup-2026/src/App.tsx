@@ -1,5 +1,14 @@
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+
+// Desregistrar service workers viejos de Firebase si no está configurado
+if ('serviceWorker' in navigator && !import.meta.env.VITE_FIREBASE_PROJECT_ID) {
+  navigator.serviceWorker.getRegistrations().then((regs) => {
+    regs
+      .filter((r) => r.active?.scriptURL?.includes('firebase-messaging-sw'))
+      .forEach((r) => r.unregister());
+  });
+}
 import { LanguageProvider } from './context/LanguageContext';
 import { PrivateRoute } from './components/PrivateRoute';
 import { RoleRoute } from './components/RoleRoute';
