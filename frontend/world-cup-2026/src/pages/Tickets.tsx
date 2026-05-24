@@ -466,16 +466,10 @@ export function Tickets() {
             }}
           >
             <h1
-              style={{
-                fontFamily: '"Bebas Neue", "Anton", sans-serif',
-                fontSize: 64,
-                lineHeight: 0.9,
-                fontWeight: 900,
-                margin: '0 0 24px',
-                color: '#0d1b2a',
-              }}
+              className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight"
+              style={{ marginBottom: 24 }}
             >
-              CONFIRMAR <span style={{ color: '#006847' }}>PAGO</span>
+              Confirmar <span className="gradient-text">Pago</span>
             </h1>
           </div>
         </section>
@@ -637,28 +631,11 @@ export function Tickets() {
         }}
       >
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '48px 36px 0' }}>
-          <h1
-            style={{
-              fontFamily: '"Bebas Neue", "Oswald", "Anton", sans-serif',
-              fontSize: 'clamp(56px, 9vw, 112px)',
-              lineHeight: 0.9,
-              fontWeight: 900,
-              margin: '0 0 16px',
-              color: '#0d1b2a',
-            }}
-          >
-            ENTRADAS <span style={{ color: '#C8102E' }}>2026</span>
+          <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
+            Entradas <span className="gradient-text">2026</span>
           </h1>
-          <p
-            style={{
-              fontFamily: 'Inter, sans-serif',
-              fontSize: 15,
-              color: '#64748b',
-              marginBottom: 0,
-              lineHeight: 1.6,
-            }}
-          >
-            Compra tus entradas para el FIFA World Cup — pago seguro con Stripe
+          <p className="text-text-muted mt-1">
+            FIFA World Cup — compra tus entradas con pago seguro Stripe
           </p>
 
           {/* Stats strip */}
