@@ -57,9 +57,7 @@ interface ApiEnvelope<T> {
  */
 export function errorMessage(err: unknown, fallback = 'Ocurrió un error'): string {
   if (axios.isAxiosError(err)) {
-    const body = err.response?.data as
-      | { data?: { error?: string } }
-      | undefined;
+    const body = err.response?.data as { data?: { error?: string } } | undefined;
     return body?.data?.error || err.message || fallback;
   }
   return fallback;
@@ -97,8 +95,6 @@ export async function reactivarReserva(entradaId: number): Promise<AccionResult>
 
 /** Acción correctiva: procesar un reembolso simulado de la pasarela sandbox. */
 export async function procesarReembolso(entradaId: number): Promise<AccionResult> {
-  const res = await axios.post<ApiEnvelope<AccionResult>>(
-    `${API}/acciones/reembolso/${entradaId}`,
-  );
+  const res = await axios.post<ApiEnvelope<AccionResult>>(`${API}/acciones/reembolso/${entradaId}`);
   return res.data.data;
 }

@@ -40,11 +40,15 @@ function RequireLoginNotice({ children }: { children: React.ReactNode }) {
   if (!token) {
     return (
       <section className="relative min-h-[calc(100vh-120px)] md:min-h-[calc(100vh-150px)] overflow-hidden">
-        <div className="pointer-events-none select-none blur-[1.2px] grayscale-[0.2] opacity-55">{children}</div>
+        <div className="pointer-events-none select-none blur-[1.2px] grayscale-[0.2] opacity-55">
+          {children}
+        </div>
 
         <div className="absolute inset-0 flex items-start justify-center pt-24 md:pt-28 px-4">
           <div className="w-full max-w-2xl rounded-2xl border border-white/70 bg-white/72 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.20)] p-6 md:p-8 text-center animate-fade-in">
-            <p className="text-xs font-bold tracking-[0.2em] text-[#002868] uppercase">Vista previa</p>
+            <p className="text-xs font-bold tracking-[0.2em] text-[#002868] uppercase">
+              Vista previa
+            </p>
             <h2 className="mt-2 font-headline font-bold text-2xl md:text-3xl text-text-primary">
               Inicia sesión para acceder al contenido completo
             </h2>

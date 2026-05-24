@@ -15,5 +15,7 @@ export function normalizeRole(role?: string | null): string {
 
 export function hasRole(role: string | undefined | null, allowedRoles: string[]): boolean {
   const normalized = normalizeRole(role);
-  return normalized !== '' && allowedRoles.map((value) => normalizeRole(value)).includes(normalized);
+  return (
+    normalized !== '' && allowedRoles.map((value) => normalizeRole(value)).includes(normalized)
+  );
 }

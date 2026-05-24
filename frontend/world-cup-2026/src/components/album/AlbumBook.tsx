@@ -1078,8 +1078,6 @@ export function AlbumBook({ laminas, onPegar }: AlbumBookProps) {
   const animClass =
     flipDir === 'next' ? 'book-flip-next' : flipDir === 'prev' ? 'book-flip-prev' : undefined;
 
-
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
       {/* ── Book ── */}

@@ -250,7 +250,7 @@ export const WORLD_CUP_2026_STADIUMS: EstadioApi[] = [
 // Normalización y búsqueda robusta de estadios por nombre/alias
 export function findStadiumByName(name?: string): EstadioApi | undefined {
   if (!name) return undefined;
-  const norm = (s: string) => s.toLowerCase().replace(new RegExp("[.,'’\"/\\-]+", 'g'), '').trim();
+  const norm = (s: string) => s.toLowerCase().replace(new RegExp('[.,\'’"/\\-]+', 'g'), '').trim();
   const q = norm(name);
 
   // Alias map para variantes informales a id del estadio
@@ -272,7 +272,9 @@ export function findStadiumByName(name?: string): EstadioApi | undefined {
   if (exact) return exact;
 
   // 2) includes en nombre o ciudad
-  const includes = WORLD_CUP_2026_STADIUMS.find((s) => norm(s.nombre).includes(q) || norm(s.ciudad).includes(q));
+  const includes = WORLD_CUP_2026_STADIUMS.find(
+    (s) => norm(s.nombre).includes(q) || norm(s.ciudad).includes(q),
+  );
   if (includes) return includes;
 
   // 3) alias map
@@ -280,7 +282,9 @@ export function findStadiumByName(name?: string): EstadioApi | undefined {
   if (aliasedId) return WORLD_CUP_2026_STADIUMS.find((s) => s.id === aliasedId);
 
   // 4) buscar si la query contiene la ciudad o parte del nombre
-  const partial = WORLD_CUP_2026_STADIUMS.find((s) => q.includes(norm(s.ciudad)) || q.includes(norm(s.nombre)));
+  const partial = WORLD_CUP_2026_STADIUMS.find(
+    (s) => q.includes(norm(s.ciudad)) || q.includes(norm(s.nombre)),
+  );
   if (partial) return partial;
 
   return undefined;

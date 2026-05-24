@@ -423,7 +423,12 @@ function PreferenciasPanel(props: {
               )}
               {isConfigured && permission !== 'unsupported' && (
                 <p className="mt-1 text-xs text-text-secondary">
-                  Estado: {permission === 'granted' ? 'Permitidas' : permission === 'denied' ? 'Bloqueadas' : 'Sin configurar'}
+                  Estado:{' '}
+                  {permission === 'granted'
+                    ? 'Permitidas'
+                    : permission === 'denied'
+                      ? 'Bloqueadas'
+                      : 'Sin configurar'}
                   {registered ? ' · Token registrado' : ' · Sin token registrado'}
                 </p>
               )}
