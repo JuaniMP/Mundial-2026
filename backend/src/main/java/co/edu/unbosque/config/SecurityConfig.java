@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 "/api/v1/jugadores/**",
                                 "/api/v1/entradas/webhook",
                                 "/api/v1/entradas/precios",
+                                "/api/v1/viaje/**",
                                 "/actuator/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**"

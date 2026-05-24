@@ -6,7 +6,6 @@ import co.edu.unbosque.dto.NotificacionResponse;
 import co.edu.unbosque.entity.Usuario;
 import co.edu.unbosque.repository.NotificacionRepository;
 import co.edu.unbosque.repository.UsuarioRepository;
-import co.edu.unbosque.service.FcmService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -16,84 +15,24 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Endpoints de notificaciones in-app del usuario autenticado.
+ * También expone el endpoint para registrar el token FCM del navegador/dispositivo,
+ * necesario para push notifications via Firebase.
+ */
 @RestController
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final FcmService             fcmService;
     private final UsuarioRepository      usuarioRepository;
     private final NotificacionRepository notificacionRepository;
 
-    // ── Token management ──────────────────────────────────────────────────────
-
     /**
-     * Register (or update) the FCM device token for the authenticated user.
-     * Also auto-subscribes the device to the "partidos" broadcast topic.
-     */
-    @PostMapping("/token")
-    @Transactional
-    public ResponseEntity<?> registerToken(
-            @Valid @RequestBody FcmTokenRequest req,
-            @AuthenticationPrincipal UserDetails userDetails) {
-
-        Usuario usuario = getUsuario(userDetails);
-        usuario.setFcmToken(req.getToken());
-        usuarioRepository.save(usuario);
-
-        fcmService.subscribeToTopic(req.getToken(), "partidos");
-
-        return ResponseEntity.ok(ApiResponse.success(
-                "Token registrado. Notificaciones activadas.", null));
-    }
-
-    /**
-     * Remove the FCM token — user opts out of push notifications.
-     */
-    @DeleteMapping("/token")
-    @Transactional
-    public ResponseEntity<?> removeToken(@AuthenticationPrincipal UserDetails userDetails) {
-        Usuario usuario = getUsuario(userDetails);
-        usuario.setFcmToken(null);
-        usuarioRepository.save(usuario);
-        return ResponseEntity.ok(ApiResponse.success("Notificaciones desactivadas.", null));
-    }
-
-    /**
-     * Check whether the current user has an FCM token registered.
-     */
-    @GetMapping("/has-token")
-    @Transactional(readOnly = true)
-    public ResponseEntity<?> hasToken(@AuthenticationPrincipal UserDetails userDetails) {
-        Usuario usuario = getUsuario(userDetails);
-        boolean has = usuario.getFcmToken() != null;
-        return ResponseEntity.ok(ApiResponse.success(Map.of("hasToken", has), "Estado del token"));
-    }
-
-    // ── Test & history ────────────────────────────────────────────────────────
-
-    /**
-     * Send a test push notification to the authenticated user's device.
-     */
-    @PostMapping("/test")
-    @Transactional(readOnly = true)
-    public ResponseEntity<?> sendTest(@AuthenticationPrincipal UserDetails userDetails) {
-        Usuario usuario = getUsuario(userDetails);
-        if (usuario.getFcmToken() == null) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.error("Sin token FCM. Activa las notificaciones primero.", "NO_TOKEN"));
-        }
-        fcmService.sendToToken(usuario.getFcmToken(),
-                "🔔 WC 2026 — Prueba",
-                "Las notificaciones push están activas ✅");
-        return ResponseEntity.ok(ApiResponse.success("Notificación de prueba enviada.", null));
-    }
-
-    /**
-     * Retrieve the in-app notification history for the authenticated user.
+     * Devuelve el historial de notificaciones del usuario autenticado,
+     * ordenado de más reciente a más antiguo.
      */
     @GetMapping("/mis-notificaciones")
     @Transactional(readOnly = true)
@@ -117,7 +56,20 @@ public class NotificationController {
         return ResponseEntity.ok(ApiResponse.success(data, "Notificaciones"));
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
+    /**
+     * Registra o actualiza el token FCM del navegador/dispositivo del usuario autenticado.
+     * El frontend llama a este endpoint después de obtener el token con getToken() de Firebase JS SDK.
+     */
+    @PostMapping("/fcm-token")
+    @Transactional
+    public ResponseEntity<?> registrarFcmToken(
+            @Valid @RequestBody FcmTokenRequest request,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Usuario usuario = getUsuario(userDetails);
+        usuario.setFcmToken(request.getToken());
+        usuarioRepository.save(usuario);
+        return ResponseEntity.ok(ApiResponse.success(null, "Token FCM registrado"));
+    }
 
     private Usuario getUsuario(UserDetails userDetails) {
         return usuarioRepository.findByEmail(userDetails.getUsername())

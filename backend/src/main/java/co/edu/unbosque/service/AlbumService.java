@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -29,9 +29,10 @@ public class AlbumService {
     private static final String[] RAREZAS = {"COMUN", "COMUN", "COMUN", "COMUN", "COMUN", "COMUN", "RARO", "RARO", "RARO", "EPICO", "EPICO", "LEGENDARIO"};
     private static final Random random = new Random();
 
+    @Transactional
     public AlbumResponse getAlbumByUsuario(Integer usuarioId) {
         Album album = albumRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Album no encontrado"));
+                .orElseGet(() -> createAlbumEntity(usuarioId));
         return toResponse(album);
     }
 
@@ -107,13 +108,48 @@ public class AlbumService {
                 .build();
     }
 
+    @Transactional
     public List<LaminaAlbumResponse> getLaminasAlbum(Integer usuarioId) {
         Album album = albumRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Album no encontrado"));
+                .orElseGet(() -> createAlbumEntity(usuarioId));
 
         return laminaAlbumRepository.findByAlbumId(album.getId()).stream()
                 .map(this::toLaminaAlbumResponse)
                 .collect(Collectors.toList());
+    }
+
+    /** Retorna las 320 láminas con estado del usuario (incluyendo las no obtenidas). */
+    @Transactional
+    public List<LaminaAlbumResponse> getAllLaminasConEstado(Integer usuarioId) {
+        Album album = albumRepository.findByUsuarioId(usuarioId)
+                .orElseGet(() -> createAlbumEntity(usuarioId));
+
+        Map<Integer, co.edu.unbosque.entity.LaminaAlbum> poseidasMap =
+                laminaAlbumRepository.findByAlbumId(album.getId()).stream()
+                        .collect(Collectors.toMap(la -> la.getLamina().getId(), la -> la));
+
+        return laminaRepository.findAll().stream()
+                .sorted(Comparator.comparing(Lamina::getId))
+                .map(lamina -> {
+                    co.edu.unbosque.entity.LaminaAlbum la = poseidasMap.get(lamina.getId());
+                    String nombre = lamina.getNombre() != null && !lamina.getNombre().isBlank()
+                            ? lamina.getNombre()
+                            : (lamina.getNombreJugador() != null ? lamina.getNombreJugador() : "Lámina especial");
+                    return LaminaAlbumResponse.builder()
+                            .idLamina(lamina.getId())
+                            .nombreJugador(nombre)
+                            .imagenUrl(lamina.getImagenUrl())
+                            .seleccionNombre(lamina.getSeleccionNombre())
+                            .rareza(lamina.getRareza())
+                            .estaPegada(la != null && Boolean.TRUE.equals(la.getEstaPegada()))
+                            .cantidadRepetidas(la != null ? la.getCantidadRepetidas() : 0)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    public long getPaquetesAbiertosUsuario(Integer usuarioId) {
+        return paqueteRepository.countByUsuarioId(usuarioId);
     }
 
     @Transactional
@@ -176,6 +212,8 @@ public class AlbumService {
         return LaminaAlbumResponse.builder()
                 .idLamina(lamina.getId())
                 .nombreJugador(nombreMostrar)
+                .imagenUrl(lamina.getImagenUrl())
+                .seleccionNombre(lamina.getSeleccionNombre())
                 .rareza(lamina.getRareza())
                 .estaPegada(la.getEstaPegada())
                 .cantidadRepetidas(la.getCantidadRepetidas())

@@ -128,11 +128,10 @@ public class PerfilService {
 
     @Transactional(readOnly = true)
     public List<RecordatorioViajeResponse> getViajes(Integer usuarioId) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        String zonaUsuario = usuario.getZonaHoraria() == null ? "UTC" : usuario.getZonaHoraria();
+        String zonaUsuario = resolveZonaUsuario(usuarioId);
 
         return recordatorioViajeRepository.findByUsuarioIdOrderByFechaInicioAsc(usuarioId).stream()
+                .filter(this::isViajeValido)
                 .map(v -> toViajeResponse(v, zonaUsuario))
                 .collect(Collectors.toList());
     }
@@ -153,7 +152,7 @@ public class PerfilService {
                 .notas(req.getNotas())
                 .build();
         viaje = recordatorioViajeRepository.save(viaje);
-        String zonaUsuario = usuario.getZonaHoraria() == null ? "UTC" : usuario.getZonaHoraria();
+            String zonaUsuario = resolveZonaUsuario(usuarioId);
         return toViajeResponse(viaje, zonaUsuario);
     }
 
@@ -172,13 +171,12 @@ public class PerfilService {
     @Transactional(readOnly = true)
     public List<FeedItemResponse> getFeed(Integer usuarioId) {
         LocalDateTime ahora = LocalDateTime.now();
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        String zonaUsuario = usuario.getZonaHoraria() == null ? "UTC" : usuario.getZonaHoraria();
+        String zonaUsuario = resolveZonaUsuario(usuarioId);
 
         Stream<FeedItemResponse> agenda = agendaItemRepository
                 .findUpcoming(usuarioId, ahora.minusHours(2))
                 .stream()
+            .filter(this::isAgendaValida)
                 .map(a -> FeedItemResponse.builder()
                         .id("agenda-" + a.getId())
                         .origen("AGENDA")
@@ -191,6 +189,7 @@ public class PerfilService {
 
         Stream<FeedItemResponse> viajes = recordatorioViajeRepository
                 .findByUsuarioIdOrderByFechaInicioAsc(usuarioId).stream()
+            .filter(this::isViajeValido)
                 .filter(v -> !v.getFechaFin().isBefore(LocalDate.now().minusDays(1)))
                 .map(v -> {
                     RecordatorioViajeResponse r = toViajeResponse(v, zonaUsuario);
@@ -229,6 +228,22 @@ public class PerfilService {
                         .thenComparing(FeedItemResponse::getCuando))
                 .limit(20)
                 .collect(Collectors.toList());
+    }
+
+    private String resolveZonaUsuario(Integer usuarioId) {
+        PerfilPreferencias preferencias = perfilPreferenciasRepository.findByIdUsuario(usuarioId).orElse(null);
+        if (preferencias != null && preferencias.getZonaHorariaPreferida() != null
+                && !preferencias.getZonaHorariaPreferida().isBlank()) {
+            return preferencias.getZonaHorariaPreferida();
+        }
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+        if (usuario.getZonaHoraria() != null && !usuario.getZonaHoraria().isBlank()) {
+            return usuario.getZonaHoraria();
+        }
+
+        return "UTC";
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
@@ -285,6 +300,12 @@ public class PerfilService {
             } catch (Exception ignore) { /* zona inválida */ }
         }
 
+        long diasEstimados = Math.max(1, ChronoUnit.DAYS.between(v.getFechaInicio(), v.getFechaFin()) + 1);
+        long nochesEstimadas = Math.max(0, diasEstimados - 1);
+        String duracionEstimada = diasEstimados + (diasEstimados == 1 ? " día" : " días")
+            + " / "
+            + nochesEstimadas + (nochesEstimadas == 1 ? " noche" : " noches");
+
         LocalDate hoy = LocalDate.now();
         boolean enCurso = !hoy.isBefore(v.getFechaInicio()) && !hoy.isAfter(v.getFechaFin());
 
@@ -314,8 +335,26 @@ public class PerfilService {
                 .estadioDestino(v.getEstadioDestino())
                 .notas(v.getNotas())
                 .offsetHoras(offset)
+                .duracionEstimada(duracionEstimada)
                 .enCurso(enCurso)
                 .alerta(alerta)
                 .build();
+    }
+
+    private boolean isViajeValido(RecordatorioViaje viaje) {
+        return viaje != null
+                && viaje.getFechaInicio() != null
+                && viaje.getFechaFin() != null
+                && viaje.getCiudadDestino() != null
+                && !viaje.getCiudadDestino().isBlank()
+                && viaje.getPaisDestino() != null
+                && !viaje.getPaisDestino().isBlank();
+    }
+
+    private boolean isAgendaValida(AgendaItem agendaItem) {
+        return agendaItem != null
+                && agendaItem.getFechaInicio() != null
+                && agendaItem.getTitulo() != null
+                && !agendaItem.getTitulo().isBlank();
     }
 }

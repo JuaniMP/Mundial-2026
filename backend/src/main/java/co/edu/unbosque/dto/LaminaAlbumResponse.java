@@ -12,10 +12,8 @@ import lombok.NoArgsConstructor;
 public class LaminaAlbumResponse {
     private Integer idLamina;
     private String nombreJugador;
-    private String posicion;
-    private String nacionalidad;
-    private Integer dorsal;
-    private String seleccion;
+    private String imagenUrl;
+    private String seleccionNombre;
     private String rareza;
     private Boolean estaPegada;
     private Integer cantidadRepetidas;
