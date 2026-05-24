@@ -2,7 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import type { PartidoApi } from '../types';
+import { useAuth } from '../context/AuthContext';
 import {
   Ticket,
   CreditCard,
@@ -333,6 +335,9 @@ function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormPro
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
 export function Tickets() {
+  const { token } = useAuth();
+  const navigate = useNavigate();
+
   const [partidos, setPartidos] = useState<PartidoApi[]>([]);
   const [loadingP, setLoadingP] = useState(true);
   const [selectedMatch, setMatch] = useState<PartidoApi | null>(null);
@@ -396,13 +401,21 @@ export function Tickets() {
 
   const handleCheckout = async () => {
     if (!selectedMatch || !selectedTribuna) return;
+
+    // Require authentication
+    if (!token) {
+      setError('Debes iniciar sesión para comprar entradas.');
+      setTimeout(() => navigate('/login'), 1800);
+      return;
+    }
+
     setLoadingCO(true);
     setError('');
     try {
       const { data } = await axios.post(
         `${API}/entradas/checkout`,
         {
-          partidoId: selectedMatch.id,
+          apiPartidoId: selectedMatch.id, // campo correcto en el backend
           categoria,
           cantidad,
           seleccionLocal: selectedMatch.seleccionLocal,
@@ -415,8 +428,14 @@ export function Tickets() {
       setCS(data.data.clientSecret);
       setStep('payment');
     } catch (err: unknown) {
-      const axiosErr = err as { response?: { data?: { message?: string } } };
-      setError(axiosErr.response?.data?.message ?? 'Error al iniciar el pago');
+      const axiosErr = err as { response?: { data?: { message?: string }; status?: number } };
+      const status = axiosErr.response?.status;
+      if (status === 403 || status === 401) {
+        setError('Sesión expirada. Por favor inicia sesión de nuevo.');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setError(axiosErr.response?.data?.message ?? 'Error al iniciar el pago');
+      }
     } finally {
       setLoadingCO(false);
     }
