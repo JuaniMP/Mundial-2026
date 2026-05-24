@@ -199,34 +199,12 @@ export function Teams() {
         }}
       >
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '52px 36px 0' }}>
-          {/* Big title */}
-          <h1
-            style={{
-              fontFamily: '"Bebas Neue", "Oswald", "Anton", Impact, sans-serif',
-              fontSize: 'clamp(64px, 10vw, 128px)',
-              lineHeight: 0.88,
-              fontWeight: 900,
-              letterSpacing: '-0.01em',
-              margin: 0,
-              color: 'var(--color-text-primary)',
-            }}
-          >
-            ALL <span style={{ color: 'var(--color-secondary)' }}>{total}</span>
-            <br />
-            NATIONS.
+          {/* Big title — mismo estilo que Estadios */}
+          <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
+            Selecciones <span className="gradient-text">{total}</span>
           </h1>
-          <p
-            className="text-text-muted"
-            style={{
-              fontFamily: 'var(--font-headline)',
-              fontSize: 15,
-              marginTop: 20,
-              maxWidth: 540,
-              lineHeight: 1.65,
-            }}
-          >
-            {total} naciones. 12 grupos. Un trofeo. Explora plantillas, cuerpos técnicos e historia
-            de cada selección clasificada al Mundial 2026.
+          <p className="text-text-muted mt-1">
+            FIFA World Cup 2026 — {total} naciones · 12 grupos · USA, Canadá, México
           </p>
 
           {/* Stats strip */}
