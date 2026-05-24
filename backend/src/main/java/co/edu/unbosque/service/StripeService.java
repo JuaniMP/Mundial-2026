@@ -53,7 +53,7 @@ public class StripeService {
     private String webhookSecret;
 
     private final EntradaRepository entradaRepository;
-    private final FcmService        fcmService;
+    private final co.edu.unbosque.repository.NotificacionRepository notificacionRepository;
     private final TransactionLogService transactionLogService;
 
     @PostConstruct
@@ -196,11 +196,21 @@ public class StripeService {
         if (!entradas.isEmpty()) {
             Entrada primera = entradas.get(0);
             String desc = buildEntradaDesc(primera);
-            fcmService.notifyTicketPurchase(
-                    primera.getUsuarioComprador(),
-                    desc,
-                    primera.getCategoria(),
-                    entradas.size());
+
+            // Guardar notificación in-app para el comprador
+            if (primera.getUsuarioComprador() != null) {
+                try {
+                    notificacionRepository.save(
+                        co.edu.unbosque.entity.Notificacion.builder()
+                            .mensaje("🎫 ¡Entrada confirmada! " + entradas.size() + "x "
+                                + primera.getCategoria() + " — " + desc)
+                            .canal("APP")
+                            .destinatario(primera.getUsuarioComprador())
+                            .build());
+                } catch (Exception e) {
+                    log.warn("No se pudo guardar la notificación de compra: {}", e.getMessage());
+                }
+            }
 
             transactionLogService.registrar(primera.getUsuarioComprador(), "PAGO_EXITOSO",
                     "Pago confirmado — " + desc + " · " + entradas.size() + " entrada(s)",

@@ -44,9 +44,6 @@ public class Usuario {
     @Column(name = "ultimo_login")
     private LocalDateTime ultimoLogin;
 
-    @Column(name = "fcm_token", length = 255)
-    private String fcmToken;
-
     @Column(name = "ciudad", length = 100)
     private String ciudad;
 
@@ -59,6 +56,10 @@ public class Usuario {
 
     @Column(name = "fecha_bloqueo")
     private LocalDateTime fechaBloqueo;
+
+    /** Token FCM del dispositivo/navegador para push notifications. */
+    @Column(name = "fcm_token", length = 512)
+    private String fcmToken;
 
     @OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
     private List<Album> albumes;

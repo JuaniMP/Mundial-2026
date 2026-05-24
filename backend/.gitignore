@@ -53,3 +53,7 @@ application-local.yml
 # Test
 /coverage/
 .nyc_output/
+# Firebase service account (NEVER commit)
+secrets/
+firebase-service-account*.json
+*-firebase-adminsdk*.json

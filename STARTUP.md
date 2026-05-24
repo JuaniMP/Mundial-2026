@@ -57,20 +57,10 @@ start-backend.bat
 
 ## 🗄️ Base de datos
 
-### Opción A: Docker (si está instalado)
+Asegúrate de que la VM remota de MySQL sea accesible en `100.87.26.105:3306` con:
 
-```bash
-npm run db:start      # Levantar MySQL
-npm run db:logs       # Ver logs
-npm run db:stop       # Parar MySQL
-```
-
-### Opción B: MySQL instalado localmente
-
-Asegúrate de que MySQL esté corriendo en `localhost:3306` con:
-
-- Usuario: `mundial_user`
-- Contraseña: `mundial_password`
+- Usuario: `juanita_mh`
+- Contraseña: la configurada en `backend/src/main/resources/application.properties`
 - Base de datos: `mundial_2026_hub`
 
 ---
@@ -89,9 +79,9 @@ C:\Users\juame\.maven\maven-3.9.15(1)\bin\mvn -version
 
 ### ❌ Backend no se conecta a la BD
 
-1. Verifica que MySQL está corriendo (`npm run db:start`)
-2. Revisa credenciales en `backend/src/main/resources/application.yml`
-3. Revisa logs: `npm run db:logs`
+1. Verifica que Tailscale esté conectado y que la VM responda en `100.87.26.105:3306`
+2. Revisa credenciales en `backend/src/main/resources/application.properties`
+3. Revisa los logs del backend en la terminal donde lo arrancaste
 
 ### ❌ Frontend no abre en navegador
 
@@ -104,9 +94,8 @@ C:\Users\juame\.maven\maven-3.9.15(1)\bin\mvn -version
 
 ```
 Mundial-2026/
-├── frontend/FrontIng/world-cup-2026/  # Frontend Vite + React 19
+├── frontend/world-cup-2026/            # Frontend Vite + React 19
 ├── backend/                            # Spring Boot 3 + Java 17
-├── packages/shared-types/              # Tipos compartidos
 ├── start-dev.bat                       # Script interactivo
 ├── start-backend.bat                   # Script solo backend
 ├── package.json                        # npm scripts
@@ -128,10 +117,6 @@ npm run format           # Prettier (frontend)
 npm run backend:build    # Backend: mvn clean package
 npm run backend:dev      # Backend: mvn spring-boot:run
 npm run backend:compile  # Backend: mvn compile
-
-npm run db:start         # Docker: levantar MySQL
-npm run db:stop          # Docker: parar MySQL
-npm run db:logs          # Docker: ver logs
 ```
 
 ---

@@ -87,13 +87,6 @@
             <artifactId>gson</artifactId>
         </dependency>
 
-        <!-- Firebase Admin SDK (FCM push notifications) -->
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>9.2.0</version>
-        </dependency>
-
         <!-- Cache (Caffeine + Spring Cache) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,18 +97,11 @@
             <artifactId>caffeine</artifactId>
         </dependency>
 
-        <!-- Rate Limiting (Bucket4j) -->
+        <!-- Firebase Admin SDK (FCM push notifications) -->
         <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-            <version>8.10.1</version>
-        </dependency>
-
-        <!-- Springdoc / OpenAPI -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.3.0</version>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.2.0</version>
         </dependency>
 
         <!-- Utilities -->
