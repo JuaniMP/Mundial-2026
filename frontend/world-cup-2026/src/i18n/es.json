@@ -26,7 +26,8 @@
     "comingSoon": "Próximamente",
     "noData": "Sin datos",
     "error": "Error",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "reload": "Recargar"
   },
   "nav": {
     "fanZone": "FAN ZONE",
@@ -141,7 +142,16 @@
     "editProfile": "Editar perfil",
     "changeAvatar": "Cambiar avatar",
     "selectLanguage": "Selecciona idioma",
-    "french": "Francés"
+    "french": "Francés",
+    "tabPreferences": "Preferencias",
+    "tabAgenda": "Agenda",
+    "tabFeed": "Feed",
+    "tabTrips": "Viajes",
+    "notificationChannels": "Canales de notificación",
+    "editPreferences": "Editar preferencias",
+    "wizardTeamsTitle": "Tus selecciones favoritas",
+    "wizardTeamsSubtitle": "Elige hasta 5 equipos. Verás sus partidos primero en el feed.",
+    "wizardTimezone": "Zona horaria"
   },
   "pollas": {
     "title": "Pollas",
@@ -343,14 +353,42 @@
     "packs": "Sobres",
     "missions": "Misiones",
     "complete": "Completo",
-    "stickers": "Cromos"
+    "stickers": "Cromos",
+    "myAlbum": "MI ÁLBUM",
+    "completed": "completado",
+    "stickered": "pegados",
+    "obtained": "obtenidos",
+    "pack": "Sobre",
+    "openedInDB": "Abiertos en BD:",
+    "opening": "Abriendo…",
+    "openPack": "Abrir sobre",
+    "freePack": "Sobre diario gratis",
+    "freePackReady": "¡Disponible!",
+    "available": "Disponible",
+    "openPackError": "No se pudo abrir el sobre en BD. Verifica que tengas sesión iniciada.",
+    "stickerError": "No se pudo pegar la lámina. Intenta de nuevo.",
+    "tabAlbum": "Álbum",
+    "tabCromos": "Cromos",
+    "tabIntercambios": "Intercambios",
+    "tabMisiones": "Misiones"
   },
   "matches": {
     "title": "Partidos",
     "live": "En vivo",
     "scheduled": "Programado",
     "finished": "Finalizado",
-    "halfTime": "Descanso"
+    "halfTime": "Descanso",
+    "subtitle": "FIFA World Cup — Calendario completo",
+    "stageAll": "Todos",
+    "stageGroups": "Fase Grupos",
+    "stageRound32": "Ronda de 32",
+    "stageQuarters": "Cuartos",
+    "stageSemis": "Semis",
+    "stageFinal": "Final",
+    "loadError": "No se pudo cargar los partidos. Verifica que el backend esté corriendo.",
+    "apiKeyRequired": "API Key requerida",
+    "apiKeyBody": "Regístrate gratis en football-data.org y añade tu key al backend.",
+    "fallbackNotice": "Mostrando partidos provisionales (fallback)"
   },
   "qualifiers": {
     "title": "Eliminatorias",

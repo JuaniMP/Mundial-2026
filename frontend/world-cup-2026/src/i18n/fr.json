@@ -26,7 +26,8 @@
     "comingSoon": "Bientôt disponible",
     "noData": "Aucune donnée",
     "error": "Erreur",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "reload": "Recharger"
   },
   "nav": {
     "fanZone": "ZONE FAN",
@@ -141,7 +142,16 @@
     "editProfile": "Modifier le profil",
     "changeAvatar": "Changer l'avatar",
     "selectLanguage": "Sélectionner la langue",
-    "french": "Français"
+    "french": "Français",
+    "tabPreferences": "Préférences",
+    "tabAgenda": "Agenda",
+    "tabFeed": "Feed",
+    "tabTrips": "Voyages",
+    "notificationChannels": "Canaux de notification",
+    "editPreferences": "Modifier les préférences",
+    "wizardTeamsTitle": "Vos équipes favorites",
+    "wizardTeamsSubtitle": "Choisissez jusqu'à 5 équipes. Vous verrez leurs matchs en premier dans votre fil.",
+    "wizardTimezone": "Fuseau horaire"
   },
   "pollas": {
     "title": "Pronostics",
@@ -343,14 +353,42 @@
     "packs": "Packs",
     "missions": "Missions",
     "complete": "Complet",
-    "stickers": "Autocollants"
+    "stickers": "Autocollants",
+    "myAlbum": "MON ALBUM",
+    "completed": "complété",
+    "stickered": "collés",
+    "obtained": "obtenus",
+    "pack": "Pochette",
+    "openedInDB": "Ouverts en BD :",
+    "opening": "Ouverture…",
+    "openPack": "Ouvrir pochette",
+    "freePack": "Pochette gratuite quotidienne",
+    "freePackReady": "Disponible !",
+    "available": "Disponible",
+    "openPackError": "Impossible d'ouvrir la pochette. Vérifiez que vous êtes connecté.",
+    "stickerError": "Impossible de coller le sticker. Réessayez.",
+    "tabAlbum": "Album",
+    "tabCromos": "Stickers",
+    "tabIntercambios": "Échanges",
+    "tabMisiones": "Missions"
   },
   "matches": {
     "title": "Matchs",
     "live": "En direct",
     "scheduled": "Programmé",
     "finished": "Terminé",
-    "halfTime": "Mi-temps"
+    "halfTime": "Mi-temps",
+    "subtitle": "FIFA Coupe du Monde — Calendrier complet",
+    "stageAll": "Tous",
+    "stageGroups": "Phase de groupes",
+    "stageRound32": "Huitièmes",
+    "stageQuarters": "Quarts de finale",
+    "stageSemis": "Demi-finales",
+    "stageFinal": "Finale",
+    "loadError": "Impossible de charger les matchs. Vérifiez que le backend est actif.",
+    "apiKeyRequired": "Clé API requise",
+    "apiKeyBody": "Inscrivez-vous gratuitement sur football-data.org et ajoutez votre clé au backend.",
+    "fallbackNotice": "Affichage des matchs provisoires (fallback)"
   },
   "qualifiers": {
     "title": "Éliminatoires",
