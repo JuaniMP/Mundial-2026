@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import type { PartidoApi } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import {
   Ticket,
   CreditCard,
@@ -109,12 +110,7 @@ function availColor(pct: number) {
   return '#006847';
 }
 
-function availLabel(pct: number) {
-  if (pct >= 95) return 'AGOTADO';
-  if (pct >= 85) return 'CASI LLENO';
-  if (pct >= 60) return 'DISPONIBLE';
-  return 'AMPLIA DISPONIBILIDAD';
-}
+// availLabel is now computed inline via t() inside the component
 
 // ── Country → Group mapping (API ronda is always "GROUP_STAGE") ───────────────
 const COUNTRY_GROUP: Record<string, string> = {
@@ -244,6 +240,7 @@ interface PaymentFormProps {
 }
 
 function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormProps) {
+  const { t } = useTranslation();
   const stripe = useStripe();
   const elements = useElements();
   const [paying, setPaying] = useState(false);
@@ -260,7 +257,7 @@ function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormPro
     });
 
     if (error) {
-      onError(error.message ?? 'Error al procesar el pago');
+      onError(error.message ?? t('tickets.payError'));
       setPaying(false);
     } else if (paymentIntent?.status === 'succeeded') {
       onSuccess(paymentIntent.id);
@@ -319,11 +316,11 @@ function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormPro
       >
         {paying ? (
           <>
-            <RefreshCw size={16} className="animate-spin" /> Procesando…
+            <RefreshCw size={16} className="animate-spin" /> {t('tickets.processing')}
           </>
         ) : (
           <>
-            <CreditCard size={16} /> Pagar ${total.toFixed(2)} USD (cobro en USD)
+            <CreditCard size={16} /> {t('tickets.pay')} ${total.toFixed(2)} USD
           </>
         )}
       </button>
@@ -335,6 +332,7 @@ function PaymentForm({ clientSecret, total, onSuccess, onError }: PaymentFormPro
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
 export function Tickets() {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const navigate = useNavigate();
 
@@ -352,6 +350,13 @@ export function Tickets() {
   const [loadingCO, setLoadingCO] = useState(false);
   const [errorMsg, setError] = useState('');
   const [currencyCode, setCurrencyCode] = useState('USD');
+
+  function availLabel(pct: number) {
+    if (pct >= 95) return 'AGOTADO';
+    if (pct >= 85) return 'CASI LLENO';
+    if (pct >= 60) return t('tickets.available').toUpperCase();
+    return t('tickets.available').toUpperCase();
+  }
 
   const categoria = selectedTribuna?.categoria ?? 'GENERAL';
   const precioUSD = selectedTribuna?.precio ?? 80;
@@ -404,7 +409,7 @@ export function Tickets() {
 
     // Require authentication
     if (!token) {
-      setError('Debes iniciar sesión para comprar entradas.');
+      setError(t('tickets.loginRequired'));
       setTimeout(() => navigate('/login'), 1800);
       return;
     }
@@ -434,7 +439,7 @@ export function Tickets() {
         setError('Sesión expirada. Por favor inicia sesión de nuevo.');
         setTimeout(() => navigate('/login'), 2000);
       } else {
-        setError(axiosErr.response?.data?.message ?? 'Error al iniciar el pago');
+        setError(axiosErr.response?.data?.message ?? t('tickets.payError'));
       }
     } finally {
       setLoadingCO(false);
@@ -476,7 +481,7 @@ export function Tickets() {
               margin: '0 0 12px',
             }}
           >
-            ¡Pago exitoso!
+            {t('tickets.successTitle')}
           </h2>
           <p
             style={{
@@ -487,9 +492,8 @@ export function Tickets() {
               lineHeight: 1.6,
             }}
           >
-            Tus <strong style={{ color: '#0d1b2a' }}>{cantidad}</strong> entrada(s){' '}
-            <strong>{selectedTribuna?.nombre}</strong> han sido confirmadas. Recibirás los códigos
-            QR en tu correo.
+            {t('tickets.ticketsCount', { n: cantidad })} <strong>{selectedTribuna?.nombre}</strong>{' '}
+            — {t('tickets.successDesc')}
           </p>
           <div
             style={{
@@ -510,7 +514,7 @@ export function Tickets() {
                 marginBottom: 6,
               }}
             >
-              Confirmación Stripe
+              {t('tickets.successStripe')}
             </div>
             <div
               style={{
@@ -541,7 +545,7 @@ export function Tickets() {
               color: '#0d1b2a',
             }}
           >
-            Comprar más entradas
+            {t('tickets.buyMore')}
           </button>
         </div>
       </main>
@@ -576,7 +580,7 @@ export function Tickets() {
               className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight"
               style={{ marginBottom: 24 }}
             >
-              Confirmar <span className="gradient-text">Pago</span>
+              {t('tickets.step2')} <span className="gradient-text">2026</span>
             </h1>
           </div>
         </section>
@@ -594,16 +598,16 @@ export function Tickets() {
           >
             {[
               {
-                label: 'Partido',
+                label: t('tickets.match'),
                 value: `${selectedMatch?.seleccionLocal} vs ${selectedMatch?.seleccionVisitante}`,
               },
               {
-                label: 'Tribuna',
+                label: t('tickets.stand'),
                 value: `${selectedTribuna?.emoji} ${selectedTribuna?.nombre}`,
               },
-              { label: 'Cantidad', value: String(cantidad) },
+              { label: t('tickets.qty'), value: String(cantidad) },
               {
-                label: 'Precio unitario',
+                label: t('tickets.unitPrice'),
                 value: fmtPrice(precio),
               },
             ].map((row) => (
@@ -633,7 +637,7 @@ export function Tickets() {
                 color: '#0d1b2a',
               }}
             >
-              <span>Total</span>
+              <span>{t('tickets.total')}</span>
               <span style={{ color: '#006847' }}>${total.toFixed(2)} USD</span>
             </div>
           </div>
@@ -714,7 +718,7 @@ export function Tickets() {
               width: '100%',
             }}
           >
-            ← Volver a seleccionar
+            {t('tickets.backToSelect')}
           </button>
         </div>
       </main>
@@ -739,11 +743,9 @@ export function Tickets() {
       >
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '48px 36px 0' }}>
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
-            Entradas <span className="gradient-text">2026</span>
+            {t('tickets.title')} <span className="gradient-text">2026</span>
           </h1>
-          <p className="text-text-muted mt-1">
-            FIFA World Cup — compra tus entradas con pago seguro Stripe
-          </p>
+          <p className="text-text-muted mt-1">FIFA World Cup — {t('tickets.stripeNote')}</p>
 
           {/* Stats strip */}
           <div
@@ -757,11 +759,19 @@ export function Tickets() {
             {[
               {
                 icon: <Calendar size={14} />,
-                label: 'Partidos disponibles',
+                label: t('tickets.matchesAvailable'),
                 value: partidos.length,
               },
-              { icon: <Users size={14} />, label: 'Tribunas por partido', value: TRIBUNAS.length },
-              { icon: <Filter size={14} />, label: 'Grupos', value: uniqueGroups.length || '12' },
+              {
+                icon: <Users size={14} />,
+                label: t('tickets.standsPerMatch'),
+                value: TRIBUNAS.length,
+              },
+              {
+                icon: <Filter size={14} />,
+                label: t('tickets.groups'),
+                value: uniqueGroups.length || '12',
+              },
             ].map((s, i) => (
               <div
                 key={i}
@@ -889,7 +899,7 @@ export function Tickets() {
                   color: '#0d1b2a',
                 }}
               >
-                Seleccionar Partido
+                {t('tickets.selectMatchStep')}
               </h2>
             </div>
 
@@ -918,7 +928,7 @@ export function Tickets() {
                   cursor: 'pointer',
                 }}
               >
-                <option value="">📅 Todas las fechas</option>
+                <option value="">📅 {t('tickets.filterDate')}</option>
                 {uniqueDates.map((d) => (
                   <option key={d} value={d}>
                     {new Date(d + 'T12:00:00').toLocaleDateString('es-CO', {
@@ -945,10 +955,10 @@ export function Tickets() {
                   cursor: 'pointer',
                 }}
               >
-                <option value="">🏆 Todos los grupos</option>
+                <option value="">🏆 {t('tickets.filterGroup')}</option>
                 {uniqueGroups.map((g) => (
                   <option key={g} value={g}>
-                    Grupo {g}
+                    {t('tickets.group', { g })}
                   </option>
                 ))}
               </select>
@@ -979,7 +989,7 @@ export function Tickets() {
                   padding: '24px 0',
                 }}
               >
-                No hay partidos para los filtros seleccionados.
+                {t('tickets.noMatchesFilter')}
               </p>
             ) : (
               <div
@@ -1102,7 +1112,7 @@ export function Tickets() {
                     color: '#0d1b2a',
                   }}
                 >
-                  Seleccionar Tribuna
+                  {t('tickets.selectStandStep')}
                 </h2>
               </div>
 
@@ -1113,23 +1123,23 @@ export function Tickets() {
                   gap: 12,
                 }}
               >
-                {TRIBUNAS.map((t, idx) => {
+                {TRIBUNAS.map((trib, idx) => {
                   const pct = pctVendido(selectedMatch.id, idx);
                   const agotado = pct >= 95;
-                  const active = selectedTribuna?.id === t.id;
+                  const active = selectedTribuna?.id === trib.id;
                   const col = availColor(pct);
 
                   return (
                     <button
-                      key={t.id}
-                      onClick={() => !agotado && setTribuna(active ? null : t)}
+                      key={trib.id}
+                      onClick={() => !agotado && setTribuna(active ? null : trib)}
                       disabled={agotado}
                       style={{
                         textAlign: 'left',
                         padding: '16px 18px',
                         borderRadius: 14,
-                        border: active ? `2px solid ${t.color}` : '1px solid rgba(0,0,0,.08)',
-                        background: active ? `${t.color}12` : agotado ? '#f1f5f9' : '#fafbfc',
+                        border: active ? `2px solid ${trib.color}` : '1px solid rgba(0,0,0,.08)',
+                        background: active ? `${trib.color}12` : agotado ? '#f1f5f9' : '#fafbfc',
                         cursor: agotado ? 'not-allowed' : 'pointer',
                         opacity: agotado ? 0.55 : 1,
                         transition: 'all .18s',
@@ -1157,30 +1167,30 @@ export function Tickets() {
                           marginBottom: 8,
                         }}
                       >
-                        {t.emoji}
+                        {trib.emoji}
                       </div>
                       <div
                         style={{
                           fontFamily: '"Space Grotesk", sans-serif',
                           fontWeight: 700,
                           fontSize: 13,
-                          color: active ? t.color : '#0d1b2a',
+                          color: active ? trib.color : '#0d1b2a',
                           marginBottom: 4,
                         }}
                       >
-                        {t.nombre}
+                        {trib.nombre}
                       </div>
                       <div
                         style={{
                           fontFamily: '"Space Grotesk", sans-serif',
                           fontSize: 15,
                           fontWeight: 800,
-                          color: active ? t.color : '#0d1b2a',
+                          color: active ? trib.color : '#0d1b2a',
                           marginBottom: 6,
                           lineHeight: 1.2,
                         }}
                       >
-                        {fmtPrice(t.precio)}
+                        {fmtPrice(trib.precio)}
                       </div>
                       <div
                         style={{
@@ -1197,7 +1207,7 @@ export function Tickets() {
                             color: '#94a3b8',
                           }}
                         >
-                          {t.capacidad.toLocaleString()} cap.
+                          {trib.capacidad.toLocaleString()} {t('tickets.capacity')}
                         </span>
                         <span
                           style={{
@@ -1264,7 +1274,7 @@ export function Tickets() {
                     color: '#0d1b2a',
                   }}
                 >
-                  Cantidad (máx. 4)
+                  {t('tickets.qtyMax')}
                 </h2>
               </div>
 
@@ -1361,7 +1371,7 @@ export function Tickets() {
                 marginBottom: 8,
               }}
             >
-              💱 Moneda preferida
+              💱 {t('tickets.preferredCurrency')}
             </div>
             <select
               value={currencyCode}
@@ -1394,7 +1404,7 @@ export function Tickets() {
                 lineHeight: 1.4,
               }}
             >
-              El cobro se procesa en USD. La conversión es referencial.
+              {t('tickets.currencyNote')}
             </p>
           </div>
 
@@ -1424,7 +1434,7 @@ export function Tickets() {
                   color: '#0d1b2a',
                 }}
               >
-                Resumen del Pedido
+                {t('tickets.orderSummary')}
               </h2>
             </div>
 
@@ -1438,22 +1448,22 @@ export function Tickets() {
             >
               {[
                 {
-                  label: 'Partido',
+                  label: t('tickets.match'),
                   value: selectedMatch
                     ? `${selectedMatch.seleccionLocal} vs ${selectedMatch.seleccionVisitante}`
                     : '—',
                 },
                 {
-                  label: 'Tribuna',
+                  label: t('tickets.stand'),
                   value: selectedTribuna
                     ? `${selectedTribuna.emoji} ${selectedTribuna.nombre}`
                     : '—',
                 },
                 {
-                  label: 'Precio unit.',
+                  label: t('tickets.unitPrice'),
                   value: selectedTribuna ? fmtPrice(precio) : '—',
                 },
-                { label: 'Cantidad', value: String(cantidad) },
+                { label: t('tickets.qty'), value: String(cantidad) },
               ].map((row) => (
                 <div
                   key={row.label}
@@ -1496,7 +1506,7 @@ export function Tickets() {
                     color: '#0d1b2a',
                   }}
                 >
-                  Total
+                  {t('tickets.total')}
                 </span>
                 <span
                   style={{
@@ -1539,11 +1549,11 @@ export function Tickets() {
             >
               {loadingCO ? (
                 <>
-                  <RefreshCw size={16} className="animate-spin" /> Preparando pago…
+                  <RefreshCw size={16} className="animate-spin" /> {t('tickets.preparingPayment')}
                 </>
               ) : (
                 <>
-                  <CreditCard size={16} /> Continuar al pago
+                  <CreditCard size={16} /> {t('tickets.continueToPayment')}
                 </>
               )}
             </button>
@@ -1558,9 +1568,7 @@ export function Tickets() {
                   marginTop: 10,
                 }}
               >
-                {!selectedMatch
-                  ? 'Selecciona un partido para continuar'
-                  : 'Selecciona una tribuna para continuar'}
+                {!selectedMatch ? t('tickets.selectMatchPrompt') : t('tickets.selectStandPrompt')}
               </p>
             )}
 
@@ -1573,7 +1581,7 @@ export function Tickets() {
                 marginTop: 14,
               }}
             >
-              🔒 Pago seguro mediante Stripe · Entorno sandbox
+              {t('tickets.securePayment')}
             </p>
           </div>
         </div>{' '}

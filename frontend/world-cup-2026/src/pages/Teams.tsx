@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { SeleccionResponse, JugadorResponse } from '../types';
 import { fetchSelecciones, fetchJugadoresBySeleccion } from '../services/footballApi';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 // ── Static metadata: groups, confederation, coach ─────────────────────────────
 // API returns empty grupo/confederacion → we fill from here using codigoFifa
@@ -127,6 +128,7 @@ function SkeletonCard() {
 // Main page
 // ─────────────────────────────────────────────────────────────────────────────
 export function Teams() {
+  const { t } = useTranslation();
   const [selecciones, setSelecciones] = useState<SeleccionResponse[]>([]);
   const [loadingTeams, setLoadingTeams] = useState(true);
   const [featured, setFeatured] = useState<SeleccionResponse | null>(null);
@@ -155,9 +157,9 @@ export function Teams() {
           loadPlayers(first);
         }
       })
-      .catch(() => setError('No se pudieron cargar las selecciones.'))
+      .catch(() => setError(t('teams.loadError')))
       .finally(() => setLoadingTeams(false));
-  }, [loadPlayers]);
+  }, [loadPlayers, t]);
 
   const handleSelectTeam = (s: SeleccionResponse) => {
     setFeatured(s);
@@ -201,10 +203,12 @@ export function Teams() {
         <div style={{ maxWidth: 1400, margin: '0 auto', padding: '52px 36px 0' }}>
           {/* Big title — mismo estilo que Estadios */}
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
-            Selecciones <span className="gradient-text">{total}</span>
+            {t('teams.title')} <span className="gradient-text">{total}</span>
           </h1>
           <p className="text-text-muted mt-1">
-            FIFA World Cup 2026 — {total} naciones · 12 grupos · USA, Canadá, México
+            FIFA World Cup 2026 — {total} {t('teams.totalTeams').toLowerCase()} · 12{' '}
+            {t('teams.groups').toLowerCase()} · USA,{' '}
+            {t('common.spanish') === 'Español' ? 'Canadá' : 'Canada'}, México
           </p>
 
           {/* Stats strip */}
@@ -218,10 +222,18 @@ export function Teams() {
               }}
             >
               {[
-                { label: 'Selecciones', value: total, color: 'var(--color-primary)' },
-                { label: 'Confederaciones', value: confeds || 6, color: 'var(--color-accent)' },
-                { label: 'Grupos', value: groupKeys.length || 12, color: 'var(--color-secondary)' },
-                { label: 'Edición', value: '2026', color: 'var(--color-primary)' },
+                { label: t('teams.totalTeams'), value: total, color: 'var(--color-primary)' },
+                {
+                  label: t('teams.confederations'),
+                  value: confeds || 6,
+                  color: 'var(--color-accent)',
+                },
+                {
+                  label: t('teams.groups'),
+                  value: groupKeys.length || 12,
+                  color: 'var(--color-secondary)',
+                },
+                { label: t('teams.edition'), value: '2026', color: 'var(--color-primary)' },
               ].map((stat, i) => (
                 <div
                   key={i}
@@ -295,7 +307,7 @@ export function Teams() {
               className="text-text-muted"
               style={{ fontFamily: 'var(--font-headline)', fontSize: 14 }}
             >
-              Cargando selecciones…
+              {t('teams.loading')}
             </span>
           </div>
         )}
@@ -338,7 +350,7 @@ export function Teams() {
                       marginBottom: 22,
                     }}
                   >
-                    FEATURED TEAM
+                    {t('teams.featuredTeam')}
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 22 }}>
@@ -365,7 +377,8 @@ export function Teams() {
                           letterSpacing: '0.06em',
                         }}
                       >
-                        GRUPO {featuredMeta?.grupo ?? '—'} · {featuredMeta?.confederacion ?? '—'}
+                        {t('teams.group').toUpperCase()} {featuredMeta?.grupo ?? '—'} ·{' '}
+                        {featuredMeta?.confederacion ?? '—'}
                       </div>
                     </div>
                   </div>
@@ -382,8 +395,11 @@ export function Teams() {
                     }}
                   >
                     {[
-                      { label: 'DT', value: featuredMeta?.coach ?? '—' },
-                      { label: 'CONFEDERACIÓN', value: featuredMeta?.confederacion ?? '—' },
+                      { label: t('teams.coach').toUpperCase(), value: featuredMeta?.coach ?? '—' },
+                      {
+                        label: t('teams.confederation').toUpperCase(),
+                        value: featuredMeta?.confederacion ?? '—',
+                      },
                     ].map((stat) => (
                       <div key={stat.label}>
                         <div
@@ -433,7 +449,7 @@ export function Teams() {
                         textTransform: 'uppercase',
                       }}
                     >
-                      PLANTILLA CLAVE
+                      {t('teams.keySquad')}
                     </span>
                     <button
                       onClick={() => setShowRoster(true)}
@@ -449,7 +465,7 @@ export function Teams() {
                         transition: 'all .15s',
                       }}
                     >
-                      PLANTEL COMPLETO →
+                      {t('teams.viewFull')}
                     </button>
                   </div>
 
@@ -529,7 +545,7 @@ export function Teams() {
                         textAlign: 'center',
                       }}
                     >
-                      No hay jugadores registrados aún
+                      {t('teams.noSquad')}
                     </div>
                   )}
                 </div>
@@ -557,7 +573,7 @@ export function Teams() {
                   }}
                 >
                   <ArrowLeft size={14} />
-                  Volver
+                  {t('teams.back')}
                 </button>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
@@ -572,7 +588,7 @@ export function Teams() {
                       color: 'var(--color-text-primary)',
                     }}
                   >
-                    {featured.pais} — Plantel Completo
+                    {featured.pais} — {t('teams.fullRoster')}
                   </h2>
                 </div>
 
@@ -581,7 +597,7 @@ export function Teams() {
                     className="text-text-muted"
                     style={{ fontFamily: 'var(--font-headline)', fontSize: 14 }}
                   >
-                    No hay jugadores registrados aún.
+                    {t('teams.noPlayersYet')}
                   </p>
                 ) : (
                   <div
@@ -677,17 +693,19 @@ export function Teams() {
                       color: 'var(--color-text-primary)',
                     }}
                   >
-                    BROWSE BY GROUP
+                    {t('teams.browseGroup')}
                   </h2>
 
                   {/* Group pills */}
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                    {['ALL', ...groupKeys].map((g) => {
-                      const isActive = activeGroup === g;
+                    {[t('teams.allGroups'), ...groupKeys].map((g, idx) => {
+                      const isAll = idx === 0;
+                      const groupKey = isAll ? 'ALL' : g;
+                      const isActive = activeGroup === groupKey;
                       return (
                         <button
                           key={g}
-                          onClick={() => setActiveGroup(g)}
+                          onClick={() => setActiveGroup(groupKey)}
                           style={{
                             minWidth: 40,
                             height: 40,
@@ -699,7 +717,7 @@ export function Teams() {
                             color: isActive ? '#fff' : 'var(--color-text-primary)',
                             fontFamily: 'var(--font-headline)',
                             fontWeight: 800,
-                            fontSize: g === 'ALL' ? 11 : 14,
+                            fontSize: isAll ? 11 : 14,
                             cursor: 'pointer',
                             transition: 'all .15s',
                             padding: '0 4px',
@@ -730,7 +748,7 @@ export function Teams() {
                           borderBottom: '2px solid var(--color-primary-subtle)',
                         }}
                       >
-                        GRUPO {g}
+                        {t('teams.groupSection', { g })}
                       </h3>
 
                       <div

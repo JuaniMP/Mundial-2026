@@ -14,7 +14,7 @@ export interface Preferencias {
   canalesNotificacion: string[];
   zonaHorariaPreferida?: string | null;
   wizardCompletado: boolean;
-  idioma?: 'es' | 'en';
+  idioma?: 'es' | 'en' | 'fr';
 }
 
 export interface AgendaItem {
@@ -39,6 +39,7 @@ export interface RecordatorioViaje {
   estadioDestino?: string;
   notas?: string;
   offsetHoras?: string | null;
+  duracionEstimada?: string | null;
   enCurso: boolean;
   alerta?: string;
 }
