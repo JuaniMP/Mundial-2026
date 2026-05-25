@@ -15,7 +15,9 @@ export function ComunicadosPanel() {
     'TODOS',
   );
   const [segmentoValor, setSegmentoValor] = useState('');
-  const [canales, setCanales] = useState<Array<'APP' | 'PUSH'>>(['APP', 'PUSH']);
+  // Canal PUSH (Firebase): el backend guarda la notificación en BD Y envía push al dispositivo.
+  // El usuario también verá el comunicado en la campanita del navbar (fallback in-app).
+  const canales: Array<'PUSH'> = ['PUSH'];
   const [progreso, setProgreso] = useState<ComunicadoProgreso | null>(null);
   const [working, setWorking] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,10 +43,6 @@ export function ComunicadosPanel() {
     }
     if (segmento !== 'TODOS' && !segmentoValor.trim()) {
       setError('Especifica el valor del segmento.');
-      return;
-    }
-    if (canales.length === 0) {
-      setError('Selecciona al menos un canal (APP o PUSH).');
       return;
     }
     setWorking(true);
@@ -110,9 +108,7 @@ export function ComunicadosPanel() {
           <Select
             label="Segmento"
             value={segmento}
-            onChange={(v) =>
-              setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL')
-            }
+            onChange={(v) => setSegmento(v as 'TODOS' | 'CIUDAD' | 'PARTIDO' | 'ESTADIO' | 'ROL')}
             options={[
               { v: 'TODOS', label: 'Todos los usuarios' },
               { v: 'CIUDAD', label: 'Por ciudad' },
@@ -130,7 +126,7 @@ export function ComunicadosPanel() {
                     ? 'ID partido (api)'
                     : segmento === 'ESTADIO'
                       ? 'Nombre del estadio (venue exacto)'
-                    : 'Rol (AFICIONADO, OPERADOR, …)'
+                      : 'Rol (AFICIONADO, OPERADOR, …)'
               }
               value={segmentoValor}
               onChange={setSegmentoValor}
@@ -138,43 +134,19 @@ export function ComunicadosPanel() {
           )}
         </div>
 
-        <div>
-          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 6 }}>
-            Canales
-          </label>
-          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', fontSize: 13 }}>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <input
-                type="checkbox"
-                checked={canales.includes('APP')}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setCanales((prev) => (prev.includes('APP') ? prev : [...prev, 'APP']));
-                  } else {
-                    setCanales((prev) => prev.filter((c) => c !== 'APP'));
-                  }
-                }}
-              />
-              APP (centro de notificaciones interno)
-            </label>
-            <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-              <input
-                type="checkbox"
-                checked={canales.includes('PUSH')}
-                onChange={(e) => {
-                  if (e.target.checked) {
-                    setCanales((prev) => (prev.includes('PUSH') ? prev : [...prev, 'PUSH']));
-                  } else {
-                    setCanales((prev) => prev.filter((c) => c !== 'PUSH'));
-                  }
-                }}
-              />
-              PUSH (Firebase FCM)
-            </label>
-          </div>
-          <p style={{ margin: '6px 0 0', fontSize: 12, color: '#6b7280' }}>
-            PUSH requiere que el usuario tenga token FCM registrado y permisos activos en el navegador.
-          </p>
+        <div
+          style={{
+            background: '#fdf4ff',
+            border: '1px solid #e9d5ff',
+            borderRadius: 8,
+            padding: '10px 12px',
+            fontSize: 12,
+            color: '#6b21a8',
+          }}
+        >
+          🔔 <strong>Canal de entrega: Firebase Push (PUSH)</strong> — se envía una notificación
+          push al navegador/dispositivo del usuario via Firebase Cloud Messaging. Si el usuario no
+          tiene permisos de push, aún verá el mensaje en la campanita del navbar.
         </div>
 
         {error && (

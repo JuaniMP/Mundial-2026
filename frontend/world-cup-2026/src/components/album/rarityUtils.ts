@@ -50,9 +50,9 @@ export const RARITY: Record<Rareza, RarityInfo> = {
 };
 
 export function parseRareza(raw: string | undefined | null): Rareza {
-  const r = (raw ?? '').toUpperCase();
-  if (r === 'RARO') return 'RARO';
-  if (r === 'EPICO' || r === 'ÉPICO') return 'EPICO';
-  if (r === 'LEGENDARIO') return 'LEGENDARIO';
+  const r = (raw ?? '').toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  if (r === 'RARO' || r === 'RARA') return 'RARO';
+  if (r === 'EPICO' || r === 'EPICA' || r === 'EPICO') return 'EPICO';
+  if (r === 'LEGENDARIO' || r === 'LEGENDARIA') return 'LEGENDARIO';
   return 'COMUN';
 }

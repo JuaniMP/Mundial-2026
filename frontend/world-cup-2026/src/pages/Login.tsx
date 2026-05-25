@@ -26,7 +26,7 @@ export const Login = () => {
             ? '/soporte'
             : rol === 'OPERADOR'
               ? '/agentes'
-            : '/',
+              : '/',
       );
     } catch {
       // Error is already set in context

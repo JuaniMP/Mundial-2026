@@ -61,9 +61,7 @@ const SEVERIDAD_COLORS: Record<string, string> = {
 function fmtTime(iso: string | null): string {
   if (!iso) return '--:--:--';
   const d = new Date(iso);
-  return Number.isNaN(d.getTime())
-    ? '--:--:--'
-    : d.toLocaleTimeString('es-CO', { hour12: false });
+  return Number.isNaN(d.getTime()) ? '--:--:--' : d.toLocaleTimeString('es-CO', { hour12: false });
 }
 
 function fmtDate(iso: string | null): string {
@@ -139,7 +137,9 @@ function TimelineRow({ ev }: { ev: TimelineEvent }) {
             {ev.detalle}
           </p>
         )}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 5, flexWrap: 'wrap' }}>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 5, flexWrap: 'wrap' }}
+        >
           <span
             style={{
               fontFamily: 'Archivo, sans-serif',
@@ -203,7 +203,14 @@ function EntradaCard({
         gap: 10,
       }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 10,
+        }}
+      >
         <div style={{ minWidth: 0 }}>
           <span
             style={{
@@ -332,10 +339,7 @@ function ActionButton({
         cursor: disabled ? 'not-allowed' : 'pointer',
       }}
     >
-      <Icon
-        size={12}
-        style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }}
-      />
+      <Icon size={12} style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
       {label}
     </button>
   );
@@ -511,7 +515,8 @@ export function Soporte() {
             margin: '0 0 24px',
           }}
         >
-          Busca por ID numérico, correo electrónico, ID de transacción Stripe o código QR de la entrada.
+          Busca por ID numérico, correo electrónico, ID de transacción Stripe o código QR de la
+          entrada.
         </p>
 
         {searchError && (
@@ -592,7 +597,9 @@ export function Soporte() {
                   }}
                 >
                   Registro: {fmtDate(data.fechaRegistro)} · Último acceso:{' '}
-                  {data.ultimoLogin ? `${fmtDate(data.ultimoLogin)} ${fmtTime(data.ultimoLogin)}` : '—'}
+                  {data.ultimoLogin
+                    ? `${fmtDate(data.ultimoLogin)} ${fmtTime(data.ultimoLogin)}`
+                    : '—'}
                 </p>
               </div>
               <div style={{ display: 'flex', gap: 22 }}>

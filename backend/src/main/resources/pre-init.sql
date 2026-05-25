@@ -12,4 +12,8 @@ DROP TABLE IF EXISTS estadios;
 DROP TABLE IF EXISTS sedes;
 DROP TABLE IF EXISTS reportes_interaccion_api;
 DROP TABLE IF EXISTS aliados_comerciales;
+-- Profile feature tables: drop so Hibernate recreates with correct schema
+DROP TABLE IF EXISTS agenda_items;
+DROP TABLE IF EXISTS recordatorios_viaje;
+DROP TABLE IF EXISTS notificaciones;
 SET FOREIGN_KEY_CHECKS = 1;

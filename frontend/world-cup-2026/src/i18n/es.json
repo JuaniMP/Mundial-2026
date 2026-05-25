@@ -56,7 +56,11 @@
     "lastResult": "ÚLTIMO RESULTADO",
     "group": "GRUPO",
     "noUpcoming": "No hay próximos partidos",
-    "noFeatured": "Sin partido destacado"
+    "noFeatured": "Sin partido destacado",
+    "songAriaLabel": "Abrir canción oficial del Mundial",
+    "songLabel": "Video musical del Mundial",
+    "fanHubLocked": "FAN HUB BLOQUEADO",
+    "fanHubLockedDesc": "Inicia sesión para ver tu álbum, tus pollas, el predictor y tu ranking."
   },
   "hero3d": {
     "selectMascot": "Selecciona una mascota",
@@ -111,6 +115,8 @@
     "languageHint": "La interfaz y las noticias se mostrarán en este idioma",
     "saved": "Preferencias guardadas",
     "saveError": "Error guardando preferencias",
+    "loadError": "No se pudo cargar tu perfil. Revisa tu sesión o vuelve a iniciar sesión.",
+    "loadPartialError": "No se pudieron cargar: {{sections}}.",
     "agenda": "Mi agenda",
     "trips": "Mis viajes",
     "feed": "Mi feed",

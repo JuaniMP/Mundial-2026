@@ -56,7 +56,11 @@
     "lastResult": "DERNIER RÉSULTAT",
     "group": "GROUPE",
     "noUpcoming": "Aucun match à venir",
-    "noFeatured": "Aucun match mis en avant"
+    "noFeatured": "Aucun match mis en avant",
+    "songAriaLabel": "Ouvrir la chanson officielle de la Coupe du Monde",
+    "songLabel": "Clip officiel de la Coupe du Monde",
+    "fanHubLocked": "FAN HUB VERROUILLÉ",
+    "fanHubLockedDesc": "Connectez-vous pour voir votre album, vos pools, le prédicteur et votre classement."
   },
   "hero3d": {
     "selectMascot": "Choisissez une mascotte",
@@ -111,6 +115,8 @@
     "languageHint": "L'interface et les actualités seront affichées dans cette langue",
     "saved": "Préférences enregistrées",
     "saveError": "Erreur lors de l'enregistrement des préférences",
+    "loadError": "Impossible de charger votre profil. Vérifiez votre session ou reconnectez-vous.",
+    "loadPartialError": "Impossible de charger : {{sections}}.",
     "agenda": "Mon agenda",
     "trips": "Mes voyages",
     "feed": "Mon fil",

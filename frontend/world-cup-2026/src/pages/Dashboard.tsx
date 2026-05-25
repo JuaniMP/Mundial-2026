@@ -346,7 +346,7 @@ function HeroSection() {
           href="https://youtu.be/fcnDmrtj6Sk?si=TBrddS6S26mHZGKv"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Abrir canción oficial del Mundial"
+          aria-label={t('dashboard.songAriaLabel')}
           style={{
             display: 'inline-block',
             marginTop: 20,
@@ -382,10 +382,18 @@ function HeroSection() {
                 borderRadius: 9999,
               }}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path d="M5 3v18l15-9L5 3z" fill="#fff" />
               </svg>
-              <span style={{ fontSize: 12, letterSpacing: '0.04em' }}>Video musical del Mundial</span>
+              <span style={{ fontSize: 12, letterSpacing: '0.04em' }}>
+                {t('dashboard.songLabel')}
+              </span>
             </div>
           </div>
         </a>
@@ -2119,6 +2127,7 @@ import { NewsSection } from '../components/NewsSection';
 import { FanHubSection } from '../components/FanHubSection';
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const { token } = useAuth();
   const [matches, setMatches] = useState<FdMatch[]>([]);
 
@@ -2183,10 +2192,10 @@ export function Dashboard() {
                     fontSize: 28,
                   }}
                 >
-                  FAN HUB BLOQUEADO
+                  {t('dashboard.fanHubLocked')}
                 </h3>
                 <p style={{ marginTop: 12, marginBottom: 16, color: '#374151', lineHeight: 1.6 }}>
-                  Inicia sesión para ver tu álbum, tus pollas, el predictor y tu ranking.
+                  {t('dashboard.fanHubLockedDesc')}
                 </p>
                 <Link
                   to="/login"
@@ -2201,7 +2210,7 @@ export function Dashboard() {
                     letterSpacing: '0.03em',
                   }}
                 >
-                  INICIAR SESIÓN
+                  {t('common.signIn').toUpperCase()}
                 </Link>
               </section>
             )}
