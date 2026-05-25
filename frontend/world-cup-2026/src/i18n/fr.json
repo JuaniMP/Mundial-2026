@@ -90,7 +90,13 @@
     "fullName": "Nom complet",
     "confirmPassword": "Confirmez votre mot de passe",
     "invalidCredentials": "Identifiants invalides",
-    "loginError": "Erreur de connexion"
+    "loginError": "Erreur de connexion",
+    "guestPreviewLabel": "Aperçu",
+    "guestTitle": "Connectez-vous pour accéder au contenu complet",
+    "guestBody": "Vous pouvez voir un aperçu partiel de cette page. Connectez-vous pour interagir et débloquer toutes les fonctionnalités.",
+    "guestButton": "Se connecter",
+    "guestBanner": "Mode aperçu · Connectez-vous pour débloquer tout le contenu",
+    "guestBannerShort": "Mode aperçu · Se connecter"
   },
   "profile": {
     "title": "Mon profil",
@@ -276,7 +282,24 @@
     "inaugurated": "Inauguré",
     "localTeam": "Équipe locale",
     "spectators": "spectateurs",
-    "noResultsShort": "Aucun résultat"
+    "noResultsShort": "Aucun résultat",
+    "seatGuide": "Guide des Places",
+    "seats": "places",
+    "estimatedCapacity": "Capacité estimée",
+    "rows": "Rangées",
+    "seatsPerRow": "Places par rangée",
+    "distributionView": "Vue de distribution",
+    "moreRows": "+ {{n}} rangées de plus",
+    "clickSection": "Cliquez sur une section du plan pour voir ses informations",
+    "categoryVip": "Loges et suites privées avec services exclusifs",
+    "categoryPremium": "Sièges premium avec vue privilégiée sur le terrain",
+    "categoryTribuna": "Tribune principale avec excellente visibilité",
+    "categoryGeneral": "Sièges généraux dans les niveaux supérieurs",
+    "layoutNfl": "Configuration NFL — Bol rectangulaire",
+    "layoutSoccerLatin": "Stade latinoaméricain — Ovale",
+    "layoutMls": "MLS Soccer-specific — Compact",
+    "layoutDome": "Dôme multifonctionnel — Toit rétractable",
+    "layoutOvalLarge": "Grand stade ovale"
   },
   "teams": {
     "title": "Équipes",

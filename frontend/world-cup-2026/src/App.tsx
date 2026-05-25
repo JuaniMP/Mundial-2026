@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { AuthProvider } from './context/AuthContext';
 
 // Desregistrar service workers viejos de Firebase si no está configurado
@@ -37,11 +38,12 @@ import { useAuth } from './context/AuthContext';
 
 function RequireLoginNotice({ children }: { children: React.ReactNode }) {
   const { token, loading } = useAuth();
+  const { t } = useTranslation();
 
   if (loading) {
     return (
       <div className="card-base p-6 text-center">
-        <p className="text-text-secondary">Cargando...</p>
+        <p className="text-text-secondary">{t('common.loading')}</p>
       </div>
     );
   }
@@ -56,21 +58,18 @@ function RequireLoginNotice({ children }: { children: React.ReactNode }) {
         <div className="absolute inset-0 flex items-start justify-center pt-24 md:pt-28 px-4">
           <div className="w-full max-w-2xl rounded-2xl border border-white/70 bg-white/72 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.20)] p-6 md:p-8 text-center animate-fade-in">
             <p className="text-xs font-bold tracking-[0.2em] text-[#002868] uppercase">
-              Vista previa
+              {t('auth.guestPreviewLabel')}
             </p>
             <h2 className="mt-2 font-headline font-bold text-2xl md:text-3xl text-text-primary">
-              Inicia sesión para acceder al contenido completo
+              {t('auth.guestTitle')}
             </h2>
-            <p className="mt-3 text-text-secondary">
-              Puedes ver una vista parcial de esta página. Para interactuar y desbloquear todas las
-              funciones, entra con tu cuenta.
-            </p>
+            <p className="mt-3 text-text-secondary">{t('auth.guestBody')}</p>
             <div className="mt-5 flex justify-center">
               <Link
                 to="/login"
                 className="inline-flex items-center rounded-full bg-[#002868] text-white px-6 py-2.5 text-sm font-bold tracking-wide hover:bg-[#001f55] transition-colors"
               >
-                Ir a iniciar sesión
+                {t('auth.guestButton')}
               </Link>
             </div>
           </div>

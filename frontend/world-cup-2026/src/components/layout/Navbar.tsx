@@ -339,7 +339,7 @@ export function Navbar() {
               textAlign: 'center',
             }}
           >
-            Modo vista previa · Inicia sesión para desbloquear todo el contenido
+            {t('auth.guestBanner')}
           </div>
         </div>
       )}
@@ -413,7 +413,7 @@ export function Navbar() {
             textAlign: 'center',
           }}
         >
-          Modo vista previa · Inicia sesión
+          {t('auth.guestBannerShort')}
         </div>
       )}
 

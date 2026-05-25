@@ -90,7 +90,13 @@
     "fullName": "Nombre completo",
     "confirmPassword": "Confirma tu contraseña",
     "invalidCredentials": "Credenciales inválidas",
-    "loginError": "Error iniciando sesión"
+    "loginError": "Error iniciando sesión",
+    "guestPreviewLabel": "Vista previa",
+    "guestTitle": "Inicia sesión para acceder al contenido completo",
+    "guestBody": "Puedes ver una vista parcial de esta página. Para interactuar y desbloquear todas las funciones, entra con tu cuenta.",
+    "guestButton": "Ir a iniciar sesión",
+    "guestBanner": "Modo vista previa · Inicia sesión para desbloquear todo el contenido",
+    "guestBannerShort": "Modo vista previa · Inicia sesión"
   },
   "profile": {
     "title": "Mi perfil",
@@ -276,7 +282,24 @@
     "inaugurated": "Inaugurado",
     "localTeam": "Equipo local",
     "spectators": "espectadores",
-    "noResultsShort": "Sin resultados"
+    "noResultsShort": "Sin resultados",
+    "seatGuide": "Guía de Asientos",
+    "seats": "asientos",
+    "estimatedCapacity": "Capacidad estimada",
+    "rows": "Filas",
+    "seatsPerRow": "Asientos por fila",
+    "distributionView": "Vista de distribución",
+    "moreRows": "+ {{n}} filas más",
+    "clickSection": "Haz clic en una sección del mapa para ver su información",
+    "categoryVip": "Palcos y suites privadas con servicios exclusivos",
+    "categoryPremium": "Asientos premium con vista privilegiada al campo",
+    "categoryTribuna": "Tribuna principal con excelente visibilidad",
+    "categoryGeneral": "Asientos generales en los niveles superiores",
+    "layoutNfl": "Configuración NFL — Bowl rectangular",
+    "layoutSoccerLatin": "Estadio Latinoamericano — Ovalado",
+    "layoutMls": "MLS Soccer-specific — Compacto",
+    "layoutDome": "Domo Multipropósito — Techo retráctil",
+    "layoutOvalLarge": "Estadio ovalado grande"
   },
   "teams": {
     "title": "Selecciones",
