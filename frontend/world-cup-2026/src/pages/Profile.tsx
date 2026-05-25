@@ -124,6 +124,7 @@ const ZONAS = [
 type Tab = 'preferencias' | 'agenda' | 'feed' | 'viajes';
 
 export function Profile() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('preferencias');
   const [error, setError] = useState<string | null>(null);
@@ -270,25 +271,25 @@ export function Profile() {
       <div className="flex flex-wrap bg-bg-elevated rounded-xl p-1 border border-border self-start gap-1">
         {(
           [
-            { key: 'preferencias', label: 'Preferencias', icon: Settings },
-            { key: 'agenda', label: 'Agenda', icon: CalendarDays },
-            { key: 'feed', label: 'Feed', icon: Newspaper },
-            { key: 'viajes', label: 'Viajes', icon: Plane },
+            { key: 'preferencias', label: t('profile.tabPreferences'), icon: Settings },
+            { key: 'agenda', label: t('profile.tabAgenda'), icon: CalendarDays },
+            { key: 'feed', label: t('profile.tabFeed'), icon: Newspaper },
+            { key: 'viajes', label: t('profile.tabTrips'), icon: Plane },
           ] as const
-        ).map((t) => {
-          const Active = t.icon;
+        ).map((tabItem) => {
+          const Active = tabItem.icon;
           return (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
+              key={tabItem.key}
+              onClick={() => setTab(tabItem.key)}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                tab === t.key
+                tab === tabItem.key
                   ? 'bg-bg-card text-text-primary shadow-sm border border-border'
                   : 'text-text-muted hover:text-text-secondary'
               }`}
             >
               <Active className="w-3.5 h-3.5" />
-              {t.label}
+              {tabItem.label}
             </button>
           );
         })}
@@ -354,6 +355,7 @@ function PreferenciasPanel(props: {
   guardar: (markWizardDone: boolean) => Promise<void>;
   saving: boolean;
 }) {
+  const { t } = useTranslation();
   const {
     prefs,
     wizardStep,
@@ -399,8 +401,8 @@ function PreferenciasPanel(props: {
 
         {wizardStep === 0 && (
           <WizardSelections
-            title="Tus selecciones favoritas"
-            subtitle="Elige hasta 5 equipos. Verás sus partidos primero en el feed."
+            title={t('profile.wizardTeamsTitle')}
+            subtitle={t('profile.wizardTeamsSubtitle')}
             options={SELECCIONES}
             value={draftSelecciones}
             onToggle={(v) => setDraftSelecciones(toggle(draftSelecciones, v))}
@@ -455,7 +457,9 @@ function PreferenciasPanel(props: {
 
         {wizardStep === 3 && (
           <div className="flex flex-col gap-3">
-            <h4 className="font-headline font-bold text-lg text-text-primary">Zona horaria</h4>
+            <h4 className="font-headline font-bold text-lg text-text-primary">
+              {t('profile.wizardTimezone')}
+            </h4>
             <p className="text-sm text-text-secondary">
               Mostramos las horas de los partidos en tu zona. Si viajas, te avisamos al cambiar.
             </p>
@@ -522,19 +526,19 @@ function PreferenciasPanel(props: {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PrefCard
           icon={Flag}
-          title="Selecciones favoritas"
+          title={t('profile.favoriteTeams')}
           values={prefs?.seleccionesFavoritas ?? []}
           empty="Aún no eliges equipos."
         />
         <PrefCard
           icon={MapPin}
-          title="Estadios favoritos"
+          title={t('profile.favoriteStadiums')}
           values={prefs?.estadiosFavoritos ?? []}
           empty="Sin estadios marcados."
         />
         <PrefCard
           icon={Bell}
-          title="Canales de notificación"
+          title={t('profile.notificationChannels')}
           values={(prefs?.canalesNotificacion ?? []).map(
             (c) => CANALES.find((x) => x.key === c)?.label ?? c,
           )}
@@ -542,7 +546,7 @@ function PreferenciasPanel(props: {
         />
         <PrefCard
           icon={Globe2}
-          title="Zona horaria"
+          title={t('profile.timezone')}
           values={prefs?.zonaHorariaPreferida ? [prefs.zonaHorariaPreferida] : []}
           empty="Sin definir"
         />
@@ -554,7 +558,7 @@ function PreferenciasPanel(props: {
           iconPosition="left"
           onClick={() => setWizardStep(0)}
         >
-          Editar preferencias
+          {t('profile.editPreferences')}
         </Button>
       </div>
     </section>

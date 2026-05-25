@@ -26,7 +26,8 @@
     "comingSoon": "Coming soon",
     "noData": "No data",
     "error": "Error",
-    "retry": "Retry"
+    "retry": "Retry",
+    "reload": "Reload"
   },
   "nav": {
     "fanZone": "FAN ZONE",
@@ -141,7 +142,16 @@
     "editProfile": "Edit profile",
     "changeAvatar": "Change avatar",
     "selectLanguage": "Select language",
-    "french": "French"
+    "french": "French",
+    "tabPreferences": "Preferences",
+    "tabAgenda": "Agenda",
+    "tabFeed": "Feed",
+    "tabTrips": "Trips",
+    "notificationChannels": "Notification channels",
+    "editPreferences": "Edit preferences",
+    "wizardTeamsTitle": "Your favourite teams",
+    "wizardTeamsSubtitle": "Choose up to 5 teams. You'll see their matches first in your feed.",
+    "wizardTimezone": "Time zone"
   },
   "pollas": {
     "title": "Pools",
@@ -343,14 +353,42 @@
     "packs": "Packs",
     "missions": "Missions",
     "complete": "Complete",
-    "stickers": "Stickers"
+    "stickers": "Stickers",
+    "myAlbum": "MY ALBUM",
+    "completed": "completed",
+    "stickered": "pasted",
+    "obtained": "obtained",
+    "pack": "Pack",
+    "openedInDB": "Opened in DB:",
+    "opening": "Opening…",
+    "openPack": "Open pack",
+    "freePack": "Free daily pack",
+    "freePackReady": "Available!",
+    "available": "Available",
+    "openPackError": "Could not open pack in DB. Make sure you are logged in.",
+    "stickerError": "Could not paste the sticker. Try again.",
+    "tabAlbum": "Album",
+    "tabCromos": "Stickers",
+    "tabIntercambios": "Trades",
+    "tabMisiones": "Missions"
   },
   "matches": {
     "title": "Matches",
     "live": "Live",
     "scheduled": "Scheduled",
     "finished": "Finished",
-    "halfTime": "Half-time"
+    "halfTime": "Half-time",
+    "subtitle": "FIFA World Cup — Full calendar",
+    "stageAll": "All",
+    "stageGroups": "Group Stage",
+    "stageRound32": "Round of 32",
+    "stageQuarters": "Quarter-finals",
+    "stageSemis": "Semi-finals",
+    "stageFinal": "Final",
+    "loadError": "Could not load matches. Make sure the backend is running.",
+    "apiKeyRequired": "API Key required",
+    "apiKeyBody": "Register for free at football-data.org and add your key to the backend.",
+    "fallbackNotice": "Showing provisional matches (fallback)"
   },
   "qualifiers": {
     "title": "Qualifiers",

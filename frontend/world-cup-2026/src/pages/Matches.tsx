@@ -14,23 +14,23 @@ import { Badge } from '../components/ui/Badge';
 import { ROUND_OF_32_MOCK } from '../data/mockData';
 import { WORLD_CUP_2026_STADIUMS, findStadiumByName } from '../data/worldCup2026Stadiums';
 import { useNavigate } from 'react-router-dom';
-
-
-const STAGES = [
-  { key: 'ALL', label: 'Todos' },
-  { key: 'GROUP_STAGE', label: 'Fase Grupos' },
-  { key: 'ROUND_OF_32', label: 'Ronda de 32' },
-  { key: 'QUARTER_FINALS', label: 'Cuartos' },
-  { key: 'SEMI_FINALS', label: 'Semis' },
-  { key: 'FINAL', label: 'Final' },
-];
+import { useTranslation } from 'react-i18next';
 
 export function Matches() {
+  const { t } = useTranslation();
   const [matches, setMatches] = useState<FdMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeStage, setActiveStage] = useState('ALL');
-  
+
+  const STAGES = [
+    { key: 'ALL', label: t('matches.stageAll') },
+    { key: 'GROUP_STAGE', label: t('matches.stageGroups') },
+    { key: 'ROUND_OF_32', label: t('matches.stageRound32') },
+    { key: 'QUARTER_FINALS', label: t('matches.stageQuarters') },
+    { key: 'SEMI_FINALS', label: t('matches.stageSemis') },
+    { key: 'FINAL', label: t('matches.stageFinal') },
+  ];
 
   const load = async () => {
     setLoading(true);
@@ -39,7 +39,7 @@ export function Matches() {
       const data = await fetchAllMatches();
       setMatches(data);
     } catch {
-      setError('No se pudo cargar los partidos. Verifica que el backend esté corriendo.');
+      setError(t('matches.loadError'));
     } finally {
       setLoading(false);
     }
@@ -50,14 +50,17 @@ export function Matches() {
     load();
   }, []);
 
-  const filtered = activeStage === 'ALL' ? matches : matches.filter((m) => normalizeStage(m.stage) === activeStage);
+  const filtered =
+    activeStage === 'ALL'
+      ? matches
+      : matches.filter((m) => normalizeStage(m.stage) === activeStage);
 
   // Si no hay partidos para ROUND_OF_32, usar fallback mock y avisar
   let displayedMatches: FdMatch[] = filtered;
   let usingFallback = false;
   if (activeStage === 'ROUND_OF_32' && filtered.length === 0) {
     // Console log para debugging
-     
+
     console.info('Fallback activo: mostrando partidos provisionales ROUND_OF_32');
     displayedMatches = ROUND_OF_32_MOCK as unknown as FdMatch[];
     usingFallback = true;
@@ -78,15 +81,15 @@ export function Matches() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
-            Partidos <span className="gradient-text">2026</span>
+            {t('matches.title')} <span className="gradient-text">2026</span>
           </h1>
-          <p className="text-text-muted mt-1">FIFA World Cup — Calendario completo</p>
+          <p className="text-text-muted mt-1">{t('matches.subtitle')}</p>
         </div>
         <button
           onClick={load}
           disabled={loading}
           className="p-2.5 rounded-lg glass hover:bg-bg-elevated transition-all text-text-secondary disabled:opacity-50"
-          title="Recargar"
+          title={t('common.reload') ?? 'Reload'}
         >
           <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -130,11 +133,22 @@ export function Matches() {
       {!loading && !error && matches.length === 0 && (
         <div className="glass rounded-2xl p-8 text-center">
           <p className="text-4xl mb-4">🔑</p>
-          <h3 className="text-xl font-bold text-text-primary mb-2">API Key requerida</h3>
+          <h3 className="text-xl font-bold text-text-primary mb-2">
+            {t('matches.apiKeyRequired')}
+          </h3>
           <p className="text-text-muted mb-4">
-            Registrate gratis en{' '}
-            <span className="text-primary font-semibold">football-data.org</span> y añade tu key al
-            backend.
+            {t('matches.apiKeyBody')
+              .split('football-data.org')
+              .map((part, i) =>
+                i === 0 ? (
+                  <span key={i}>
+                    {part}
+                    <span className="text-primary font-semibold">football-data.org</span>
+                  </span>
+                ) : (
+                  <span key={i}>{part}</span>
+                ),
+              )}
           </p>
           <code className="text-xs bg-bg-elevated px-3 py-2 rounded-lg text-text-secondary block">
             FOOTBALL_DATA_KEY=tu_key_aqui
@@ -151,13 +165,13 @@ export function Matches() {
               <h2 className="text-sm font-bold text-text-secondary uppercase tracking-wider">
                 {date}
               </h2>
-            {usingFallback && (
-              <div className="mb-4">
-                <div className="inline-block bg-yellow-50 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
-                  Mostrando partidos provisionales (fallback)
+              {usingFallback && (
+                <div className="mb-4">
+                  <div className="inline-block bg-yellow-50 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">
+                    {t('matches.fallbackNotice')}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
               <div className="flex-1 h-px bg-border" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -248,10 +262,12 @@ function MatchRow({ match }: { match: FdMatch }) {
 
       {/* Venue */}
       {/* No mostrar estadio/ciudad para partidos de fase de grupos */}
-      {match.venue && (
+      {match.venue &&
         (() => {
           // Buscar el estadio en la lista oficial por nombre (coincidencia robusta)
-          const found = findStadiumByName(match.venue ?? undefined) ?? WORLD_CUP_2026_STADIUMS.find((s) => match.venue?.includes(s.nombre));
+          const found =
+            findStadiumByName(match.venue ?? undefined) ??
+            WORLD_CUP_2026_STADIUMS.find((s) => match.venue?.includes(s.nombre));
           const venueLabel = found ? `${found.nombre} • ${found.ciudad}` : match.venue;
 
           return (
@@ -274,8 +290,7 @@ function MatchRow({ match }: { match: FdMatch }) {
               <span className="text-xs truncate">{venueLabel}</span>
             </div>
           );
-        })()
-      )}
+        })()}
     </div>
   );
 }
