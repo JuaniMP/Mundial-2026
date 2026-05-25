@@ -181,8 +181,8 @@ export function Profile() {
       if (failedSections.length > 0) {
         setError(
           failedSections.length === 4
-            ? 'No se pudo cargar tu perfil. Revisa tu sesión o vuelve a iniciar sesión.'
-            : `No se pudieron cargar: ${failedSections.join(', ')}.`,
+            ? t('profile.loadError')
+            : t('profile.loadPartialError', { sections: failedSections.join(', ') }),
         );
       }
     } finally {
@@ -667,6 +667,7 @@ function AgendaPanel({
   reload: () => Promise<void>;
   setError: (s: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState<{
     titulo: string;
@@ -824,7 +825,7 @@ function AgendaPanel({
 
       {agenda.length === 0 ? (
         <div className="card-base p-10 text-center text-text-muted">
-          Aún no tienes eventos. Agrega partidos, viajes o cualquier recordatorio personal.
+          {t('profile.agendaEmpty')}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -868,10 +869,11 @@ function PriorityDot({ prioridad }: { prioridad: AgendaItem['prioridad'] }) {
 // ─── Feed ────────────────────────────────────────────────────────────────────
 
 function FeedPanel({ feed }: { feed: FeedItem[] }) {
+  const { t } = useTranslation();
   if (feed.length === 0) {
     return (
       <section className="card-base p-10 text-center text-text-muted animate-fade-in">
-        Sin actividad reciente. Agrega eventos a tu agenda o registra un viaje para verlos aquí.
+        {t('profile.feedEmpty')}
       </section>
     );
   }
@@ -934,6 +936,7 @@ function ViajesPanel({
   reload: () => Promise<void>;
   setError: (s: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const [expandedSugerencias, setExpandedSugerencias] = useState<Record<number, boolean>>({});
   const [destinoSugerido, setDestinoSugerido] = useState('');
@@ -1163,7 +1166,7 @@ function ViajesPanel({
 
       {viajes.length === 0 ? (
         <div className="card-base p-10 text-center text-text-muted">
-          Aún no registras viajes. Agrega uno y te acompañamos con alertas contextuales.
+          {t('profile.tripsEmpty')}
         </div>
       ) : (
         <div className="flex flex-col gap-3">

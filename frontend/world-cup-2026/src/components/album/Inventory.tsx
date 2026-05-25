@@ -75,9 +75,9 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
       style={{
         padding: '4px 12px',
         borderRadius: 999,
-        border: `1px solid ${active ? '#3b82f6' : 'rgba(255,255,255,0.12)'}`,
-        background: active ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
-        color: active ? '#93c5fd' : 'rgba(255,255,255,0.55)',
+        border: `1px solid ${active ? '#3b82f6' : '#e2e8f0'}`,
+        background: active ? '#eff6ff' : '#f8fafc',
+        color: active ? '#1d4ed8' : '#475569',
         fontSize: 12,
         fontWeight: 600,
         cursor: 'pointer',
@@ -101,8 +101,8 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
           <div
             key={s.label}
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
               borderRadius: 10,
               padding: '8px 14px',
               display: 'flex',
@@ -123,7 +123,7 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
             <span
               style={{
                 fontSize: 11,
-                color: 'rgba(255,255,255,0.45)',
+                color: '#64748b',
                 fontFamily: 'Inter,sans-serif',
               }}
             >
@@ -144,9 +144,9 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
             minWidth: 180,
             padding: '7px 12px',
             borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.15)',
-            background: 'rgba(255,255,255,0.06)',
-            color: '#fff',
+            border: '1px solid #e2e8f0',
+            background: '#fff',
+            color: '#0f172a',
             fontSize: 13,
             outline: 'none',
             fontFamily: 'Inter,sans-serif',
@@ -158,9 +158,9 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
           style={{
             padding: '7px 10px',
             borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.15)',
-            background: '#1e293b',
-            color: '#fff',
+            border: '1px solid #e2e8f0',
+            background: '#fff',
+            color: '#0f172a',
             fontSize: 12,
             fontFamily: 'Inter,sans-serif',
             cursor: 'pointer',
@@ -212,7 +212,7 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
       <p
         style={{
           fontSize: 12,
-          color: 'rgba(255,255,255,0.4)',
+          color: '#94a3b8',
           fontFamily: 'Inter,sans-serif',
           margin: 0,
         }}
@@ -226,7 +226,7 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
           style={{
             textAlign: 'center',
             padding: 48,
-            color: 'rgba(255,255,255,0.3)',
+            color: '#94a3b8',
             fontFamily: 'Inter,sans-serif',
           }}
         >
@@ -259,7 +259,7 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
                       borderRadius: 99,
                       background: 'rgba(59,130,246,0.2)',
                       border: '1px solid rgba(59,130,246,0.4)',
-                      color: '#93c5fd',
+                      color: '#1d4ed8',
                       fontSize: 10,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -277,7 +277,7 @@ export function Inventory({ laminas, onPegar, onVender }: InventoryProps) {
                       borderRadius: 99,
                       background: 'rgba(251,191,36,0.15)',
                       border: '1px solid rgba(251,191,36,0.35)',
-                      color: '#fcd34d',
+                      color: '#92400e',
                       fontSize: 10,
                       fontWeight: 700,
                       cursor: 'pointer',

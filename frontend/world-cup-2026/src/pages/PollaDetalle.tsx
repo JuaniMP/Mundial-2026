@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import {
@@ -60,7 +60,7 @@ export function PollaDetalle() {
   const [saving, setSaving] = useState<number | null>(null);
   const [savedFlash, setSavedFlash] = useState<number | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -98,13 +98,13 @@ export function PollaDetalle() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pollaId]);
 
   useEffect(() => {
     if (!Number.isFinite(pollaId)) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
-  }, [pollaId]);
+  }, [pollaId, load]);
 
   const upcomingMatches = useMemo(
     () =>

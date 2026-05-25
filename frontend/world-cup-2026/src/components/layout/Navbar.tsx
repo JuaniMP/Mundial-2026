@@ -28,7 +28,7 @@ export function Navbar() {
   };
 
   const isLoggedIn = Boolean(user);
-  const pillLabel = user?.name ? user.name.split(' ')[0] : 'INICIAR SESIÓN';
+  const pillLabel = user?.name ? user.name.split(' ')[0] : t('common.signIn').toUpperCase();
 
   const LEFT_NAV = [
     { to: '/pollas', label: t('nav.fanZone') },
