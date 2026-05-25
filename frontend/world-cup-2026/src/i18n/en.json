@@ -90,7 +90,13 @@
     "fullName": "Full name",
     "confirmPassword": "Confirm your password",
     "invalidCredentials": "Invalid credentials",
-    "loginError": "Login error"
+    "loginError": "Login error",
+    "guestPreviewLabel": "Preview",
+    "guestTitle": "Sign in to access full content",
+    "guestBody": "You can see a partial view of this page. Sign in to your account to interact and unlock all features.",
+    "guestButton": "Go to sign in",
+    "guestBanner": "Preview mode · Sign in to unlock all content",
+    "guestBannerShort": "Preview mode · Sign in"
   },
   "profile": {
     "title": "My Profile",
@@ -276,7 +282,24 @@
     "inaugurated": "Inaugurated",
     "localTeam": "Home team",
     "spectators": "spectators",
-    "noResultsShort": "No results"
+    "noResultsShort": "No results",
+    "seatGuide": "Seating Guide",
+    "seats": "seats",
+    "estimatedCapacity": "Estimated capacity",
+    "rows": "Rows",
+    "seatsPerRow": "Seats per row",
+    "distributionView": "Distribution view",
+    "moreRows": "+ {{n}} more rows",
+    "clickSection": "Click on a section of the map to see its information",
+    "categoryVip": "Private boxes and suites with exclusive services",
+    "categoryPremium": "Premium seats with a privileged view of the field",
+    "categoryTribuna": "Main stand with excellent visibility",
+    "categoryGeneral": "General seats in the upper levels",
+    "layoutNfl": "NFL Configuration — Rectangular bowl",
+    "layoutSoccerLatin": "Latin American Stadium — Oval",
+    "layoutMls": "MLS Soccer-specific — Compact",
+    "layoutDome": "Multi-purpose Dome — Retractable roof",
+    "layoutOvalLarge": "Large oval stadium"
   },
   "teams": {
     "title": "Teams",
