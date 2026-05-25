@@ -12,10 +12,12 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import { Button, PageHeader, StatCard } from '../components/ui';
 import { getMisPollas, crearPolla, unirseAPolla, type PollaResumen } from '../services/pollasApi';
 
 export function Pollas() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [pollas, setPollas] = useState<PollaResumen[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ export function Pollas() {
       const data = await getMisPollas();
       setPollas(data);
     } catch {
-      setError('No se pudieron cargar tus pollas. Verifica tu sesión.');
+      setError(t('pollas.loadError'));
     } finally {
       setLoading(false);
     }
@@ -56,8 +58,8 @@ export function Pollas() {
       navigate(`/pollas/${p.id}`);
     } catch (err) {
       const msg = axios.isAxiosError(err)
-        ? (err.response?.data?.message as string) || 'No se pudo crear la polla'
-        : 'No se pudo crear la polla';
+        ? (err.response?.data?.message as string) || t('pollas.loadError')
+        : t('pollas.loadError');
       setError(msg);
     } finally {
       setBusy(false);
@@ -75,8 +77,8 @@ export function Pollas() {
       navigate(`/pollas/${p.id}`);
     } catch (err) {
       const msg = axios.isAxiosError(err)
-        ? (err.response?.data?.message as string) || 'No te pudiste unir'
-        : 'No te pudiste unir';
+        ? (err.response?.data?.message as string) || t('pollas.loadError')
+        : t('pollas.loadError');
       setError(msg);
     } finally {
       setBusy(false);
@@ -96,9 +98,9 @@ export function Pollas() {
   return (
     <main className="pt-20 md:pt-24 pb-28 md:pb-12 px-4 md:px-8 max-w-screen-xl mx-auto w-full flex-1 flex flex-col gap-10">
       <PageHeader
-        title="Pollas"
-        subtitle="Crea grupos con tu gente, predice los partidos y compite por el podio."
-        badge="JUEGO SOCIAL"
+        title={t('pollas.title')}
+        subtitle={t('pollas.pageSubtitle')}
+        badge={t('pollas.badge')}
         className="animate-fade-in-up"
       />
 
@@ -110,16 +112,12 @@ export function Pollas() {
           <div className="relative z-10">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-sm bg-white/10 text-white/80 text-xs uppercase tracking-widest backdrop-blur-md">
               <Sparkles className="w-3 h-3" />
-              Predicciones con amigos
+              {t('pollas.heroTag')}
             </span>
             <h2 className="mt-3 font-headline font-extrabold text-3xl md:text-4xl text-white tracking-tight">
-              Juega la quiniela del Mundial con tu gente
+              {t('pollas.heroTitle')}
             </h2>
-            <p className="mt-2 text-white/70 max-w-xl">
-              Crea una polla, comparte el código de invitación y predice los marcadores. Acierta el
-              ganador para 5 puntos y el marcador exacto para 10. Al final repartimos premios: 🥇
-              Oro, 🥈 Plata, 🥉 Bronce.
-            </p>
+            <p className="mt-2 text-white/70 max-w-xl">{t('pollas.heroDesc')}</p>
           </div>
           <div className="relative z-10 flex flex-col sm:flex-row gap-3 mt-6">
             <Button
@@ -131,7 +129,7 @@ export function Pollas() {
                 setError(null);
               }}
             >
-              Crear polla
+              {t('pollas.createPolla')}
             </Button>
             <Button
               variant="secondary"
@@ -142,26 +140,28 @@ export function Pollas() {
                 setError(null);
               }}
             >
-              Unirme con código
+              {t('pollas.joinCode')}
             </Button>
           </div>
         </div>
         <div className="flex flex-col gap-5">
           <StatCard
-            label="Mis pollas"
+            label={t('pollas.myPollas')}
             value={pollas.length}
             icon={Trophy}
             iconColor="text-primary"
             subtitle={
-              pollas.length === 0 ? 'Crea o únete a una' : `${totalAmigos} compitiendo contigo`
+              pollas.length === 0
+                ? t('pollas.createOrJoin')
+                : t('pollas.competingWith', { n: totalAmigos })
             }
           />
           <StatCard
-            label="Puntos totales"
+            label={t('pollas.totalPoints')}
             value={totalPuntos}
             icon={Crown}
             iconColor="text-secondary"
-            subtitle={mejorPosicion === 0 ? '—' : `Mejor puesto: #${mejorPosicion}`}
+            subtitle={mejorPosicion === 0 ? '—' : t('pollas.bestPosition', { pos: mejorPosicion })}
           />
         </div>
       </section>
@@ -175,24 +175,22 @@ export function Pollas() {
 
       {/* Modal crear */}
       {showCreate && (
-        <Modal title="Crear polla" onClose={() => setShowCreate(false)}>
-          <p className="text-text-secondary text-sm mb-4">
-            Elige un nombre claro: lo verán tus amigos cuando se unan.
-          </p>
+        <Modal title={t('pollas.createTitle')} onClose={() => setShowCreate(false)}>
+          <p className="text-text-secondary text-sm mb-4">{t('pollas.createDesc')}</p>
           <input
             type="text"
             value={nombreNueva}
             onChange={(e) => setNombreNueva(e.target.value)}
-            placeholder="Ej: Polla de los pibes"
+            placeholder={t('pollas.createPlaceholder')}
             maxLength={100}
             className="w-full px-4 py-3 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <div className="flex gap-2 mt-5 justify-end">
             <Button variant="ghost" onClick={() => setShowCreate(false)} disabled={busy}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button variant="primary" onClick={handleCrear} disabled={busy || !nombreNueva.trim()}>
-              {busy ? 'Creando…' : 'Crear'}
+              {busy ? t('pollas.creating') : t('pollas.create')}
             </Button>
           </div>
         </Modal>
@@ -200,10 +198,8 @@ export function Pollas() {
 
       {/* Modal unirse */}
       {showJoin && (
-        <Modal title="Unirme con código" onClose={() => setShowJoin(false)}>
-          <p className="text-text-secondary text-sm mb-4">
-            Pídele a tu amigo el código de 8 caracteres.
-          </p>
+        <Modal title={t('pollas.joinTitle')} onClose={() => setShowJoin(false)}>
+          <p className="text-text-secondary text-sm mb-4">{t('pollas.joinDesc')}</p>
           <input
             type="text"
             value={codigoUnirse}
@@ -214,14 +210,14 @@ export function Pollas() {
           />
           <div className="flex gap-2 mt-5 justify-end">
             <Button variant="ghost" onClick={() => setShowJoin(false)} disabled={busy}>
-              Cancelar
+              {t('common.cancel')}
             </Button>
             <Button
               variant="primary"
               onClick={handleUnirse}
               disabled={busy || !codigoUnirse.trim()}
             >
-              {busy ? 'Uniendo…' : 'Unirme'}
+              {busy ? t('pollas.joining') : t('pollas.join')}
             </Button>
           </div>
         </Modal>
@@ -231,27 +227,25 @@ export function Pollas() {
       <section className="flex flex-col gap-5 animate-fade-in-up delay-200">
         <div className="flex justify-between items-end">
           <h2 className="font-headline font-bold text-2xl md:text-3xl text-text-primary tracking-tight">
-            Mis pollas
+            {t('pollas.myPollas')}
           </h2>
           {pollas.length > 0 && (
             <span className="text-xs uppercase tracking-widest text-text-muted">
-              {pollas.length} {pollas.length === 1 ? 'polla' : 'pollas'}
+              {pollas.length}{' '}
+              {pollas.length === 1 ? t('pollas.participants') : t('pollas.participantsPlural')}
             </span>
           )}
         </div>
 
         {loading ? (
-          <div className="card-base p-12 text-center text-text-muted">Cargando…</div>
+          <div className="card-base p-12 text-center text-text-muted">{t('pollas.loading')}</div>
         ) : pollas.length === 0 ? (
           <div className="card-base p-12 flex flex-col items-center text-center gap-3">
             <Trophy className="w-12 h-12 text-text-muted/40" />
             <h3 className="font-headline font-bold text-xl text-text-primary">
-              Aún no estás en ninguna polla
+              {t('pollas.empty')}
             </h3>
-            <p className="text-text-secondary max-w-md">
-              Crea una con un grupo de amigos o usa un código de invitación para unirte a una
-              existente.
-            </p>
+            <p className="text-text-secondary max-w-md">{t('pollas.emptyDesc')}</p>
             <div className="flex gap-2 mt-2">
               <Button
                 variant="primary"
@@ -259,7 +253,7 @@ export function Pollas() {
                 iconPosition="left"
                 onClick={() => setShowCreate(true)}
               >
-                Crear mi primera polla
+                {t('pollas.firstPool')}
               </Button>
               <Button
                 variant="outline"
@@ -267,7 +261,7 @@ export function Pollas() {
                 iconPosition="left"
                 onClick={() => setShowJoin(true)}
               >
-                Tengo un código
+                {t('pollas.haveCode')}
               </Button>
             </div>
           </div>
@@ -281,12 +275,12 @@ export function Pollas() {
               >
                 {p.soyCreador && (
                   <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary-subtle text-primary-dim text-[10px] font-bold uppercase tracking-widest">
-                    <Crown className="w-3 h-3" /> Creador
+                    <Crown className="w-3 h-3" /> {t('pollas.creator')}
                   </span>
                 )}
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.18em] text-text-muted font-bold">
-                    Polla
+                    {t('pollas.title')}
                   </p>
                   <h3 className="font-headline font-extrabold text-xl text-text-primary mt-1 leading-tight">
                     {p.nombre}
@@ -297,7 +291,7 @@ export function Pollas() {
                 <div className="flex items-center gap-3">
                   <div className="flex-1">
                     <p className="text-[10px] uppercase tracking-widest text-text-muted">
-                      Mis puntos
+                      {t('pollas.myPoints')}
                     </p>
                     <p className="font-headline font-bold text-2xl text-text-primary">
                       {p.misPuntos}
@@ -305,7 +299,7 @@ export function Pollas() {
                   </div>
                   <div className="flex-1">
                     <p className="text-[10px] uppercase tracking-widest text-text-muted">
-                      Posición
+                      {t('pollas.position_label')}
                     </p>
                     <p className="font-headline font-bold text-2xl text-text-primary">
                       #{p.miPosicion}
@@ -323,7 +317,9 @@ export function Pollas() {
                   <div className="flex items-center gap-2 text-xs text-text-muted">
                     <Users className="w-3.5 h-3.5" />
                     {p.totalParticipantes}{' '}
-                    {p.totalParticipantes === 1 ? 'participante' : 'participantes'}
+                    {p.totalParticipantes === 1
+                      ? t('pollas.participants')
+                      : t('pollas.participantsPlural')}
                   </div>
                   <span
                     role="button"
@@ -335,7 +331,7 @@ export function Pollas() {
                     className="inline-flex items-center gap-1.5 text-xs text-primary-dim font-bold hover:underline cursor-pointer"
                   >
                     {copied === p.codigoAcceso ? (
-                      <>✓ Copiado</>
+                      <>✓ {t('pollas.copied')}</>
                     ) : (
                       <>
                         <Copy className="w-3.5 h-3.5" />
@@ -353,26 +349,26 @@ export function Pollas() {
       {/* Cómo funciona */}
       <section className="animate-fade-in-up delay-300">
         <h2 className="font-headline font-bold text-2xl text-text-primary tracking-tight mb-4">
-          Cómo funciona
+          {t('pollas.howItWorks')}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <HowCard
             icon={Share2}
             iconColor="text-primary"
-            title="Invita con un código"
-            text="Cada polla tiene un código único de 8 caracteres. Compártelo por WhatsApp y listo."
+            title={t('pollas.howInvite')}
+            text={t('pollas.howInviteText')}
           />
           <HowCard
             icon={Trophy}
             iconColor="text-secondary"
-            title="Acertaste = puntos"
-            text="5 puntos por acertar al ganador (o empate). 10 puntos por el marcador exacto."
+            title={t('pollas.howPoints')}
+            text={t('pollas.howPointsText')}
           />
           <HowCard
             icon={Crown}
             iconColor="text-accent"
-            title="Premios al final"
-            text="Al cerrar el Mundial repartimos medallas digitales para los 3 primeros puestos."
+            title={t('pollas.howPrizes')}
+            text={t('pollas.howPrizesText')}
           />
         </div>
       </section>

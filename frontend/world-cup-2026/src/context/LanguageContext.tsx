@@ -36,7 +36,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     getPreferencias()
       .then((p) => {
         if (cancelled) return;
-        if (p?.idioma && (p.idioma === 'es' || p.idioma === 'en')) {
+        if (p?.idioma && (p.idioma === 'es' || p.idioma === 'en' || p.idioma === 'fr')) {
           setLangState(p.idioma);
         }
       })

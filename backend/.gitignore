@@ -57,3 +57,6 @@ application-local.yml
 secrets/
 firebase-service-account*.json
 *-firebase-adminsdk*.json
+
+# Local secrets (never commit)
+src/main/resources/application-local.properties

@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { EstadioApi } from '../../types';
 import { getLayoutForStadium, type SectionDef } from '../../data/stadiumLayouts';
 
@@ -20,23 +21,26 @@ const CATEGORY_COLORS: Record<Section['category'], { fill: string; stroke: strin
   GENERAL: { fill: '#34d399', stroke: '#059669' }, // green
 };
 
-const CATEGORY_DESCRIPTIONS: Record<Section['category'], string> = {
-  VIP: 'Palcos y suites privadas con servicios exclusivos',
-  PREMIUM: 'Asientos premium con vista privilegiada al campo',
-  TRIBUNA: 'Tribuna principal con excelente visibilidad',
-  GENERAL: 'Asientos generales en los niveles superiores',
-};
-
-const LAYOUT_LABELS: Record<string, string> = {
-  NFL: 'Configuración NFL — Bowl rectangular',
-  SOCCER_LATIN: 'Estadio Latinoamericano — Ovalado',
-  MLS: 'MLS Soccer-specific — Compacto',
-  DOME: 'Domo Multipropósito — Techo retráctil',
-  OVAL_LARGE: 'Estadio ovalado grande',
-};
+// Descriptions and layout labels are resolved inside the component using t()
 
 export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
+  const { t } = useTranslation();
   const layout = useMemo(() => getLayoutForStadium(stadium.nombre), [stadium.nombre]);
+
+  const CATEGORY_DESCRIPTIONS: Record<Section['category'], string> = {
+    VIP: t('stadiums.categoryVip'),
+    PREMIUM: t('stadiums.categoryPremium'),
+    TRIBUNA: t('stadiums.categoryTribuna'),
+    GENERAL: t('stadiums.categoryGeneral'),
+  };
+
+  const LAYOUT_LABELS: Record<string, string> = {
+    NFL: t('stadiums.layoutNfl'),
+    SOCCER_LATIN: t('stadiums.layoutSoccerLatin'),
+    MLS: t('stadiums.layoutMls'),
+    DOME: t('stadiums.layoutDome'),
+    OVAL_LARGE: t('stadiums.layoutOvalLarge'),
+  };
 
   // Convert layout sections to actual sections with real capacity values
   const sections: Section[] = useMemo(
@@ -143,11 +147,11 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
       <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
         <div>
           <h3 className="font-headline text-lg md:text-xl font-bold text-text-primary">
-            📐 Guía de Asientos — {stadium.nombre}
+            📐 {t('stadiums.seatGuide')} — {stadium.nombre}
           </h3>
           <p className="text-text-muted text-xs md:text-sm">
             {LAYOUT_LABELS[layout.type] ?? layout.shapeDesc} •{' '}
-            {stadium.capacidad.toLocaleString('es-CO')} asientos
+            {stadium.capacidad.toLocaleString()} {t('stadiums.seats')}
           </p>
         </div>
 
@@ -286,17 +290,17 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Capacidad estimada:</span>
+                  <span className="text-text-muted">{t('stadiums.estimatedCapacity')}:</span>
                   <span className="font-bold text-text-primary">
-                    {selected.capacity.toLocaleString('es-CO')}
+                    {selected.capacity.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Filas:</span>
+                  <span className="text-text-muted">{t('stadiums.rows')}:</span>
                   <span className="font-bold text-text-primary">{selected.rows}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-text-muted">Asientos por fila:</span>
+                  <span className="text-text-muted">{t('stadiums.seatsPerRow')}:</span>
                   <span className="font-bold text-text-primary">
                     ~{Math.round(selected.capacity / selected.rows)}
                   </span>
@@ -306,7 +310,7 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
               {/* Visual rows */}
               <div className="mt-4">
                 <p className="text-[10px] text-text-muted uppercase tracking-wider mb-2">
-                  Vista de distribución
+                  {t('stadiums.distributionView')}
                 </p>
                 <div className="space-y-1">
                   {Array.from({ length: Math.min(selected.rows, 8) }).map((_, i) => {
@@ -334,7 +338,7 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
                   })}
                   {selected.rows > 8 && (
                     <p className="text-[9px] text-text-muted text-center pt-1">
-                      + {selected.rows - 8} filas más
+                      {t('stadiums.moreRows', { n: selected.rows - 8 })}
                     </p>
                   )}
                 </div>
@@ -344,7 +348,7 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
             <div className="glass rounded-xl p-4 text-center text-sm text-text-muted">
               <div className="text-4xl mb-2">📐</div>
               <p className="font-semibold text-text-primary mb-1">{layout.shapeDesc}</p>
-              <p className="text-xs">Haz clic en una sección del mapa para ver su información</p>
+              <p className="text-xs">{t('stadiums.clickSection')}</p>
             </div>
           )}
 
