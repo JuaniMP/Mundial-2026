@@ -7,6 +7,7 @@ import type { EstadioApi } from '../types';
 import { fetchEstadios } from '../services/footballApi';
 import { RefreshCw, AlertCircle, MapPin, Users, Search, Calendar, Trophy } from 'lucide-react';
 import { StadiumSeatMap } from '../components/stadium/StadiumSeatMap';
+import { useTranslation } from 'react-i18next';
 
 // ── Fix Leaflet default icons in Vite ────────────────────────────────────────
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -62,6 +63,7 @@ function FlyToSelected({ stadium }: { stadium: EstadioApi | null }) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function Stadiums() {
+  const { t } = useTranslation();
   const [stadiums, setStadiums] = useState<EstadioApi[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,7 +79,7 @@ export function Stadiums() {
       setStadiums(data);
       if (data.length > 0) setSelected(data[0]);
     } catch {
-      setError('No se pudo cargar los estadios. Verifica que el backend esté corriendo.');
+      setError(t('stadiums.loadError'));
     } finally {
       setLoading(false);
     }
@@ -123,17 +125,18 @@ export function Stadiums() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="font-headline text-3xl md:text-4xl font-extrabold text-text-primary tracking-tight">
-            Estadios <span className="gradient-text">2026</span>
+            {t('stadiums.title')} <span className="gradient-text">2026</span>
           </h1>
           <p className="text-text-muted mt-1">
-            FIFA World Cup — {stadiums.length} sedes • USA, Canadá, México
+            {t('stadiums.subtitle', { count: stadiums.length })}
           </p>
         </div>
         <button
           onClick={load}
           disabled={loading}
           className="p-2.5 rounded-lg glass hover:bg-bg-elevated transition-all text-text-secondary disabled:opacity-50"
-          title="Recargar"
+          title={t('stadiums.reload')}
+          aria-label={t('stadiums.reload')}
         >
           <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
         </button>
@@ -144,21 +147,25 @@ export function Stadiums() {
         <div className="flex gap-4 mb-6 flex-wrap">
           {[
             {
-              label: 'Sedes USA',
+              label: t('stadiums.venuesUSA'),
               value: stadiums.filter((s) => s.pais === 'USA').length,
               flag: '🇺🇸',
             },
             {
-              label: 'Sedes Canadá',
+              label: t('stadiums.venuesCAN'),
               value: stadiums.filter((s) => s.pais === 'Canada').length,
               flag: '🇨🇦',
             },
             {
-              label: 'Sedes México',
+              label: t('stadiums.venueMEX'),
               value: stadiums.filter((s) => s.pais === 'México').length,
               flag: '🇲🇽',
             },
-            { label: 'Capacidad total', value: totalCapacity.toLocaleString('es-CO'), flag: '🏟️' },
+            {
+              label: t('stadiums.totalCapacity'),
+              value: totalCapacity.toLocaleString('es-CO'),
+              flag: '🏟️',
+            },
           ].map((stat) => (
             <div key={stat.label} className="glass rounded-xl px-4 py-2.5 flex items-center gap-2">
               <span className="text-lg">{stat.flag}</span>
@@ -226,7 +233,7 @@ export function Stadiums() {
                     </div>
                     <div className="text-xs mt-1">
                       <span className="font-bold">{s.capacidad.toLocaleString('es-CO')}</span>{' '}
-                      espectadores
+                      {t('stadiums.spectators')}
                     </div>
                   </Popup>
                 </Marker>
@@ -241,9 +248,10 @@ export function Stadiums() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted pointer-events-none" />
               <input
                 type="text"
-                placeholder="Buscar estadio o ciudad…"
+                placeholder={t('stadiums.search')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
+                aria-label={t('stadiums.search')}
                 className="w-full glass rounded-xl pl-9 pr-4 py-2.5 text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-primary/50 bg-transparent"
               />
             </div>
@@ -263,7 +271,9 @@ export function Stadiums() {
                 />
               ))}
               {filtered.length === 0 && (
-                <p className="text-sm text-text-muted text-center py-6">Sin resultados</p>
+                <p className="text-sm text-text-muted text-center py-6">
+                  {t('stadiums.noResultsShort')}
+                </p>
               )}
             </div>
           </div>
@@ -323,7 +333,9 @@ export function Stadiums() {
                 <p className="text-sm font-black text-text-primary truncate">
                   {selected.capacidad.toLocaleString('es-CO')}
                 </p>
-                <p className="text-[10px] text-text-muted uppercase tracking-wider">Capacidad</p>
+                <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                  {t('stadiums.capacity')}
+                </p>
               </div>
             </div>
             {selected.partidos != null && (
@@ -332,7 +344,7 @@ export function Stadiums() {
                 <div className="min-w-0">
                   <p className="text-sm font-black text-text-primary">{selected.partidos}</p>
                   <p className="text-[10px] text-text-muted uppercase tracking-wider">
-                    Partidos 2026
+                    {t('stadiums.capacity2026')}
                   </p>
                 </div>
               </div>
@@ -342,7 +354,9 @@ export function Stadiums() {
                 <Calendar className="w-4 h-4 text-primary shrink-0" />
                 <div className="min-w-0">
                   <p className="text-sm font-black text-text-primary">{selected.inaugurado}</p>
-                  <p className="text-[10px] text-text-muted uppercase tracking-wider">Inaugurado</p>
+                  <p className="text-[10px] text-text-muted uppercase tracking-wider">
+                    {t('stadiums.inaugurated')}
+                  </p>
                 </div>
               </div>
             )}
@@ -367,7 +381,7 @@ export function Stadiums() {
               <div className="text-xs text-text-muted flex items-start gap-2">
                 <Trophy className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                 <span>
-                  Equipo local:{' '}
+                  {t('stadiums.localTeam')}:{' '}
                   <strong className="text-text-primary">{selected.equipoLocal}</strong>
                 </span>
               </div>

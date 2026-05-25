@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hasRole } from '../../utils/roles';
 import { getAvatarUrl } from '../../utils/avatar';
+import { NotificationBell } from './NotificationBell';
 
 const navLinkStyle = (isActive: boolean): string =>
   `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 uppercase ${
@@ -55,12 +56,12 @@ export function Navbar() {
       : []),
   ];
 
-  
-
   return (
     <>
       {/* ══════ Desktop Navbar ══════ */}
       <nav
+        role="navigation"
+        aria-label="Main navigation"
         style={{
           position: 'fixed',
           top: 0,
@@ -86,21 +87,21 @@ export function Navbar() {
         >
           {/* Left nav links */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 28, marginLeft: 12 }}>
-              {LEFT_NAV.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  className={({ isActive }) => navLinkStyle(isActive)}
-                  onClick={(e) => {
-                    if (item.to === '/album' && !isLoggedIn) {
-                      e.preventDefault();
-                      navigate('/login');
-                    }
-                  }}
-                >
-                  {item.label}
-                </NavLink>
-              ))}
+            {LEFT_NAV.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => navLinkStyle(isActive)}
+                onClick={(e) => {
+                  if (item.to === '/album' && !isLoggedIn) {
+                    e.preventDefault();
+                    navigate('/login');
+                  }
+                }}
+              >
+                {item.label}
+              </NavLink>
+            ))}
           </div>
 
           {/* Spacer */}
@@ -142,6 +143,13 @@ export function Navbar() {
               </NavLink>
             ))}
           </div>
+
+          {/* Notification Bell — sólo logueado */}
+          {isLoggedIn && (
+            <div style={{ marginRight: 4 }}>
+              <NotificationBell />
+            </div>
+          )}
 
           {/* MY HUB pill button */}
           <div style={{ position: 'relative' }}>
@@ -187,9 +195,7 @@ export function Navbar() {
                   <ChevronDown size={13} />
                 </>
               ) : (
-                <>
-                  {pillLabel}
-                </>
+                <>{pillLabel}</>
               )}
             </button>
 
@@ -225,20 +231,20 @@ export function Navbar() {
                     >
                       {t('common.signedInAs')}
                     </p>
-                        <p
-                          style={{
-                            fontSize: 13,
-                            color: '#0D1B2A',
-                            fontWeight: 600,
-                            fontFamily: 'Inter, sans-serif',
-                            margin: '2px 0 0',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {user.name ?? user.email}
-                        </p>
+                    <p
+                      style={{
+                        fontSize: 13,
+                        color: '#0D1B2A',
+                        fontWeight: 600,
+                        fontFamily: 'Inter, sans-serif',
+                        margin: '2px 0 0',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {user.name ?? user.email}
+                    </p>
                   </div>
                 )}
                 {[
@@ -340,6 +346,8 @@ export function Navbar() {
 
       {/* ══════ Mobile Navbar ══════ */}
       <nav
+        role="navigation"
+        aria-label="Mobile navigation"
         style={{
           position: 'fixed',
           top: 0,
