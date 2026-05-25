@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { hasRole } from '../../utils/roles';
 import { getAvatarUrl } from '../../utils/avatar';
+import { NotificationBell } from './NotificationBell';
 
 const navLinkStyle = (isActive: boolean): string =>
   `text-xs font-bold tracking-widest transition-colors duration-200 px-1 py-0.5 border-b-2 uppercase ${
@@ -27,7 +28,7 @@ export function Navbar() {
   };
 
   const isLoggedIn = Boolean(user);
-  const pillLabel = user?.name ? user.name.split(' ')[0] : 'INICIAR SESIÓN';
+  const pillLabel = user?.name ? user.name.split(' ')[0] : t('common.signIn').toUpperCase();
 
   const LEFT_NAV = [
     { to: '/pollas', label: t('nav.fanZone') },
@@ -59,6 +60,8 @@ export function Navbar() {
     <>
       {/* ══════ Desktop Navbar ══════ */}
       <nav
+        role="navigation"
+        aria-label="Main navigation"
         style={{
           position: 'fixed',
           top: 0,
@@ -140,6 +143,13 @@ export function Navbar() {
               </NavLink>
             ))}
           </div>
+
+          {/* Notification Bell — sólo logueado */}
+          {isLoggedIn && (
+            <div style={{ marginRight: 4 }}>
+              <NotificationBell />
+            </div>
+          )}
 
           {/* MY HUB pill button */}
           <div style={{ position: 'relative' }}>
@@ -329,13 +339,15 @@ export function Navbar() {
               textAlign: 'center',
             }}
           >
-            Modo vista previa · Inicia sesión para desbloquear todo el contenido
+            {t('auth.guestBanner')}
           </div>
         </div>
       )}
 
       {/* ══════ Mobile Navbar ══════ */}
       <nav
+        role="navigation"
+        aria-label="Mobile navigation"
         style={{
           position: 'fixed',
           top: 0,
@@ -401,7 +413,7 @@ export function Navbar() {
             textAlign: 'center',
           }}
         >
-          Modo vista previa · Inicia sesión
+          {t('auth.guestBannerShort')}
         </div>
       )}
 

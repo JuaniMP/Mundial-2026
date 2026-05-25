@@ -8,303 +8,129 @@ export interface Team {
   text: string;
 }
 
+function hslToHex(h: number, s: number, l: number) {
+  const hue = h / 360;
+  const saturation = s / 100;
+  const lightness = l / 100;
+
+  const hueToRgb = (p: number, q: number, t: number) => {
+    let value = t;
+    if (value < 0) value += 1;
+    if (value > 1) value -= 1;
+    if (value < 1 / 6) return p + (q - p) * 6 * value;
+    if (value < 1 / 2) return q;
+    if (value < 2 / 3) return p + (q - p) * (2 / 3 - value) * 6;
+    return p;
+  };
+
+  let red: number;
+  let green: number;
+  let blue: number;
+
+  if (saturation === 0) {
+    red = green = blue = lightness;
+  } else {
+    const q =
+      lightness < 0.5
+        ? lightness * (1 + saturation)
+        : lightness + saturation - lightness * saturation;
+    const p = 2 * lightness - q;
+    red = hueToRgb(p, q, hue + 1 / 3);
+    green = hueToRgb(p, q, hue);
+    blue = hueToRgb(p, q, hue - 1 / 3);
+  }
+
+  const toHex = (value: number) => {
+    const hex = Math.round(value * 255)
+      .toString(16)
+      .padStart(2, '0');
+    return hex;
+  };
+
+  return `#${toHex(red)}${toHex(green)}${toHex(blue)}`;
+}
+
+function paletteFor(code: string) {
+  let hash = 0;
+  for (const char of code) {
+    hash = (hash * 31 + char.charCodeAt(0)) % 360;
+  }
+
+  return {
+    primary: hslToHex(hash, 68, 40),
+    secondary: hslToHex((hash + 34) % 360, 74, 56),
+    text: '#ffffff',
+  };
+}
+
+function makeTeam(spec: { name: string; shortName: string; flag: string; group: string }): Team {
+  return {
+    ...spec,
+    ...paletteFor(spec.shortName),
+  };
+}
+
 export const TEAMS: Team[] = [
-  // Group A — Anfitriones
-  {
-    name: 'Estados Unidos',
-    shortName: 'USA',
-    flag: '🇺🇸',
-    group: 'A',
-    primary: '#002868',
-    secondary: '#BF0A30',
-    text: '#ffffff',
-  },
-  {
-    name: 'México',
-    shortName: 'MEX',
-    flag: '🇲🇽',
-    group: 'A',
-    primary: '#006847',
-    secondary: '#CE1126',
-    text: '#ffffff',
-  },
-  {
-    name: 'Canadá',
-    shortName: 'CAN',
-    flag: '🇨🇦',
-    group: 'A',
-    primary: '#CC0000',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Polonia',
-    shortName: 'POL',
-    flag: '🇵🇱',
-    group: 'A',
-    primary: '#DC143C',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
+  // Group A
+  makeTeam({ name: 'México', shortName: 'MEX', flag: '🇲🇽', group: 'A' }),
+  makeTeam({ name: 'Sudáfrica', shortName: 'RSA', flag: '🇿🇦', group: 'A' }),
+  makeTeam({ name: 'Corea del Sur', shortName: 'KOR', flag: '🇰🇷', group: 'A' }),
+  makeTeam({ name: 'Chequia', shortName: 'CZE', flag: '🇨🇿', group: 'A' }),
   // Group B
-  {
-    name: 'Brasil',
-    shortName: 'BRA',
-    flag: '🇧🇷',
-    group: 'B',
-    primary: '#009c3b',
-    secondary: '#FFDF00',
-    text: '#002776',
-  },
-  {
-    name: 'Argentina',
-    shortName: 'ARG',
-    flag: '🇦🇷',
-    group: 'B',
-    primary: '#74ACDF',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Francia',
-    shortName: 'FRA',
-    flag: '🇫🇷',
-    group: 'B',
-    primary: '#003189',
-    secondary: '#ED2939',
-    text: '#ffffff',
-  },
-  {
-    name: 'Alemania',
-    shortName: 'GER',
-    flag: '🇩🇪',
-    group: 'B',
-    primary: '#222222',
-    secondary: '#DD0000',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'Canadá', shortName: 'CAN', flag: '🇨🇦', group: 'B' }),
+  makeTeam({ name: 'Bosnia y Herzegovina', shortName: 'BIH', flag: '🇧🇦', group: 'B' }),
+  makeTeam({ name: 'Catar', shortName: 'QAT', flag: '🇶🇦', group: 'B' }),
+  makeTeam({ name: 'Suiza', shortName: 'SUI', flag: '🇨🇭', group: 'B' }),
   // Group C
-  {
-    name: 'España',
-    shortName: 'ESP',
-    flag: '🇪🇸',
-    group: 'C',
-    primary: '#AA151B',
-    secondary: '#F1BF00',
-    text: '#ffffff',
-  },
-  {
-    name: 'Inglaterra',
-    shortName: 'ENG',
-    flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
-    group: 'C',
-    primary: '#003F87',
-    secondary: '#CF081F',
-    text: '#ffffff',
-  },
-  {
-    name: 'Italia',
-    shortName: 'ITA',
-    flag: '🇮🇹',
-    group: 'C',
-    primary: '#003DA5',
-    secondary: '#CF101A',
-    text: '#ffffff',
-  },
-  {
-    name: 'Portugal',
-    shortName: 'POR',
-    flag: '🇵🇹',
-    group: 'C',
-    primary: '#006600',
-    secondary: '#FF0000',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'Brasil', shortName: 'BRA', flag: '🇧🇷', group: 'C' }),
+  makeTeam({ name: 'Marruecos', shortName: 'MAR', flag: '🇲🇦', group: 'C' }),
+  makeTeam({ name: 'Haití', shortName: 'HAI', flag: '🇭🇹', group: 'C' }),
+  makeTeam({ name: 'Escocia', shortName: 'SCO', flag: '🏴', group: 'C' }),
   // Group D
-  {
-    name: 'Países Bajos',
-    shortName: 'NED',
-    flag: '🇳🇱',
-    group: 'D',
-    primary: '#CC4700',
-    secondary: '#003DA5',
-    text: '#ffffff',
-  },
-  {
-    name: 'Bélgica',
-    shortName: 'BEL',
-    flag: '🇧🇪',
-    group: 'D',
-    primary: '#EF3340',
-    secondary: '#000000',
-    text: '#ffffff',
-  },
-  {
-    name: 'Croacia',
-    shortName: 'CRO',
-    flag: '🇭🇷',
-    group: 'D',
-    primary: '#CC0000',
-    secondary: '#0000CC',
-    text: '#ffffff',
-  },
-  {
-    name: 'Japón',
-    shortName: 'JPN',
-    flag: '🇯🇵',
-    group: 'D',
-    primary: '#00247D',
-    secondary: '#BC002D',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'Estados Unidos', shortName: 'USA', flag: '🇺🇸', group: 'D' }),
+  makeTeam({ name: 'Paraguay', shortName: 'PAR', flag: '🇵🇾', group: 'D' }),
+  makeTeam({ name: 'Australia', shortName: 'AUS', flag: '🇦🇺', group: 'D' }),
+  makeTeam({ name: 'Türkiye', shortName: 'TUR', flag: '🇹🇷', group: 'D' }),
   // Group E
-  {
-    name: 'Uruguay',
-    shortName: 'URU',
-    flag: '🇺🇾',
-    group: 'E',
-    primary: '#4baae2',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Colombia',
-    shortName: 'COL',
-    flag: '🇨🇴',
-    group: 'E',
-    primary: '#C8962C',
-    secondary: '#003087',
-    text: '#003087',
-  },
-  {
-    name: 'Chile',
-    shortName: 'CHI',
-    flag: '🇨🇱',
-    group: 'E',
-    primary: '#D52B1E',
-    secondary: '#003087',
-    text: '#ffffff',
-  },
-  {
-    name: 'Ecuador',
-    shortName: 'ECU',
-    flag: '🇪🇨',
-    group: 'E',
-    primary: '#c8a900',
-    secondary: '#003DA5',
-    text: '#003DA5',
-  },
+  makeTeam({ name: 'Alemania', shortName: 'GER', flag: '🇩🇪', group: 'E' }),
+  makeTeam({ name: 'Curazao', shortName: 'CUW', flag: '🇨🇼', group: 'E' }),
+  makeTeam({ name: 'Costa de Marfil', shortName: 'CIV', flag: '🇨🇮', group: 'E' }),
+  makeTeam({ name: 'Ecuador', shortName: 'ECU', flag: '🇪🇨', group: 'E' }),
   // Group F
-  {
-    name: 'Marruecos',
-    shortName: 'MAR',
-    flag: '🇲🇦',
-    group: 'F',
-    primary: '#C1272D',
-    secondary: '#006233',
-    text: '#ffffff',
-  },
-  {
-    name: 'Senegal',
-    shortName: 'SEN',
-    flag: '🇸🇳',
-    group: 'F',
-    primary: '#00853F',
-    secondary: '#FDEF42',
-    text: '#ffffff',
-  },
-  {
-    name: 'Nigeria',
-    shortName: 'NGA',
-    flag: '🇳🇬',
-    group: 'F',
-    primary: '#008751',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Ghana',
-    shortName: 'GHA',
-    flag: '🇬🇭',
-    group: 'F',
-    primary: '#006B3F',
-    secondary: '#FCD116',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'Países Bajos', shortName: 'NED', flag: '🇳🇱', group: 'F' }),
+  makeTeam({ name: 'Japón', shortName: 'JPN', flag: '🇯🇵', group: 'F' }),
+  makeTeam({ name: 'Suecia', shortName: 'SWE', flag: '🇸🇪', group: 'F' }),
+  makeTeam({ name: 'Túnez', shortName: 'TUN', flag: '🇹🇳', group: 'F' }),
   // Group G
-  {
-    name: 'Australia',
-    shortName: 'AUS',
-    flag: '🇦🇺',
-    group: 'G',
-    primary: '#00008B',
-    secondary: '#FFD700',
-    text: '#ffffff',
-  },
-  {
-    name: 'Corea del Sur',
-    shortName: 'KOR',
-    flag: '🇰🇷',
-    group: 'G',
-    primary: '#CD2E3A',
-    secondary: '#003478',
-    text: '#ffffff',
-  },
-  {
-    name: 'Irán',
-    shortName: 'IRN',
-    flag: '🇮🇷',
-    group: 'G',
-    primary: '#239F40',
-    secondary: '#DA0000',
-    text: '#ffffff',
-  },
-  {
-    name: 'Arabia Saudita',
-    shortName: 'KSA',
-    flag: '🇸🇦',
-    group: 'G',
-    primary: '#006C35',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'Bélgica', shortName: 'BEL', flag: '🇧🇪', group: 'G' }),
+  makeTeam({ name: 'Egipto', shortName: 'EGY', flag: '🇪🇬', group: 'G' }),
+  makeTeam({ name: 'Irán', shortName: 'IRN', flag: '🇮🇷', group: 'G' }),
+  makeTeam({ name: 'Nueva Zelanda', shortName: 'NZL', flag: '🇳🇿', group: 'G' }),
   // Group H
-  {
-    name: 'Serbia',
-    shortName: 'SRB',
-    flag: '🇷🇸',
-    group: 'H',
-    primary: '#C6363C',
-    secondary: '#002395',
-    text: '#ffffff',
-  },
-  {
-    name: 'Suiza',
-    shortName: 'SUI',
-    flag: '🇨🇭',
-    group: 'H',
-    primary: '#DA0002',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Dinamarca',
-    shortName: 'DEN',
-    flag: '🇩🇰',
-    group: 'H',
-    primary: '#C60C30',
-    secondary: '#ffffff',
-    text: '#ffffff',
-  },
-  {
-    name: 'Suecia',
-    shortName: 'SWE',
-    flag: '🇸🇪',
-    group: 'H',
-    primary: '#006AA7',
-    secondary: '#FECC02',
-    text: '#ffffff',
-  },
+  makeTeam({ name: 'España', shortName: 'ESP', flag: '🇪🇸', group: 'H' }),
+  makeTeam({ name: 'Cabo Verde', shortName: 'CPV', flag: '🇨🇻', group: 'H' }),
+  makeTeam({ name: 'Arabia Saudita', shortName: 'KSA', flag: '🇸🇦', group: 'H' }),
+  makeTeam({ name: 'Uruguay', shortName: 'URU', flag: '🇺🇾', group: 'H' }),
+  // Group I
+  makeTeam({ name: 'Francia', shortName: 'FRA', flag: '🇫🇷', group: 'I' }),
+  makeTeam({ name: 'Senegal', shortName: 'SEN', flag: '🇸🇳', group: 'I' }),
+  makeTeam({ name: 'Irak', shortName: 'IRQ', flag: '🇮🇶', group: 'I' }),
+  makeTeam({ name: 'Noruega', shortName: 'NOR', flag: '🇳🇴', group: 'I' }),
+  // Group J
+  makeTeam({ name: 'Argentina', shortName: 'ARG', flag: '🇦🇷', group: 'J' }),
+  makeTeam({ name: 'Argelia', shortName: 'ALG', flag: '🇩🇿', group: 'J' }),
+  makeTeam({ name: 'Austria', shortName: 'AUT', flag: '🇦🇹', group: 'J' }),
+  makeTeam({ name: 'Jordania', shortName: 'JOR', flag: '🇯🇴', group: 'J' }),
+  // Group K
+  makeTeam({ name: 'Portugal', shortName: 'POR', flag: '🇵🇹', group: 'K' }),
+  makeTeam({ name: 'RD Congo', shortName: 'COD', flag: '🇨🇩', group: 'K' }),
+  makeTeam({ name: 'Uzbekistán', shortName: 'UZB', flag: '🇺🇿', group: 'K' }),
+  makeTeam({ name: 'Colombia', shortName: 'COL', flag: '🇨🇴', group: 'K' }),
+  // Group L
+  makeTeam({ name: 'Inglaterra', shortName: 'ENG', flag: '🏴', group: 'L' }),
+  makeTeam({ name: 'Croacia', shortName: 'CRO', flag: '🇭🇷', group: 'L' }),
+  makeTeam({ name: 'Ghana', shortName: 'GHA', flag: '🇬🇭', group: 'L' }),
+  makeTeam({ name: 'Panamá', shortName: 'PAN', flag: '🇵🇦', group: 'L' }),
 ];
 
 /** Team deterministically assigned based on lamina ID (10 stickers per team) */
@@ -320,4 +146,25 @@ export function getSlotInTeam(laminaId: number): number {
 
 export function getTeamByShortName(shortName: string): Team | undefined {
   return TEAMS.find((t) => t.shortName === shortName);
+}
+
+const FALLBACK_TEAM: Team = {
+  name: 'Especial',
+  shortName: 'ESP',
+  flag: '⭐',
+  group: '-',
+  primary: '#002868',
+  secondary: '#C8102E',
+  text: '#ffffff',
+};
+
+/** Match by seleccionNombre (partial, case-insensitive) */
+export function getTeamBySeleccion(nombre: string | null | undefined): Team {
+  if (!nombre) return FALLBACK_TEAM;
+  const q = nombre.toLowerCase();
+  return (
+    TEAMS.find((t) => t.name.toLowerCase() === q || t.shortName.toLowerCase() === q) ??
+    TEAMS.find((t) => t.name.toLowerCase().includes(q) || q.includes(t.name.toLowerCase())) ??
+    FALLBACK_TEAM
+  );
 }

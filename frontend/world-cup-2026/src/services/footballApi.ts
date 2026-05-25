@@ -13,6 +13,20 @@ const API_BASE = 'http://localhost:8082/api/v1/football';
 const ESTADIOS_BASE = 'http://localhost:8082/api/v1/estadios';
 const BACKEND_BASE = 'http://localhost:8082/api/v1';
 
+// ── RNF-20: Retry helper ─────────────────────────────────────────────────────
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 2, delay = 800): Promise<T> {
+  try {
+    return await fn();
+  } catch (err) {
+    if (retries > 0) {
+      await new Promise((r) => setTimeout(r, delay));
+      return withRetry(fn, retries - 1, delay * 1.5);
+    }
+    throw err;
+  }
+}
+
 // ── helper ───────────────────────────────────────────────────────────────────
 
 function getAuthHeaders() {
@@ -23,31 +37,39 @@ function getAuthHeaders() {
 // ── Matches ───────────────────────────────────────────────────────────────────
 
 export async function fetchAllMatches(): Promise<FdMatch[]> {
-  const { data } = await axios.get(`${API_BASE}/matches`, { headers: getAuthHeaders() });
-  return data?.data?.matches ?? [];
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/matches`, { headers: getAuthHeaders() });
+    return data?.data?.matches ?? [];
+  });
 }
 
 export async function fetchMatchesByStage(stage: string): Promise<FdMatch[]> {
-  const { data } = await axios.get(`${API_BASE}/matches`, {
-    params: { stage },
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/matches`, {
+      params: { stage },
+      headers: getAuthHeaders(),
+    });
+    return data?.data?.matches ?? [];
   });
-  return data?.data?.matches ?? [];
 }
 
 export async function fetchMatchesByMatchday(matchday: number): Promise<FdMatch[]> {
-  const { data } = await axios.get(`${API_BASE}/matches`, {
-    params: { matchday },
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/matches`, {
+      params: { matchday },
+      headers: getAuthHeaders(),
+    });
+    return data?.data?.matches ?? [];
   });
-  return data?.data?.matches ?? [];
 }
 
 // ── Standings ─────────────────────────────────────────────────────────────────
 
 export async function fetchStandings(): Promise<FdStandingsGroup[]> {
-  const { data } = await axios.get(`${API_BASE}/standings`, { headers: getAuthHeaders() });
-  return data?.data?.standings ?? [];
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/standings`, { headers: getAuthHeaders() });
+    return data?.data?.standings ?? [];
+  });
 }
 
 // ── Teams ─────────────────────────────────────────────────────────────────────
@@ -80,8 +102,10 @@ export interface ApiTeamDetail extends ApiTeam {
 }
 
 export async function fetchTeams(): Promise<ApiTeam[]> {
-  const { data } = await axios.get(`${API_BASE}/teams`, { headers: getAuthHeaders() });
-  return data?.data?.teams ?? [];
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/teams`, { headers: getAuthHeaders() });
+    return data?.data?.teams ?? [];
+  });
 }
 
 export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | null> {
@@ -106,26 +130,41 @@ export async function fetchEstadios(): Promise<EstadioApi[]> {
     const { data } = await axios.get(ESTADIOS_BASE, { timeout: 4000 });
     const backendData: EstadioApi[] = data?.data ?? [];
 
-    // If backend has data, enrich it with images/details from our static dataset
+    // Base canónica: siempre devolver las 16 sedes oficiales.
+    // Si el backend trae datos, los usamos para enriquecer cada sede sin perder ninguna.
     if (backendData.length > 0) {
-      return backendData.map((s) => {
-        const match = WORLD_CUP_2026_STADIUMS.find(
-          (w) =>
-            w.nombre.toLowerCase() === s.nombre.toLowerCase() ||
-            w.ciudad.toLowerCase() === s.ciudad.toLowerCase(),
-        );
+      const backendByName = new Map(backendData.map((s) => [s.nombre.toLowerCase(), s] as const));
+      const backendByCity = new Map(backendData.map((s) => [s.ciudad.toLowerCase(), s] as const));
+
+      const merged = WORLD_CUP_2026_STADIUMS.map((base) => {
+        const match =
+          backendByName.get(base.nombre.toLowerCase()) ??
+          backendByCity.get(base.ciudad.toLowerCase());
+
         return match
           ? {
-              ...s,
-              imagen: s.imagen ?? match.imagen,
-              partidos: s.partidos ?? match.partidos,
-              inaugurado: s.inaugurado ?? match.inaugurado,
-              equipoLocal: s.equipoLocal ?? match.equipoLocal,
+              ...base,
+              ...match,
+              imagen: match.imagen ?? base.imagen,
+              partidos: match.partidos ?? base.partidos,
+              inaugurado: match.inaugurado ?? base.inaugurado,
+              equipoLocal: match.equipoLocal ?? base.equipoLocal,
             }
-          : s;
+          : base;
       });
+
+      const extras = backendData.filter(
+        (s) =>
+          !WORLD_CUP_2026_STADIUMS.some(
+            (base) =>
+              base.nombre.toLowerCase() === s.nombre.toLowerCase() ||
+              base.ciudad.toLowerCase() === s.ciudad.toLowerCase(),
+          ),
+      );
+
+      return [...merged, ...extras];
     }
-    // Backend returned empty → use full static dataset
+
     return WORLD_CUP_2026_STADIUMS;
   } catch {
     // Backend failed → use full static dataset
@@ -136,10 +175,12 @@ export async function fetchEstadios(): Promise<EstadioApi[]> {
 // ── Selecciones ───────────────────────────────────────────────────────────────
 
 export async function fetchSelecciones(): Promise<SeleccionResponse[]> {
-  const { data } = await axios.get(`${BACKEND_BASE}/selecciones`, {
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const { data } = await axios.get(`${BACKEND_BASE}/selecciones`, {
+      headers: getAuthHeaders(),
+    });
+    return (data?.data as SeleccionResponse[]) ?? [];
   });
-  return (data?.data as SeleccionResponse[]) ?? [];
 }
 
 export async function fetchSeleccionByCode(code: string): Promise<SeleccionResponse | null> {
@@ -154,10 +195,12 @@ export async function fetchSeleccionByCode(code: string): Promise<SeleccionRespo
 }
 
 export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResponse[]> {
-  const { data } = await axios.get(`${BACKEND_BASE}/selecciones/${id}/jugadores`, {
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const { data } = await axios.get(`${BACKEND_BASE}/selecciones/${id}/jugadores`, {
+      headers: getAuthHeaders(),
+    });
+    return (data?.data as JugadorResponse[]) ?? [];
   });
-  return (data?.data as JugadorResponse[]) ?? [];
 }
 
 // ── Qualifiers / Eliminatorias ────────────────────────────────────────────
@@ -165,23 +208,27 @@ export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResp
 export async function fetchQualifierMatches(
   confederation?: Confederation,
 ): Promise<QualifierFixture[]> {
-  const params: Record<string, string> = {};
-  if (confederation) params.confederation = confederation;
-  const { data } = await axios.get(`${API_BASE}/qualifiers/matches`, {
-    params,
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const params: Record<string, string> = {};
+    if (confederation) params.confederation = confederation;
+    const { data } = await axios.get(`${API_BASE}/qualifiers/matches`, {
+      params,
+      headers: getAuthHeaders(),
+    });
+    return data?.data?.matches ?? [];
   });
-  return data?.data?.matches ?? [];
 }
 
 export async function fetchQualifierStandings(
   confederation: Confederation,
 ): Promise<FdStandingsGroup[]> {
-  const { data } = await axios.get(`${API_BASE}/qualifiers/standings`, {
-    params: { confederation },
-    headers: getAuthHeaders(),
+  return withRetry(async () => {
+    const { data } = await axios.get(`${API_BASE}/qualifiers/standings`, {
+      params: { confederation },
+      headers: getAuthHeaders(),
+    });
+    return data?.data ?? [];
   });
-  return data?.data ?? [];
 }
 
 export const CONFEDERATIONS: {

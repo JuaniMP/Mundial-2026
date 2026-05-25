@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { TravelSuggestionsPanel } from '../components/TravelSuggestions';
 import AvatarPicker from '../components/AvatarPicker';
 import {
   Settings,
@@ -25,7 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../context/useLanguage';
 import { Button, PageHeader } from '../components/ui';
 import { useAuth } from '../context/AuthContext';
-import { useFcm } from '../hooks/useFcm';
+import { TEAMS as ALBUM_TEAMS } from '../components/album/teamColors';
 import {
   getPreferencias,
   savePreferencias,
@@ -42,12 +43,46 @@ import {
   type FeedItem,
 } from '../services/profileApi';
 // Avatar utilities are used in the dedicated AvatarPicker component
+import { WORLD_CUP_2026_STADIUMS } from '../data/worldCup2026Stadiums';
 
 // ── Datos auxiliares para el wizard ───────────────────────────────────────────
-import { TEAMS } from '../data/teams';
 
-// Usar la lista completa de equipos (mock TEAMS) para el asistente de configuración
-const SELECCIONES = TEAMS.map((t) => t.name);
+// Usar la lista completa de 48 selecciones del álbum para el asistente de configuración.
+const SELECCIONES = ALBUM_TEAMS.map((t) => t.name);
+
+type DestinoSugerido = {
+  value: string;
+  ciudad: string;
+  pais: string;
+  estadio: string;
+  zonaHoraria: string;
+};
+
+const DESTINOS_MUNDIAL: DestinoSugerido[] = Array.from(
+  new Map(
+    WORLD_CUP_2026_STADIUMS.map((s) => {
+      const zonaHoraria =
+        s.pais === 'México'
+          ? 'America/Mexico_City'
+          : s.ciudad === 'Vancouver' || s.ciudad === 'Los Angeles' || s.ciudad === 'Seattle'
+            ? 'America/Los_Angeles'
+            : s.ciudad === 'Dallas' || s.ciudad === 'Houston' || s.ciudad === 'Kansas City'
+              ? 'America/Chicago'
+              : 'America/New_York';
+
+      return [
+        `${s.ciudad}|${s.pais}|${s.nombre}`,
+        {
+          value: `${s.ciudad}|${s.pais}|${s.nombre}`,
+          ciudad: s.ciudad,
+          pais: s.pais === 'USA' ? 'Estados Unidos' : s.pais === 'Canada' ? 'Canadá' : s.pais,
+          estadio: s.nombre,
+          zonaHoraria,
+        },
+      ] as const;
+    }),
+  ).values(),
+);
 
 const ESTADIOS = [
   'MetLife Stadium',
@@ -77,6 +112,7 @@ const ZONAS = [
   'America/Bogota',
   'America/Mexico_City',
   'America/New_York',
+  'America/Chicago',
   'America/Los_Angeles',
   'America/Argentina/Buenos_Aires',
   'America/Sao_Paulo',
@@ -88,8 +124,8 @@ const ZONAS = [
 type Tab = 'preferencias' | 'agenda' | 'feed' | 'viajes';
 
 export function Profile() {
-  const { user, token } = useAuth();
-  const { permission, registered, isConfigured, requestAndRegister, disable } = useFcm(token);
+  const { t } = useTranslation();
+  const { user } = useAuth();
   const [tab, setTab] = useState<Tab>('preferencias');
   const [error, setError] = useState<string | null>(null);
 
@@ -110,23 +146,45 @@ export function Profile() {
 
   const load = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const [p, a, v, f] = await Promise.all([
+      const [p, a, v, f] = await Promise.allSettled([
         getPreferencias(),
         getAgenda(),
         getViajes(),
         getFeed(),
       ]);
-      setPrefs(p);
-      setAgenda(a);
-      setViajes(v);
-      setFeed(f);
-      setDraftSelecciones(p.seleccionesFavoritas ?? []);
-      setDraftEstadios(p.estadiosFavoritos ?? []);
-      setDraftCanales(p.canalesNotificacion?.length ? p.canalesNotificacion : ['APP']);
-      setDraftZona(p.zonaHorariaPreferida ?? 'America/Bogota');
-    } catch {
-      setError('No se pudo cargar tu perfil.');
+      if (p.status === 'fulfilled') {
+        const prefsData = p.value;
+        setPrefs(prefsData);
+        setDraftSelecciones(prefsData.seleccionesFavoritas ?? []);
+        setDraftEstadios(prefsData.estadiosFavoritos ?? []);
+        setDraftCanales(
+          prefsData.canalesNotificacion?.length ? prefsData.canalesNotificacion : ['APP'],
+        );
+        setDraftZona(prefsData.zonaHorariaPreferida ?? 'America/Bogota');
+      } else {
+        setPrefs(null);
+      }
+
+      if (a.status === 'fulfilled') setAgenda(a.value);
+      if (v.status === 'fulfilled') setViajes(v.value);
+      if (f.status === 'fulfilled') setFeed(f.value);
+
+      const failedSections = [
+        p.status === 'rejected' ? 'preferencias' : null,
+        a.status === 'rejected' ? 'agenda' : null,
+        v.status === 'rejected' ? 'viajes' : null,
+        f.status === 'rejected' ? 'feed' : null,
+      ].filter(Boolean) as string[];
+
+      if (failedSections.length > 0) {
+        setError(
+          failedSections.length === 4
+            ? t('profile.loadError')
+            : t('profile.loadPartialError', { sections: failedSections.join(', ') }),
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -213,25 +271,25 @@ export function Profile() {
       <div className="flex flex-wrap bg-bg-elevated rounded-xl p-1 border border-border self-start gap-1">
         {(
           [
-            { key: 'preferencias', label: 'Preferencias', icon: Settings },
-            { key: 'agenda', label: 'Agenda', icon: CalendarDays },
-            { key: 'feed', label: 'Feed', icon: Newspaper },
-            { key: 'viajes', label: 'Viajes', icon: Plane },
+            { key: 'preferencias', label: t('profile.tabPreferences'), icon: Settings },
+            { key: 'agenda', label: t('profile.tabAgenda'), icon: CalendarDays },
+            { key: 'feed', label: t('profile.tabFeed'), icon: Newspaper },
+            { key: 'viajes', label: t('profile.tabTrips'), icon: Plane },
           ] as const
-        ).map((t) => {
-          const Active = t.icon;
+        ).map((tabItem) => {
+          const Active = tabItem.icon;
           return (
             <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
+              key={tabItem.key}
+              onClick={() => setTab(tabItem.key)}
               className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                tab === t.key
+                tab === tabItem.key
                   ? 'bg-bg-card text-text-primary shadow-sm border border-border'
                   : 'text-text-muted hover:text-text-secondary'
               }`}
             >
               <Active className="w-3.5 h-3.5" />
-              {t.label}
+              {tabItem.label}
             </button>
           );
         })}
@@ -242,11 +300,6 @@ export function Profile() {
       {!loading && tab === 'preferencias' && (
         <PreferenciasPanel
           prefs={prefs}
-          permission={permission}
-          registered={registered}
-          isConfigured={isConfigured}
-          requestAndRegister={requestAndRegister}
-          disablePush={disable}
           wizardStep={wizardStep}
           setWizardStep={setWizardStep}
           draftSelecciones={draftSelecciones}
@@ -288,11 +341,6 @@ export function Profile() {
 
 function PreferenciasPanel(props: {
   prefs: Preferencias | null;
-  permission: NotificationPermission | 'unsupported';
-  registered: boolean;
-  isConfigured: boolean;
-  requestAndRegister: () => Promise<boolean>;
-  disablePush: () => Promise<void>;
   wizardStep: number;
   setWizardStep: (n: number) => void;
   draftSelecciones: string[];
@@ -307,13 +355,9 @@ function PreferenciasPanel(props: {
   guardar: (markWizardDone: boolean) => Promise<void>;
   saving: boolean;
 }) {
+  const { t } = useTranslation();
   const {
     prefs,
-    permission,
-    registered,
-    isConfigured,
-    requestAndRegister,
-    disablePush,
     wizardStep,
     setWizardStep,
     draftSelecciones,
@@ -357,8 +401,8 @@ function PreferenciasPanel(props: {
 
         {wizardStep === 0 && (
           <WizardSelections
-            title="Tus selecciones favoritas"
-            subtitle="Elige hasta 5 equipos. Verás sus partidos primero en el feed."
+            title={t('profile.wizardTeamsTitle')}
+            subtitle={t('profile.wizardTeamsSubtitle')}
             options={SELECCIONES}
             value={draftSelecciones}
             onToggle={(v) => setDraftSelecciones(toggle(draftSelecciones, v))}
@@ -408,67 +452,21 @@ function PreferenciasPanel(props: {
                 );
               })}
             </div>
-
-            <div className="mt-3 rounded-lg border border-border bg-bg-elevated p-4">
-              <p className="text-sm font-semibold text-text-primary">Push en este navegador</p>
-              {!isConfigured && (
-                <p className="mt-1 text-xs text-secondary-dim">
-                  Firebase web no está configurado en el frontend. Revisa `VITE_FIREBASE_*`.
-                </p>
-              )}
-              {isConfigured && permission === 'unsupported' && (
-                <p className="mt-1 text-xs text-secondary-dim">
-                  Este navegador no soporta notificaciones push web.
-                </p>
-              )}
-              {isConfigured && permission !== 'unsupported' && (
-                <p className="mt-1 text-xs text-text-secondary">
-                  Estado:{' '}
-                  {permission === 'granted'
-                    ? 'Permitidas'
-                    : permission === 'denied'
-                      ? 'Bloqueadas'
-                      : 'Sin configurar'}
-                  {registered ? ' · Token registrado' : ' · Sin token registrado'}
-                </p>
-              )}
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button
-                  variant="primary"
-                  icon={Bell}
-                  iconPosition="left"
-                  onClick={async () => {
-                    await requestAndRegister();
-                  }}
-                  disabled={!isConfigured || permission === 'unsupported'}
-                >
-                  Activar push en este navegador
-                </Button>
-                <Button
-                  variant="outline"
-                  icon={Trash2}
-                  iconPosition="left"
-                  onClick={async () => {
-                    await disablePush();
-                  }}
-                  disabled={!registered}
-                >
-                  Desactivar push aquí
-                </Button>
-              </div>
-            </div>
           </div>
         )}
 
         {wizardStep === 3 && (
           <div className="flex flex-col gap-3">
-            <h4 className="font-headline font-bold text-lg text-text-primary">Zona horaria</h4>
+            <h4 className="font-headline font-bold text-lg text-text-primary">
+              {t('profile.wizardTimezone')}
+            </h4>
             <p className="text-sm text-text-secondary">
               Mostramos las horas de los partidos en tu zona. Si viajas, te avisamos al cambiar.
             </p>
             <select
               value={draftZona}
               onChange={(e) => setDraftZona(e.target.value)}
+              aria-label="Zona horaria preferida"
               className="w-full px-4 py-3 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             >
               {ZONAS.map((z) => (
@@ -528,19 +526,19 @@ function PreferenciasPanel(props: {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <PrefCard
           icon={Flag}
-          title="Selecciones favoritas"
+          title={t('profile.favoriteTeams')}
           values={prefs?.seleccionesFavoritas ?? []}
           empty="Aún no eliges equipos."
         />
         <PrefCard
           icon={MapPin}
-          title="Estadios favoritos"
+          title={t('profile.favoriteStadiums')}
           values={prefs?.estadiosFavoritos ?? []}
           empty="Sin estadios marcados."
         />
         <PrefCard
           icon={Bell}
-          title="Canales de notificación"
+          title={t('profile.notificationChannels')}
           values={(prefs?.canalesNotificacion ?? []).map(
             (c) => CANALES.find((x) => x.key === c)?.label ?? c,
           )}
@@ -548,7 +546,7 @@ function PreferenciasPanel(props: {
         />
         <PrefCard
           icon={Globe2}
-          title="Zona horaria"
+          title={t('profile.timezone')}
           values={prefs?.zonaHorariaPreferida ? [prefs.zonaHorariaPreferida] : []}
           empty="Sin definir"
         />
@@ -560,7 +558,7 @@ function PreferenciasPanel(props: {
           iconPosition="left"
           onClick={() => setWizardStep(0)}
         >
-          Editar preferencias
+          {t('profile.editPreferences')}
         </Button>
       </div>
     </section>
@@ -669,6 +667,7 @@ function AgendaPanel({
   reload: () => Promise<void>;
   setError: (s: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState<{
     titulo: string;
@@ -826,7 +825,7 @@ function AgendaPanel({
 
       {agenda.length === 0 ? (
         <div className="card-base p-10 text-center text-text-muted">
-          Aún no tienes eventos. Agrega partidos, viajes o cualquier recordatorio personal.
+          {t('profile.agendaEmpty')}
         </div>
       ) : (
         <div className="flex flex-col gap-2">
@@ -870,10 +869,11 @@ function PriorityDot({ prioridad }: { prioridad: AgendaItem['prioridad'] }) {
 // ─── Feed ────────────────────────────────────────────────────────────────────
 
 function FeedPanel({ feed }: { feed: FeedItem[] }) {
+  const { t } = useTranslation();
   if (feed.length === 0) {
     return (
       <section className="card-base p-10 text-center text-text-muted animate-fade-in">
-        Sin actividad reciente. Agrega eventos a tu agenda o registra un viaje para verlos aquí.
+        {t('profile.feedEmpty')}
       </section>
     );
   }
@@ -936,7 +936,10 @@ function ViajesPanel({
   reload: () => Promise<void>;
   setError: (s: string | null) => void;
 }) {
+  const { t } = useTranslation();
   const [showAdd, setShowAdd] = useState(false);
+  const [expandedSugerencias, setExpandedSugerencias] = useState<Record<number, boolean>>({});
+  const [destinoSugerido, setDestinoSugerido] = useState('');
   const [form, setForm] = useState({
     ciudadDestino: '',
     paisDestino: '',
@@ -947,6 +950,20 @@ function ViajesPanel({
     notas: '',
   });
   const [busy, setBusy] = useState(false);
+
+  const aplicarDestinoSugerido = (value: string) => {
+    setDestinoSugerido(value);
+    const destino = DESTINOS_MUNDIAL.find((d) => d.value === value);
+    if (!destino) return;
+
+    setForm((prev) => ({
+      ...prev,
+      ciudadDestino: destino.ciudad,
+      paisDestino: destino.pais,
+      zonaHorariaDestino: destino.zonaHoraria,
+      estadioDestino: destino.estadio,
+    }));
+  };
 
   const onSubmit = async () => {
     if (
@@ -970,6 +987,7 @@ function ViajesPanel({
       });
       await reload();
       setShowAdd(false);
+      setDestinoSugerido('');
       setForm({
         ciudadDestino: '',
         paisDestino: '',
@@ -1020,19 +1038,48 @@ function ViajesPanel({
 
       {showAdd && (
         <div className="card-base p-5 flex flex-col gap-3 animate-scale-in">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs uppercase tracking-widest text-text-muted font-bold">
+              Sede sugerida
+            </label>
+            <select
+              value={destinoSugerido}
+              onChange={(e) => aplicarDestinoSugerido(e.target.value)}
+              aria-label="Sede sugerida del Mundial"
+              className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+            >
+              <option value="">Elige una ciudad o estadio del Mundial</option>
+              {DESTINOS_MUNDIAL.map((destino) => (
+                <option key={destino.value} value={destino.value}>
+                  {destino.ciudad} · {destino.estadio} ({destino.pais})
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-text-muted">
+              Al elegir una sede, completamos ciudad, país, zona horaria y estadio para el
+              recordatorio.
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <input
               type="text"
               placeholder="Ciudad destino"
               value={form.ciudadDestino}
-              onChange={(e) => setForm({ ...form, ciudadDestino: e.target.value })}
+              onChange={(e) => {
+                setDestinoSugerido('');
+                setForm({ ...form, ciudadDestino: e.target.value });
+              }}
               className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
             <input
               type="text"
               placeholder="País"
               value={form.paisDestino}
-              onChange={(e) => setForm({ ...form, paisDestino: e.target.value })}
+              onChange={(e) => {
+                setDestinoSugerido('');
+                setForm({ ...form, paisDestino: e.target.value });
+              }}
               className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
             />
           </div>
@@ -1065,7 +1112,10 @@ function ViajesPanel({
               </span>
               <select
                 value={form.zonaHorariaDestino}
-                onChange={(e) => setForm({ ...form, zonaHorariaDestino: e.target.value })}
+                onChange={(e) => {
+                  setDestinoSugerido('');
+                  setForm({ ...form, zonaHorariaDestino: e.target.value });
+                }}
                 className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
               >
                 {ZONAS.map((z) => (
@@ -1080,7 +1130,10 @@ function ViajesPanel({
             type="text"
             placeholder="Estadio destino (opcional)"
             value={form.estadioDestino}
-            onChange={(e) => setForm({ ...form, estadioDestino: e.target.value })}
+            onChange={(e) => {
+              setDestinoSugerido('');
+              setForm({ ...form, estadioDestino: e.target.value });
+            }}
             className="px-3 py-2 rounded-lg border border-border bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
           />
           <textarea
@@ -1113,48 +1166,82 @@ function ViajesPanel({
 
       {viajes.length === 0 ? (
         <div className="card-base p-10 text-center text-text-muted">
-          Aún no registras viajes. Agrega uno y te acompañamos con alertas contextuales.
+          {t('profile.tripsEmpty')}
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {viajes.map((v) => (
-            <div
-              key={v.id}
-              className={`card-base p-5 flex flex-col md:flex-row md:items-center gap-4 ${
-                v.enCurso ? 'border-primary/40 bg-primary-subtle/30' : ''
-              }`}
-            >
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-accent/10 text-accent">
-                <Plane className="w-6 h-6" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-headline font-bold text-lg text-text-primary truncate">
-                  {v.ciudadDestino}
-                  <span className="text-text-muted font-normal text-sm">, {v.paisDestino}</span>
-                </p>
-                <p className="text-xs text-text-muted mt-0.5">
-                  {v.fechaInicio} → {v.fechaFin}
-                  {v.offsetHoras && ` · ${v.offsetHoras} vs tu zona`}
-                  {v.estadioDestino && ` · ${v.estadioDestino}`}
-                </p>
-                {v.alerta && (
-                  <p
-                    className={`text-sm mt-2 ${v.enCurso ? 'text-primary-dim font-semibold' : 'text-text-secondary'}`}
-                  >
-                    {v.alerta}
-                  </p>
-                )}
-                {v.notas && <p className="text-xs text-text-muted mt-1 italic">{v.notas}</p>}
-              </div>
-              <button
-                onClick={() => onDelete(v.id)}
-                className="p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary/10 transition-colors"
-                aria-label="Eliminar"
+          {viajes.map((v) => {
+            const sugsOpen = expandedSugerencias[v.id] ?? false;
+            const hasEstadio = Boolean(v.estadioDestino?.trim());
+            return (
+              <div
+                key={v.id}
+                className={`card-base p-5 flex flex-col gap-4 ${
+                  v.enCurso ? 'border-primary/40 bg-primary-subtle/30' : ''
+                }`}
               >
-                <Trash2 className="w-4 h-4" />
-              </button>
-            </div>
-          ))}
+                {/* Top row */}
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 bg-accent/10 text-accent">
+                    <Plane className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-headline font-bold text-lg text-text-primary truncate">
+                      {v.ciudadDestino}
+                      <span className="text-text-muted font-normal text-sm">, {v.paisDestino}</span>
+                    </p>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      {v.fechaInicio} → {v.fechaFin}
+                      {v.offsetHoras && ` · ${v.offsetHoras} vs tu zona`}
+                      {v.estadioDestino && ` · ${v.estadioDestino}`}
+                    </p>
+                    {v.duracionEstimada && (
+                      <p className="text-xs text-text-secondary mt-1">
+                        Estancia estimada: {v.duracionEstimada}
+                      </p>
+                    )}
+                    {v.alerta && (
+                      <p
+                        className={`text-sm mt-2 ${v.enCurso ? 'text-primary-dim font-semibold' : 'text-text-secondary'}`}
+                      >
+                        {v.alerta}
+                      </p>
+                    )}
+                    {v.notas && <p className="text-xs text-text-muted mt-1 italic">{v.notas}</p>}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {hasEstadio && (
+                      <button
+                        onClick={() =>
+                          setExpandedSugerencias((prev) => ({
+                            ...prev,
+                            [v.id]: !sugsOpen,
+                          }))
+                        }
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold border border-primary/30 bg-primary-subtle text-primary-dim hover:bg-primary/20 transition-colors cursor-pointer"
+                      >
+                        ✈️ {sugsOpen ? 'Ocultar' : 'Ver sugerencias'}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => onDelete(v.id)}
+                      className="p-2 rounded-lg text-text-muted hover:text-secondary hover:bg-secondary/10 transition-colors"
+                      aria-label="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sugerencias expandidas */}
+                {sugsOpen && hasEstadio && (
+                  <div className="border-t border-border pt-4">
+                    <TravelSuggestionsPanel key={v.estadioDestino} estadio={v.estadioDestino!} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </section>
@@ -1177,19 +1264,26 @@ function LanguageSwitcherCard() {
           <p className="text-xs text-text-secondary mt-1">{t('profile.languageHint')}</p>
         </div>
       </div>
-      <div className="flex gap-2">
-        {(['es', 'en'] as const).map((l) => (
+      <div className="flex gap-2 flex-wrap">
+        {(
+          [
+            { code: 'es', flag: '🇪🇸', label: t('common.spanish') },
+            { code: 'en', flag: '🇺🇸', label: t('common.english') },
+            { code: 'fr', flag: '🇫🇷', label: t('common.french') },
+          ] as const
+        ).map((l) => (
           <button
-            key={l}
-            onClick={() => void setLang(l)}
+            key={l.code}
+            onClick={() => void setLang(l.code)}
             disabled={syncing}
+            aria-label={`${t('profile.selectLanguage')}: ${l.label}`}
             className={`px-4 py-2 rounded-full text-sm font-bold border transition-all cursor-pointer ${
-              lang === l
+              lang === l.code
                 ? 'bg-primary text-ink border-ink'
                 : 'bg-bg-elevated text-text-primary border-border hover:border-ink'
             } ${syncing ? 'opacity-60 cursor-wait' : ''}`}
           >
-            {l === 'es' ? `🇪🇸 ${t('common.spanish')}` : `🇺🇸 ${t('common.english')}`}
+            {l.flag} {l.label}
           </button>
         ))}
       </div>

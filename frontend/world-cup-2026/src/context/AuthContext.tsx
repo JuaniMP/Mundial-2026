@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
+import { registerFcmToken } from '../services/firebase';
 
 interface User {
   id: string;
@@ -113,13 +114,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Registrar token FCM para push notifications (no bloquea el login)
+      registerFcmToken().catch(() => {});
       return rol;
     } catch (err) {
-      const message = axios.isAxiosError(err)
-        ? (err.response?.data?.data?.error as string) ||
-          (err.response?.data?.message as string) ||
-          'Login failed'
-        : 'Login failed';
+      let message = 'Error al iniciar sesión. Inténtalo de nuevo.';
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        const rawError = (err.response?.data?.data?.error as string) ?? '';
+        if (status && status >= 500) {
+          message = 'Error del servidor. Por favor, inténtalo más tarde.';
+        } else if (rawError && !rawError.toLowerCase().startsWith('internal server error')) {
+          message = rawError;
+        } else if (err.response?.data?.message && err.response.data.message !== 'Error') {
+          message = err.response.data.message as string;
+        } else if (status === 401 || status === 404) {
+          message = 'Email o contraseña incorrectos.';
+        }
+      }
       setError(message);
       throw new Error(message, { cause: err });
     } finally {
@@ -167,6 +179,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       sessionStorage.setItem('token', token);
       sessionStorage.setItem('user', JSON.stringify(user));
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      // Registrar token FCM para push notifications (no bloquea el registro)
+      registerFcmToken().catch(() => {});
       return rol;
     } catch (err) {
       const message = axios.isAxiosError(err)

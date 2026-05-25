@@ -3,18 +3,18 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { User, Mail, Lock, AlertCircle, Shield, Check, X } from 'lucide-react';
+import { TEAMS as ALBUM_TEAMS } from '../components/album/teamColors';
 
 /* ── Selecciones clasificadas al Mundial 2026 (por grupo) ── */
-const GRUPOS: { grupo: string; selecciones: string[] }[] = [
-  { grupo: 'Grupo A', selecciones: ['Argentina', 'Colombia', 'Paraguay', 'Canadá'] },
-  { grupo: 'Grupo B', selecciones: ['Brasil', 'Uruguay', 'Bolivia', 'México'] },
-  { grupo: 'Grupo C', selecciones: ['Ecuador', 'Perú', 'Venezuela', 'Costa Rica'] },
-  { grupo: 'Grupo D', selecciones: ['Chile', 'Francia', 'Italia', 'Marruecos'] },
-  { grupo: 'Grupo E', selecciones: ['España', 'Alemania', 'Japón', 'Nigeria'] },
-  { grupo: 'Grupo F', selecciones: ['Portugal', 'Países Bajos', 'Bélgica', 'Irak'] },
-  { grupo: 'Grupo G', selecciones: ['Inglaterra', 'Irán', 'Türkiye', 'Ghana'] },
-  { grupo: 'Grupo H', selecciones: ['Gales', 'Sudáfrica', 'Tailandia', 'Honduras'] },
-];
+const GRUPOS: { grupo: string; selecciones: string[] }[] = Array.from(
+  ALBUM_TEAMS.reduce((acc, team) => {
+    const selections = acc.get(team.group) ?? [];
+    selections.push(team.name);
+    acc.set(team.group, selections);
+    return acc;
+  }, new Map<string, string[]>()),
+  ([grupo, selecciones]) => ({ grupo: `Grupo ${grupo}`, selecciones }),
+);
 
 /* ── Evaluador de fortaleza de contraseña ── */
 type Strength = 'vacia' | 'debil' | 'regular' | 'buena' | 'fuerte';

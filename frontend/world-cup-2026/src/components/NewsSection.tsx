@@ -257,7 +257,10 @@ export function NewsSection() {
                       objectFit: 'cover',
                     }}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                      const img = e.currentTarget as HTMLImageElement;
+                      const wrap = img.parentElement;
+                      if (wrap) wrap.style.display = 'none';
+                      else img.style.display = 'none';
                     }}
                   />
                 </div>
