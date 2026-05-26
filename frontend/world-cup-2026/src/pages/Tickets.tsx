@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import { API_V1 } from '../config';
 import { useNavigate } from 'react-router-dom';
 import type { PartidoApi } from '../types';
 import { useAuth } from '../context/AuthContext';
@@ -23,7 +24,7 @@ import {
 const STRIPE_PK = import.meta.env.VITE_STRIPE_PK as string | undefined;
 const stripePromise = STRIPE_PK && !STRIPE_PK.includes('REEMPLAZA') ? loadStripe(STRIPE_PK) : null;
 
-const API = 'http://localhost:8082/api/v1';
+const API = API_V1;
 
 function getHeaders() {
   const t = sessionStorage.getItem('token');
@@ -430,6 +431,11 @@ export function Tickets() {
         },
         { headers: getHeaders() },
       );
+      if (data.data.simulated) {
+        setPiId(data.data.paymentIntentId);
+        setStep('success');
+        return;
+      }
       setCS(data.data.clientSecret);
       setStep('payment');
     } catch (err: unknown) {
