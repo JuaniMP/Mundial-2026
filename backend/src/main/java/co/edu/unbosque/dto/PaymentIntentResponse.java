@@ -34,4 +34,7 @@ public class PaymentIntentResponse {
 
     /** Partido al que corresponden */
     private String partidoDescripcion;
+
+    /** true cuando Stripe no está configurado y el pago fue simulado localmente */
+    private boolean simulated;
 }

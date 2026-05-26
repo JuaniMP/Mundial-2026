@@ -1,7 +1,29 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, TrendingUp, Trophy } from 'lucide-react';
+import { getMyLaminas } from '../services/albumApi';
+
+const TOTAL_LAMINAS = 320;
 
 export function FanHubSection() {
+  const [owned, setOwned] = useState<number | null>(null);
+  const [pegadas, setPegadas] = useState(0);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem('token');
+    if (!token) return;
+    getMyLaminas(token)
+      .then((laminas) => {
+        setOwned(laminas.length);
+        setPegadas(laminas.filter((l) => l.estaPegada).length);
+      })
+      .catch(() => {
+        /* silencioso — muestra el fallback estático */
+      });
+  }, []);
+
+  const progress = owned !== null ? Math.min(100, Math.round((owned / TOTAL_LAMINAS) * 100)) : null;
+
   return (
     <section style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Title */}
@@ -23,7 +45,7 @@ export function FanHubSection() {
         <div style={{ height: 4, width: 40, background: '#006847', marginTop: 8 }} />
       </div>
 
-      {/* Virtual Trading Card Preview */}
+      {/* Virtual Album Progress */}
       <div
         style={{
           background: '#ffffff',
@@ -47,6 +69,8 @@ export function FanHubSection() {
           >
             VIRTUAL ALBUM
           </h3>
+
+          {/* Progress bar */}
           <div
             style={{
               display: 'flex',
@@ -59,7 +83,7 @@ export function FanHubSection() {
               Collection Progress
             </span>
             <span style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: '#006847' }}>
-              12%
+              {progress !== null ? `${progress}%` : '…'}
             </span>
           </div>
           <div
@@ -68,11 +92,43 @@ export function FanHubSection() {
               background: '#eef0f3',
               borderRadius: 4,
               overflow: 'hidden',
-              marginBottom: 24,
+              marginBottom: 12,
             }}
           >
-            <div style={{ width: '12%', height: '100%', background: '#006847' }} />
+            <div
+              style={{
+                width: `${progress ?? 0}%`,
+                height: '100%',
+                background: '#006847',
+                transition: 'width 0.6s ease',
+              }}
+            />
           </div>
+
+          {/* Stats */}
+          {owned !== null && (
+            <div
+              style={{
+                display: 'flex',
+                gap: 12,
+                marginBottom: 20,
+                fontSize: 13,
+                color: '#374151',
+              }}
+            >
+              <span>
+                <b style={{ color: '#006847' }}>{owned}</b> / {TOTAL_LAMINAS} cromos
+              </span>
+              <span style={{ color: '#9ca3af' }}>·</span>
+              <span>
+                <b style={{ color: '#C8102E' }}>{TOTAL_LAMINAS - owned}</b> te faltan
+              </span>
+              <span style={{ color: '#9ca3af' }}>·</span>
+              <span>
+                <b>{pegadas}</b> pegadas
+              </span>
+            </div>
+          )}
 
           <div style={{ display: 'flex', gap: 12 }}>
             <Link
@@ -151,7 +207,6 @@ export function FanHubSection() {
           </Link>
         </div>
 
-        {/* Predictor Card Stack */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <div
             style={{
@@ -212,7 +267,7 @@ export function FanHubSection() {
         </div>
       </div>
 
-      {/* Community Challenges Leaderboard */}
+      {/* Leaderboard */}
       <div
         style={{
           background: '#ffffff',
