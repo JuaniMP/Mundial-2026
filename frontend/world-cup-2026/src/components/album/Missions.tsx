@@ -195,8 +195,8 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
         <div
           style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: '#1a2535',
+            border: '1px solid rgba(96,165,250,0.3)',
             borderRadius: 10,
             padding: '8px 14px',
           }}
@@ -214,7 +214,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
           <span
             style={{
               fontSize: 11,
-              color: 'rgba(255,255,255,0.45)',
+              color: '#94a3b8',
               fontFamily: 'Inter,sans-serif',
               display: 'block',
             }}
@@ -224,8 +224,8 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
         </div>
         <div
           style={{
-            background: 'rgba(251,191,36,0.08)',
-            border: '1px solid rgba(251,191,36,0.25)',
+            background: '#1f1a0e',
+            border: '1px solid rgba(251,191,36,0.35)',
             borderRadius: 10,
             padding: '8px 14px',
           }}
@@ -243,7 +243,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
           <span
             style={{
               fontSize: 11,
-              color: 'rgba(255,255,255,0.45)',
+              color: '#94a3b8',
               fontFamily: 'Inter,sans-serif',
               display: 'block',
             }}
@@ -254,8 +254,8 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
         {totalReward > 0 && (
           <div
             style={{
-              background: 'rgba(52,211,153,0.08)',
-              border: '1px solid rgba(52,211,153,0.3)',
+              background: '#0d1f18',
+              border: '1px solid rgba(52,211,153,0.4)',
               borderRadius: 10,
               padding: '8px 14px',
             }}
@@ -273,7 +273,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
             <span
               style={{
                 fontSize: 11,
-                color: 'rgba(255,255,255,0.45)',
+                color: '#94a3b8',
                 fontFamily: 'Inter,sans-serif',
                 display: 'block',
               }}
@@ -294,12 +294,8 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
             <div
               key={m.id}
               style={{
-                background: m.isClaimed
-                  ? 'rgba(52,211,153,0.05)'
-                  : m.completed
-                    ? 'rgba(255,255,255,0.07)'
-                    : 'rgba(255,255,255,0.03)',
-                border: `1px solid ${m.isClaimed ? 'rgba(52,211,153,0.2)' : m.completed ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.07)'}`,
+                background: m.isClaimed ? '#162b22' : m.completed ? '#1a2535' : '#111827',
+                border: `1px solid ${m.isClaimed ? 'rgba(52,211,153,0.35)' : m.completed ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.1)'}`,
                 borderRadius: 12,
                 padding: '14px 16px',
                 display: 'flex',
@@ -362,7 +358,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
                 </div>
                 <p
                   style={{
-                    color: 'rgba(255,255,255,0.45)',
+                    color: '#94a3b8',
                     fontSize: 12,
                     margin: '3px 0 8px',
                     fontFamily: 'Inter,sans-serif',
@@ -375,7 +371,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
                   style={{
                     height: 4,
                     borderRadius: 99,
-                    background: 'rgba(255,255,255,0.1)',
+                    background: '#334155',
                     overflow: 'hidden',
                   }}
                 >
@@ -391,7 +387,7 @@ export function Missions({ laminas, coins, onClaim }: MissionsProps) {
                 </div>
                 <p
                   style={{
-                    color: 'rgba(255,255,255,0.35)',
+                    color: '#64748b',
                     fontSize: 11,
                     margin: '4px 0 0',
                     fontFamily: 'Inter,sans-serif',
