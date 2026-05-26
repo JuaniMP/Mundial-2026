@@ -118,18 +118,18 @@ public class DataSeederService {
     private void seedAliadosComerciales(Rol rolAliado) {
         if (rolAliado == null) return;
         String pass = passwordEncoder.encode("Aliado2026!");
-        // {email, nombre, tipoServicio, token}
+        // {email, nombre, tipoServicio, token, sitioWeb}
         String[][] aliados = {
-            {"adidas@mundial26.com",      "Adidas FIFA Partner",       "Equipamiento deportivo",         "tok_adidas_wc2026_x9k2"},
-            {"cocacola@mundial26.com",    "Coca-Cola WC2026",           "Bebidas y patrocinio",           "tok_cocacola_wc2026_m3p7"},
-            {"qatarairways@mundial26.com","Qatar Airways Official",     "Transporte aéreo",               "tok_qatar_wc2026_z1q5"},
-            {"visa@mundial26.com",        "Visa Inc.",                  "Pagos y servicios financieros",  "tok_visa_wc2026_r8t4"},
-            {"hyundai@mundial26.com",     "Hyundai Motor",              "Movilidad oficial",              "tok_hyundai_wc2026_v6n9"},
-            {"nike@mundial26.com",        "Nike Inc.",                  "Equipamiento deportivo",         "tok_nike_wc2026_p2a1"},
-            {"mcdonalds@mundial26.com",   "McDonald's WC2026",          "Alimentación y patrocinio",      "tok_mcdonalds_wc2026_f4b3"},
-            {"budweiser@mundial26.com",   "Budweiser WC2026",           "Bebidas",                        "tok_budweiser_wc2026_d7c8"},
-            {"hisense@mundial26.com",     "Hisense Group",              "Electrónica oficial",            "tok_hisense_wc2026_e9g2"},
-            {"wanda@mundial26.com",       "Wanda Group",                "Inversión y entretenimiento",    "tok_wanda_wc2026_w5h6"},
+            {"adidas@mundial26.com",      "Adidas",       "Equipamiento deportivo",         "tok_adidas_wc2026_x9k2",    "https://www.adidas.com"},
+            {"cocacola@mundial26.com",    "Coca-Cola",    "Bebidas y patrocinio",           "tok_cocacola_wc2026_m3p7",  "https://www.coca-cola.com"},
+            {"qatarairways@mundial26.com","Qatar Airways","Transporte aéreo",               "tok_qatar_wc2026_z1q5",     "https://www.qatarairways.com"},
+            {"visa@mundial26.com",        "Visa",         "Pagos y servicios financieros",  "tok_visa_wc2026_r8t4",      "https://www.visa.com"},
+            {"hyundai@mundial26.com",     "Hyundai",      "Movilidad oficial",              "tok_hyundai_wc2026_v6n9",   "https://www.hyundai.com"},
+            {"nike@mundial26.com",        "Nike",         "Equipamiento deportivo",         "tok_nike_wc2026_p2a1",      "https://www.nike.com"},
+            {"mcdonalds@mundial26.com",   "McDonald's",   "Alimentación y patrocinio",      "tok_mcdonalds_wc2026_f4b3", "https://www.mcdonalds.com"},
+            {"budweiser@mundial26.com",   "Budweiser",    "Bebidas",                        "tok_budweiser_wc2026_d7c8", "https://www.budweiser.com"},
+            {"hisense@mundial26.com",     "Hisense",      "Electrónica oficial",            "tok_hisense_wc2026_e9g2",   "https://www.hisense.com"},
+            {"wanda@mundial26.com",       "Wanda Group",  "Inversión y entretenimiento",    "tok_wanda_wc2026_w5h6",     "https://www.wanda.cn"},
         };
 
         for (String[] a : aliados) {
@@ -141,7 +141,16 @@ public class DataSeederService {
             if (!aliadoComercialRepository.existsById(usuario.getId())) {
                 aliadoComercialRepository.save(AliadoComercial.builder()
                         .usuario(usuario).nombre(a[1])
-                        .tipoServicio(a[2]).tokenAcceso(a[3]).estado("ACTIVO").build());
+                        .tipoServicio(a[2]).tokenAcceso(a[3]).estado("ACTIVO")
+                        .sitioWeb(a[4]).build());
+            } else {
+                // Update sitioWeb if aliado already exists but lacks the URL
+                aliadoComercialRepository.findById(usuario.getId()).ifPresent(ac -> {
+                    if (ac.getSitioWeb() == null || ac.getSitioWeb().isBlank()) {
+                        ac.setSitioWeb(a[4]);
+                        aliadoComercialRepository.save(ac);
+                    }
+                });
             }
         }
         System.out.println("✓ Aliados comerciales cargados (10 total)");

@@ -1,81 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { API_V1 } from '../../config';
 
-interface Sponsor {
-  name: string;
-  url: string;
-  color: string;
-  textColor: string;
-  abbr: string;
+interface Aliado {
+  nombre: string;
+  tipo: string;
+  sitioWeb: string;
 }
 
-const SPONSORS: Sponsor[] = [
-  {
-    name: 'Adidas',
-    url: 'https://www.adidas.com',
-    color: '#000000',
-    textColor: '#ffffff',
-    abbr: 'ADS',
-  },
-  {
-    name: 'Coca-Cola',
-    url: 'https://www.coca-cola.com',
-    color: '#F40009',
-    textColor: '#ffffff',
-    abbr: 'CC',
-  },
-  {
-    name: 'Hyundai',
-    url: 'https://www.hyundai.com',
-    color: '#003087',
-    textColor: '#ffffff',
-    abbr: 'HYN',
-  },
-  {
-    name: 'Qatar Airways',
-    url: 'https://www.qatarairways.com',
-    color: '#5C0632',
-    textColor: '#ffffff',
-    abbr: 'QA',
-  },
-  {
-    name: 'Visa',
-    url: 'https://www.visa.com',
-    color: '#1A1F71',
-    textColor: '#F7B600',
-    abbr: 'VISA',
-  },
-  {
-    name: "McDonald's",
-    url: 'https://www.mcdonalds.com',
-    color: '#DA291C',
-    textColor: '#FFC72C',
-    abbr: 'MCD',
-  },
-  {
-    name: 'Budweiser',
-    url: 'https://www.budweiser.com',
-    color: '#CC0000',
-    textColor: '#ffffff',
-    abbr: 'BUD',
-  },
-  {
-    name: 'Hisense',
-    url: 'https://www.hisense.com',
-    color: '#0056A2',
-    textColor: '#ffffff',
-    abbr: 'HIS',
-  },
-  { name: 'Nike', url: 'https://www.nike.com', color: '#111111', textColor: '#ffffff', abbr: '✓' },
-  {
-    name: 'Wanda Group',
-    url: 'https://www.wanda.com',
-    color: '#8B0000',
-    textColor: '#ffffff',
-    abbr: 'WG',
-  },
-];
+// Color badge mapping by aliado name (fallback palette)
+const BRAND_COLORS: Record<string, { bg: string; text: string; abbr: string }> = {
+  adidas: { bg: '#000000', text: '#ffffff', abbr: 'ADS' },
+  'coca-cola': { bg: '#F40009', text: '#ffffff', abbr: 'CC' },
+  hyundai: { bg: '#003087', text: '#ffffff', abbr: 'HYN' },
+  'qatar airways': { bg: '#5C0632', text: '#ffffff', abbr: 'QA' },
+  visa: { bg: '#1A1F71', text: '#F7B600', abbr: 'VISA' },
+  "mcdonald's": { bg: '#DA291C', text: '#FFC72C', abbr: 'MCD' },
+  budweiser: { bg: '#CC0000', text: '#ffffff', abbr: 'BUD' },
+  hisense: { bg: '#0056A2', text: '#ffffff', abbr: 'HIS' },
+  nike: { bg: '#111111', text: '#ffffff', abbr: '✓' },
+  'wanda group': { bg: '#8B0000', text: '#ffffff', abbr: 'WG' },
+};
+
+function getBrand(nombre: string) {
+  const key = nombre.toLowerCase();
+  return (
+    BRAND_COLORS[key] ?? {
+      bg: '#1a3a5c',
+      text: '#ffffff',
+      abbr: nombre.substring(0, 2).toUpperCase(),
+    }
+  );
+}
 
 export function SponsorsFooter(): React.JSX.Element {
+  const [aliados, setAliados] = useState<Aliado[]>([]);
+
+  useEffect(() => {
+    axios
+      .get<{ data: Aliado[] }>(`${API_V1}/aliados/publico`)
+      .then((r) => setAliados(r.data.data ?? []))
+      .catch(() => {
+        /* silencioso — el footer simplemente no muestra logos */
+      });
+  }, []);
+
+  if (aliados.length === 0) return <></>;
+
   return (
     <footer
       style={{
@@ -124,70 +95,72 @@ export function SponsorsFooter(): React.JSX.Element {
           margin: '0 auto 28px',
         }}
       >
-        {SPONSORS.map((s) => (
-          <a
-            key={s.name}
-            href={s.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={s.name}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '8px 14px',
-              borderRadius: 8,
-              background: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              textDecoration: 'none',
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-            }}
-            onMouseEnter={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.background = 'rgba(255,255,255,0.12)';
-              el.style.borderColor = 'rgba(255,255,255,0.22)';
-              el.style.transform = 'translateY(-1px)';
-            }}
-            onMouseLeave={(e) => {
-              const el = e.currentTarget as HTMLAnchorElement;
-              el.style.background = 'rgba(255,255,255,0.06)';
-              el.style.borderColor = 'rgba(255,255,255,0.1)';
-              el.style.transform = 'translateY(0)';
-            }}
-          >
-            {/* Color badge */}
-            <span
+        {aliados.map((a) => {
+          const brand = getBrand(a.nombre);
+          return (
+            <a
+              key={a.nombre}
+              href={a.sitioWeb}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`${a.nombre} — ${a.tipo}`}
               style={{
-                display: 'inline-flex',
+                display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                width: 28,
-                height: 28,
-                borderRadius: 5,
-                background: s.color,
-                color: s.textColor,
-                fontSize: 9,
-                fontWeight: 800,
-                letterSpacing: '0.03em',
-                flexShrink: 0,
+                gap: 8,
+                padding: '8px 14px',
+                borderRadius: 8,
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textDecoration: 'none',
+                transition: 'all 0.2s ease',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = 'rgba(255,255,255,0.12)';
+                el.style.borderColor = 'rgba(255,255,255,0.22)';
+                el.style.transform = 'translateY(-1px)';
+              }}
+              onMouseLeave={(e) => {
+                const el = e.currentTarget as HTMLAnchorElement;
+                el.style.background = 'rgba(255,255,255,0.06)';
+                el.style.borderColor = 'rgba(255,255,255,0.1)';
+                el.style.transform = 'translateY(0)';
               }}
             >
-              {s.abbr}
-            </span>
-            <span
-              style={{
-                fontSize: 12,
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.8)',
-                fontFamily: "'Space Grotesk', system-ui, sans-serif",
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {s.name}
-            </span>
-          </a>
-        ))}
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 28,
+                  height: 28,
+                  borderRadius: 5,
+                  background: brand.bg,
+                  color: brand.text,
+                  fontSize: 9,
+                  fontWeight: 800,
+                  letterSpacing: '0.03em',
+                  flexShrink: 0,
+                }}
+              >
+                {brand.abbr}
+              </span>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: 'rgba(255,255,255,0.8)',
+                  fontFamily: "'Space Grotesk', system-ui, sans-serif",
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {a.nombre}
+              </span>
+            </a>
+          );
+        })}
       </div>
 
       {/* Divider */}
