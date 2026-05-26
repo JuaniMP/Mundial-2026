@@ -3,6 +3,7 @@ package co.edu.unbosque.service;
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,7 @@ public class DataSeederService {
     private final PaqueteRepository paqueteRepository;
     private final AficionadoRepository aficionadoRepository;
     private final AdministradorRepository administradorRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     private static final String[] SELECCIONES_FAVORITAS = {
         "Argentina", "Brasil", "Francia", "España", "Alemania",
@@ -143,15 +145,12 @@ public class DataSeederService {
                         .usuario(usuario).nombre(a[1])
                         .tipoServicio(a[2]).tokenAcceso(a[3]).estado("ACTIVO")
                         .sitioWeb(a[4]).build());
-            } else {
-                // Update sitioWeb if aliado already exists but lacks the URL
-                aliadoComercialRepository.findById(usuario.getId()).ifPresent(ac -> {
-                    if (ac.getSitioWeb() == null || ac.getSitioWeb().isBlank()) {
-                        ac.setSitioWeb(a[4]);
-                        aliadoComercialRepository.save(ac);
-                    }
-                });
             }
+            // Always backfill sitioWeb via JDBC to bypass Hibernate cache
+            jdbcTemplate.update(
+                "UPDATE aliados_comerciales SET sitio_web = ? WHERE id_usuario = ? AND (sitio_web IS NULL OR sitio_web = '')",
+                a[4], usuario.getId()
+            );
         }
         System.out.println("✓ Aliados comerciales cargados (10 total)");
     }
