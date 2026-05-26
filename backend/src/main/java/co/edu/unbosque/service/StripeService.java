@@ -71,27 +71,62 @@ public class StripeService {
     @Transactional
     public PaymentIntentResponse crearCheckout(CheckoutRequest req, Usuario usuario) {
 
-        if (secretKey.contains("REEMPLAZA")) {
-            throw new IllegalStateException("Stripe no está configurado. Agrega STRIPE_SECRET_KEY al entorno.");
-        }
-
         String categoria = req.getCategoria().toUpperCase();
         if (!PRECIOS_CENTAVOS.containsKey(categoria)) {
             throw new IllegalArgumentException("Categoría inválida: " + categoria + ". Use GENERAL, VIP o PALCO.");
         }
 
-        long precioPorEntrada = PRECIOS_CENTAVOS.get(categoria);
-        long totalCentavos    = precioPorEntrada * req.getCantidad();
         BigDecimal precioUnit = PRECIOS_USD.get(categoria);
         BigDecimal totalUsd   = precioUnit.multiply(new BigDecimal(req.getCantidad()));
-
         String email = req.getEmailComprador() != null ? req.getEmailComprador()
                      : (usuario != null ? usuario.getEmail() : "guest@mundial2026.com");
-
-        // Descripción del partido desde los datos enviados por el frontend
         String localVs = buildMatchDesc(req);
 
-        // Crear PaymentIntent en Stripe
+        // ── Modo simulación: sin clave Stripe real ──────────────────────────────
+        if (secretKey.contains("REEMPLAZA")) {
+            log.warn("⚠️  Stripe no configurado — simulando pago para '{}' x{}", localVs, req.getCantidad());
+            String fakePiId = "SIM_" + UUID.randomUUID().toString().replace("-", "").toUpperCase().substring(0, 20);
+
+            List<Integer> ids = new ArrayList<>();
+            for (int i = 0; i < req.getCantidad(); i++) {
+                Entrada e = Entrada.builder()
+                        .codigoQr(UUID.randomUUID().toString().toUpperCase().replace("-", ""))
+                        .categoria(categoria)
+                        .precio(precioUnit)
+                        .estado("PAGADO")
+                        .stripePaymentIntentId(fakePiId)
+                        .stripeStatus("simulated")
+                        .cantidad(1)
+                        .total(precioUnit)
+                        .fechaCompra(LocalDateTime.now())
+                        .emailComprador(email)
+                        .apiPartidoId(req.getApiPartidoId())
+                        .seleccionLocal(req.getSeleccionLocal())
+                        .seleccionVisitante(req.getSeleccionVisitante())
+                        .estadioNombre(req.getEstadioNombre())
+                        .ronda(req.getRonda())
+                        .usuarioComprador(usuario)
+                        .build();
+                ids.add(entradaRepository.save(e).getId());
+            }
+            transactionLogService.registrar(usuario, "PAGO_SIMULADO",
+                    "Pago simulado (sin Stripe) — " + localVs + " · " + categoria + " x" + req.getCantidad()
+                            + " (" + totalUsd + " USD)",
+                    "BAJO", fakePiId);
+            return PaymentIntentResponse.builder()
+                    .clientSecret(null)
+                    .paymentIntentId(fakePiId)
+                    .totalUsd(totalUsd)
+                    .cantidad(req.getCantidad())
+                    .categoria(categoria)
+                    .entradaIds(ids)
+                    .partidoDescripcion(localVs)
+                    .simulated(true)
+                    .build();
+        }
+
+        // ── Modo real: Stripe ───────────────────────────────────────────────────
+        long totalCentavos = PRECIOS_CENTAVOS.get(categoria) * req.getCantidad();
         PaymentIntent pi;
         try {
             PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
@@ -135,8 +170,6 @@ public class StripeService {
             ids.add(entradaRepository.save(e).getId());
         }
 
-        // Auditoría: el paymentIntentId se usa como correlationId para que
-        // checkout, webhook y correos compartan la misma traza.
         transactionLogService.registrar(usuario, "RESERVA_ENTRADA",
                 "Intento de reserva — " + localVs + " · " + categoria + " x" + req.getCantidad()
                         + " (" + totalUsd + " USD)",
@@ -150,6 +183,7 @@ public class StripeService {
                 .categoria(categoria)
                 .entradaIds(ids)
                 .partidoDescripcion(localVs)
+                .simulated(false)
                 .build();
     }
 
@@ -234,6 +268,13 @@ public class StripeService {
                             + " no pudo completarse",
                     "ALTO", piId);
         }
+    }
+
+    // Método de ayuda para pruebas locales: marca las entradas asociadas a un PaymentIntent como PAGADO.
+    // Usar solo en entorno de desarrollo / pruebas.
+    @Transactional
+    public void marcarPagoExitosoForTest(String piId) {
+        manejarPagoExitoso(piId);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
