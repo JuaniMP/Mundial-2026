@@ -150,8 +150,8 @@ export function StadiumSeatMap({ stadium }: { stadium: EstadioApi }) {
             📐 {t('stadiums.seatGuide')} — {stadium.nombre}
           </h3>
           <p className="text-text-muted text-xs md:text-sm">
-            {LAYOUT_LABELS[layout.type] ?? layout.shapeDesc} •{' '}
-            {stadium.capacidad.toLocaleString()} {t('stadiums.seats')}
+            {LAYOUT_LABELS[layout.type] ?? layout.shapeDesc} • {stadium.capacidad.toLocaleString()}{' '}
+            {t('stadiums.seats')}
           </p>
         </div>
 

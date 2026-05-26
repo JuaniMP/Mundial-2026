@@ -144,7 +144,22 @@ export function Profile() {
   const [draftZona, setDraftZona] = useState<string>('America/Bogota');
   const [savingPrefs, setSavingPrefs] = useState(false);
 
+  const hasSessionToken = () => {
+    const token = sessionStorage.getItem('token');
+    return Boolean(token && token !== 'null' && token !== 'undefined' && token.includes('.'));
+  };
+
   const load = async () => {
+    if (!user || !hasSessionToken()) {
+      setPrefs(null);
+      setAgenda([]);
+      setViajes([]);
+      setFeed([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
@@ -824,9 +839,7 @@ function AgendaPanel({
       )}
 
       {agenda.length === 0 ? (
-        <div className="card-base p-10 text-center text-text-muted">
-          {t('profile.agendaEmpty')}
-        </div>
+        <div className="card-base p-10 text-center text-text-muted">{t('profile.agendaEmpty')}</div>
       ) : (
         <div className="flex flex-col gap-2">
           {agenda.map((a) => (
@@ -1165,9 +1178,7 @@ function ViajesPanel({
       )}
 
       {viajes.length === 0 ? (
-        <div className="card-base p-10 text-center text-text-muted">
-          {t('profile.tripsEmpty')}
-        </div>
+        <div className="card-base p-10 text-center text-text-muted">{t('profile.tripsEmpty')}</div>
       ) : (
         <div className="flex flex-col gap-3">
           {viajes.map((v) => {
