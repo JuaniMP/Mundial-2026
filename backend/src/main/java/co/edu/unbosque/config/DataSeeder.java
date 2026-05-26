@@ -2,7 +2,6 @@ package co.edu.unbosque.config;
 
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
-import co.edu.unbosque.service.DataSeederService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationArguments;
@@ -34,14 +33,13 @@ public class DataSeeder implements ApplicationRunner {
     private final AdministradorRepository administradorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
-    private final DataSeederService dataSeederService;
 
     @Override
+    @Transactional
     public void run(ApplicationArguments args) {
         eliminarTablasObsoletas(); // ← primero, antes de que Hibernate haga nada
         seedRoles();
         seedAdminUser();
-        dataSeederService.seedDatabase();
     }
 
     // ─────────────────────────────────────────────────────────────────────────
