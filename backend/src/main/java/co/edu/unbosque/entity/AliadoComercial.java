@@ -32,4 +32,7 @@ public class AliadoComercial {
     @Column(name = "estado_api", length = 50)
     @Builder.Default
     private String estado = "ACTIVO";
+
+    @Column(name = "sitio_web", length = 255)
+    private String sitioWeb;
 }
