@@ -310,27 +310,30 @@ export function Album() {
   );
 
   // ── Pegar lamina ──
-  const handlePegar = useCallback(async (laminaId: number) => {
-    setPegandoId(laminaId); // inicia animación
-    // Optimistic update en ambos estados
-    const applyPegada = (prev: LaminaAlbum[]) =>
-      prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: true } : l));
-    setLaminas(applyPegada);
-    setTodasLaminas(applyPegada);
-    try {
-      await pegarLamina(laminaId);
-      setError(null);
-    } catch {
-      // Revert on error
-      const revert = (prev: LaminaAlbum[]) =>
-        prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: false } : l));
-      setLaminas(revert);
-      setTodasLaminas(revert);
-      setError(t('album.stickerError'));
-    } finally {
-      setTimeout(() => setPegandoId(null), 900);
-    }
-  }, [t]);
+  const handlePegar = useCallback(
+    async (laminaId: number) => {
+      setPegandoId(laminaId); // inicia animación
+      // Optimistic update en ambos estados
+      const applyPegada = (prev: LaminaAlbum[]) =>
+        prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: true } : l));
+      setLaminas(applyPegada);
+      setTodasLaminas(applyPegada);
+      try {
+        await pegarLamina(laminaId);
+        setError(null);
+      } catch {
+        // Revert on error
+        const revert = (prev: LaminaAlbum[]) =>
+          prev.map((l) => (l.idLamina === laminaId ? { ...l, estaPegada: false } : l));
+        setLaminas(revert);
+        setTodasLaminas(revert);
+        setError(t('album.stickerError'));
+      } finally {
+        setTimeout(() => setPegandoId(null), 900);
+      }
+    },
+    [t],
+  );
 
   // ── Vender repetida ──
   const handleVender = useCallback((laminaId: number) => {
