@@ -132,7 +132,16 @@ export function Trades({ laminas, onAccept }: TradesProps) {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, padding: '4px 0' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 20,
+        padding: '16px',
+        background: '#0f172a',
+        borderRadius: 14,
+      }}
+    >
       {/* Header */}
       <div
         style={{
@@ -146,7 +155,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         <div>
           <h3
             style={{
-              color: '#fff',
+              color: '#f1f5f9',
               fontFamily: 'Oswald,sans-serif',
               fontWeight: 700,
               fontSize: 20,
@@ -157,7 +166,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
           </h3>
           <p
             style={{
-              color: 'rgba(255,255,255,0.45)',
+              color: '#94a3b8',
               fontSize: 12,
               margin: '4px 0 0',
               fontFamily: 'Inter,sans-serif',
@@ -172,9 +181,9 @@ export function Trades({ laminas, onAccept }: TradesProps) {
           style={{
             padding: '8px 20px',
             borderRadius: 999,
-            background: repeated.length > 0 ? 'rgba(59,130,246,0.2)' : 'rgba(255,255,255,0.05)',
-            border: `1px solid ${repeated.length > 0 ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.1)'}`,
-            color: repeated.length > 0 ? '#93c5fd' : 'rgba(255,255,255,0.3)',
+            background: repeated.length > 0 ? '#1e3a5f' : '#1e293b',
+            border: `1px solid ${repeated.length > 0 ? '#3b82f6' : '#334155'}`,
+            color: repeated.length > 0 ? '#93c5fd' : '#475569',
             fontSize: 13,
             fontWeight: 600,
             cursor: repeated.length > 0 ? 'pointer' : 'not-allowed',
@@ -191,7 +200,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
           style={{
             textAlign: 'center',
             padding: 40,
-            color: 'rgba(255,255,255,0.3)',
+            color: '#64748b',
             fontFamily: 'Inter,sans-serif',
           }}
         >
@@ -201,11 +210,11 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         </div>
       )}
 
-      {/* Repeated stickers — shown first so users see what they can trade */}
+      {/* Repeated stickers */}
       <div>
         <p
           style={{
-            color: 'rgba(255,255,255,0.5)',
+            color: '#94a3b8',
             fontSize: 11,
             margin: '0 0 8px',
             fontFamily: 'Inter,sans-serif',
@@ -218,7 +227,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         {repeated.length === 0 ? (
           <p
             style={{
-              color: 'rgba(255,255,255,0.3)',
+              color: '#64748b',
               fontSize: 12,
               fontFamily: 'Inter,sans-serif',
               fontStyle: 'italic',
@@ -245,12 +254,12 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   width: 60,
                   height: 84,
                   borderRadius: 8,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: '#1e293b',
+                  border: '1px solid #334155',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'rgba(255,255,255,0.4)',
+                  color: '#94a3b8',
                   fontSize: 12,
                   fontFamily: 'Inter,sans-serif',
                 }}
@@ -267,7 +276,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           <p
             style={{
-              color: 'rgba(255,255,255,0.6)',
+              color: '#cbd5e1',
               fontSize: 12,
               margin: 0,
               fontFamily: 'Inter,sans-serif',
@@ -288,8 +297,8 @@ export function Trades({ laminas, onAccept }: TradesProps) {
               <div
                 key={offer.id}
                 style={{
-                  background: 'rgba(255,255,255,0.04)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: '#1e293b',
+                  border: '1px solid #334155',
                   borderRadius: 12,
                   padding: 16,
                   display: 'flex',
@@ -303,7 +312,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   <span style={{ fontSize: 28 }}>{offer.botEmoji}</span>
                   <p
                     style={{
-                      color: 'rgba(255,255,255,0.6)',
+                      color: '#94a3b8',
                       fontSize: 10,
                       margin: '4px 0 0',
                       fontFamily: 'Inter,sans-serif',
@@ -313,7 +322,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   </p>
                   <p
                     style={{
-                      color: urgent ? '#f87171' : 'rgba(255,255,255,0.4)',
+                      color: urgent ? '#f87171' : '#64748b',
                       fontSize: 10,
                       margin: 0,
                       fontFamily: 'Inter,sans-serif',
@@ -329,7 +338,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                 >
                   <p
                     style={{
-                      color: 'rgba(255,255,255,0.4)',
+                      color: '#94a3b8',
                       fontSize: 10,
                       margin: 0,
                       fontFamily: 'Inter,sans-serif',
@@ -351,7 +360,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                 </div>
 
                 {/* Arrow */}
-                <div style={{ fontSize: 20, color: 'rgba(255,255,255,0.3)' }}>⇄</div>
+                <div style={{ fontSize: 20, color: '#475569' }}>⇄</div>
 
                 {/* They want */}
                 <div
@@ -359,7 +368,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                 >
                   <p
                     style={{
-                      color: 'rgba(255,255,255,0.4)',
+                      color: '#94a3b8',
                       fontSize: 10,
                       margin: 0,
                       fontFamily: 'Inter,sans-serif',
@@ -389,11 +398,11 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   <button
                     onClick={() => handleAccept(offer)}
                     style={{
-                      padding: '8px 20px',
+                      padding: '10px 22px',
                       borderRadius: 999,
-                      background: 'rgba(52,211,153,0.2)',
-                      border: '1px solid rgba(52,211,153,0.5)',
-                      color: '#6ee7b7',
+                      background: '#065f46',
+                      border: '1px solid #34d399',
+                      color: '#d1fae5',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -406,11 +415,11 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   <button
                     onClick={() => handleReject(offer)}
                     style={{
-                      padding: '8px 20px',
+                      padding: '10px 22px',
                       borderRadius: 999,
-                      background: 'rgba(248,113,113,0.1)',
-                      border: '1px solid rgba(248,113,113,0.3)',
-                      color: '#fca5a5',
+                      background: '#7f1d1d',
+                      border: '1px solid #f87171',
+                      color: '#fee2e2',
                       fontSize: 13,
                       fontWeight: 700,
                       cursor: 'pointer',
@@ -427,11 +436,11 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         </div>
       )}
 
-      {/* Historial de intercambios — siempre visible */}
+      {/* Historial */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <p
           style={{
-            color: 'rgba(255,255,255,0.5)',
+            color: '#94a3b8',
             fontSize: 11,
             margin: 0,
             fontFamily: 'Inter,sans-serif',
@@ -444,7 +453,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         {offers.filter((o) => o.status !== 'pending').length === 0 && log.length === 0 ? (
           <p
             style={{
-              color: 'rgba(255,255,255,0.25)',
+              color: '#475569',
               fontSize: 12,
               fontFamily: 'Inter,sans-serif',
               fontStyle: 'italic',
@@ -463,8 +472,8 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                     display: 'flex',
                     alignItems: 'center',
                     gap: 10,
-                    background: 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${statusColor(o.status)}33`,
+                    background: '#1e293b',
+                    border: `1px solid ${statusColor(o.status)}55`,
                     borderRadius: 8,
                     padding: '8px 12px',
                   }}
@@ -473,7 +482,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                   <span
                     style={{
                       fontSize: 12,
-                      color: 'rgba(255,255,255,0.6)',
+                      color: '#cbd5e1',
                       fontFamily: 'Inter,sans-serif',
                       flex: 1,
                     }}
@@ -489,9 +498,10 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                       fontWeight: 700,
                       color: statusColor(o.status),
                       fontFamily: 'Inter,sans-serif',
-                      background: `${statusColor(o.status)}18`,
+                      background: `${statusColor(o.status)}22`,
                       padding: '2px 7px',
                       borderRadius: 99,
+                      border: `1px solid ${statusColor(o.status)}44`,
                     }}
                   >
                     {o.status === 'accepted'
@@ -507,7 +517,7 @@ export function Trades({ laminas, onAccept }: TradesProps) {
                 key={i}
                 style={{
                   fontSize: 12,
-                  color: 'rgba(255,255,255,0.45)',
+                  color: '#94a3b8',
                   margin: '2px 0',
                   fontFamily: 'Inter,sans-serif',
                 }}
