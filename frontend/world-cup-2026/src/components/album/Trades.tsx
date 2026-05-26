@@ -201,6 +201,67 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         </div>
       )}
 
+      {/* Repeated stickers — shown first so users see what they can trade */}
+      <div>
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: 11,
+            margin: '0 0 8px',
+            fontFamily: 'Inter,sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+          }}
+        >
+          🔄 Mis cromos para intercambiar ({repeated.length})
+        </p>
+        {repeated.length === 0 ? (
+          <p
+            style={{
+              color: 'rgba(255,255,255,0.3)',
+              fontSize: 12,
+              fontFamily: 'Inter,sans-serif',
+              fontStyle: 'italic',
+            }}
+          >
+            Sin repetidos aún — abre más sobres para conseguir duplicados.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {repeated.slice(0, 12).map((l) => (
+              <StickerCard
+                key={l.idLamina}
+                idLamina={l.idLamina}
+                nombreJugador={l.nombreJugador}
+                rareza={l.rareza}
+                cantidadRepetidas={l.cantidadRepetidas}
+                size="xs"
+                showRepeatBadge
+              />
+            ))}
+            {repeated.length > 12 && (
+              <div
+                style={{
+                  width: 60,
+                  height: 84,
+                  borderRadius: 8,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'rgba(255,255,255,0.4)',
+                  fontSize: 12,
+                  fontFamily: 'Inter,sans-serif',
+                }}
+              >
+                +{repeated.length - 12}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Pending offers */}
       {pendingOffers.length > 0 && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -366,147 +427,97 @@ export function Trades({ laminas, onAccept }: TradesProps) {
         </div>
       )}
 
-      {/* Past trades log */}
-      {offers.filter((o) => o.status !== 'pending').length > 0 && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      {/* Historial de intercambios — siempre visible */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <p
+          style={{
+            color: 'rgba(255,255,255,0.5)',
+            fontSize: 11,
+            margin: 0,
+            fontFamily: 'Inter,sans-serif',
+            textTransform: 'uppercase',
+            letterSpacing: 1,
+          }}
+        >
+          📋 Historial de intercambios
+        </p>
+        {offers.filter((o) => o.status !== 'pending').length === 0 && log.length === 0 ? (
           <p
             style={{
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 11,
-              margin: 0,
+              color: 'rgba(255,255,255,0.25)',
+              fontSize: 12,
               fontFamily: 'Inter,sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: 1,
+              fontStyle: 'italic',
             }}
           >
-            Historial
+            Sin actividad aún. Acepta o rechaza un intercambio para ver el historial.
           </p>
-          {offers
-            .filter((o) => o.status !== 'pending')
-            .map((o) => (
-              <div
-                key={o.id}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 10,
-                  background: 'rgba(255,255,255,0.02)',
-                  border: `1px solid ${statusColor(o.status)}22`,
-                  borderRadius: 8,
-                  padding: '8px 12px',
-                }}
-              >
-                <span style={{ fontSize: 14 }}>{o.botEmoji}</span>
-                <span
+        ) : (
+          <>
+            {offers
+              .filter((o) => o.status !== 'pending')
+              .map((o) => (
+                <div
+                  key={o.id}
                   style={{
-                    fontSize: 12,
-                    color: 'rgba(255,255,255,0.5)',
-                    fontFamily: 'Inter,sans-serif',
-                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `1px solid ${statusColor(o.status)}33`,
+                    borderRadius: 8,
+                    padding: '8px 12px',
                   }}
                 >
-                  <b style={{ color: statusColor(o.status) }}>
-                    {o.status === 'accepted' ? '✅' : o.status === 'rejected' ? '❌' : '⏰'}{' '}
-                  </b>
-                  {o.botName} · {o.theyWant.nombreJugador} ⇄ {o.theyOffer.nombreJugador}
-                </span>
-                <span
-                  style={{
-                    fontSize: 10,
-                    color: statusColor(o.status),
-                    fontFamily: 'Inter,sans-serif',
-                  }}
-                >
-                  {o.status === 'accepted'
-                    ? 'Aceptado'
-                    : o.status === 'rejected'
-                      ? 'Rechazado'
-                      : 'Expirado'}
-                </span>
-              </div>
-            ))}
-        </div>
-      )}
-
-      {/* Activity log */}
-      {log.length > 0 && (
-        <div style={{ background: 'rgba(0,0,0,0.3)', borderRadius: 10, padding: '10px 14px' }}>
-          <p
-            style={{
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 10,
-              margin: '0 0 6px',
-              fontFamily: 'Inter,sans-serif',
-              textTransform: 'uppercase',
-            }}
-          >
-            Actividad reciente
-          </p>
-          {log.map((l, i) => (
-            <p
-              key={i}
-              style={{
-                fontSize: 12,
-                color: 'rgba(255,255,255,0.55)',
-                margin: '2px 0',
-                fontFamily: 'Inter,sans-serif',
-              }}
-            >
-              {l}
-            </p>
-          ))}
-        </div>
-      )}
-
-      {/* Repeated stickers preview */}
-      {repeated.length > 0 && (
-        <div>
-          <p
-            style={{
-              color: 'rgba(255,255,255,0.4)',
-              fontSize: 11,
-              margin: '0 0 8px',
-              fontFamily: 'Inter,sans-serif',
-              textTransform: 'uppercase',
-              letterSpacing: 1,
-            }}
-          >
-            Mis repetidos ({repeated.length})
-          </p>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {repeated.slice(0, 12).map((l) => (
-              <StickerCard
-                key={l.idLamina}
-                idLamina={l.idLamina}
-                nombreJugador={l.nombreJugador}
-                rareza={l.rareza}
-                cantidadRepetidas={l.cantidadRepetidas}
-                size="xs"
-                showRepeatBadge
-              />
-            ))}
-            {repeated.length > 12 && (
-              <div
+                  <span style={{ fontSize: 14 }}>{o.botEmoji}</span>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      color: 'rgba(255,255,255,0.6)',
+                      fontFamily: 'Inter,sans-serif',
+                      flex: 1,
+                    }}
+                  >
+                    <b style={{ color: statusColor(o.status) }}>
+                      {o.status === 'accepted' ? '✅' : o.status === 'rejected' ? '❌' : '⏰'}{' '}
+                    </b>
+                    {o.botName} · {o.theyWant.nombreJugador} ⇄ {o.theyOffer.nombreJugador}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: statusColor(o.status),
+                      fontFamily: 'Inter,sans-serif',
+                      background: `${statusColor(o.status)}18`,
+                      padding: '2px 7px',
+                      borderRadius: 99,
+                    }}
+                  >
+                    {o.status === 'accepted'
+                      ? 'Aceptado'
+                      : o.status === 'rejected'
+                        ? 'Rechazado'
+                        : 'Expirado'}
+                  </span>
+                </div>
+              ))}
+            {log.map((l, i) => (
+              <p
+                key={i}
                 style={{
-                  width: 60,
-                  height: 84,
-                  borderRadius: 8,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'rgba(255,255,255,0.4)',
                   fontSize: 12,
+                  color: 'rgba(255,255,255,0.45)',
+                  margin: '2px 0',
                   fontFamily: 'Inter,sans-serif',
                 }}
               >
-                +{repeated.length - 12}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+                {l}
+              </p>
+            ))}
+          </>
+        )}
+      </div>
     </div>
   );
 }
