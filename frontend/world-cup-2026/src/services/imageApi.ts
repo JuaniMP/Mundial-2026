@@ -270,8 +270,12 @@ export function clearOldPhotoCache(): void {
   toDelete.forEach((k) => localStorage.removeItem(k));
 }
 
+/** Clave pública de Unsplash (VITE_UNSPLASH_ACCESS_KEY); sin ella no se piden fotos. */
+const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY as string | undefined;
+
 /** Fetch a landscape stadium photo from Unsplash. */
 export async function fetchStadiumPhoto(query: string): Promise<string | null> {
+  if (!UNSPLASH_ACCESS_KEY) return null;
   try {
     const params = new URLSearchParams({
       query: `${query} soccer stadium`,
@@ -279,7 +283,7 @@ export async function fetchStadiumPhoto(query: string): Promise<string | null> {
       orientation: 'landscape',
     });
     const resp = await fetch(`https://api.unsplash.com/search/photos?${params}`, {
-      headers: { Authorization: `Client-ID RoLK0oFjtR1E6dmFZfx-83N7MLuHI0Wcq7bu37XCeRI` },
+      headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },
       signal: AbortSignal.timeout(5000),
     });
     if (!resp.ok) return null;
