@@ -1,9 +1,7 @@
 package co.edu.unbosque.controller;
 
+import co.edu.unbosque.security.UsuarioActual;
 import co.edu.unbosque.dto.*;
-import co.edu.unbosque.entity.Usuario;
-import co.edu.unbosque.exception.ResourceNotFoundException;
-import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.service.PerfilService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,7 @@ import java.util.List;
 public class PerfilController {
 
     private final PerfilService perfilService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioActual usuarioActual;
 
     // ── Preferencias ─────────────────────────────────────────────────────────
 
@@ -28,7 +26,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<PreferenciasResponse>> getPreferencias(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
-                perfilService.getPreferencias(currentUserId(userDetails)),
+                perfilService.getPreferencias(usuarioActual.id(userDetails)),
                 "Preferencias"));
     }
 
@@ -37,7 +35,7 @@ public class PerfilController {
             @RequestBody PreferenciasRequest req,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
-                perfilService.savePreferencias(currentUserId(userDetails), req),
+                perfilService.savePreferencias(usuarioActual.id(userDetails), req),
                 "Preferencias actualizadas"));
     }
 
@@ -47,7 +45,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<List<AgendaItemResponse>>> getAgenda(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
-                perfilService.getAgenda(currentUserId(userDetails)),
+                perfilService.getAgenda(usuarioActual.id(userDetails)),
                 "Agenda"));
     }
 
@@ -56,7 +54,7 @@ public class PerfilController {
             @RequestBody AgendaItemRequest req,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
-                perfilService.addAgendaItem(currentUserId(userDetails), req),
+                perfilService.addAgendaItem(usuarioActual.id(userDetails), req),
                 "Item creado"));
     }
 
@@ -64,7 +62,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<Void>> deleteAgendaItem(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        perfilService.deleteAgendaItem(currentUserId(userDetails), id);
+        perfilService.deleteAgendaItem(usuarioActual.id(userDetails), id);
         return ResponseEntity.ok(ApiResponse.success(null, "Item eliminado"));
     }
 
@@ -74,7 +72,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<List<RecordatorioViajeResponse>>> getViajes(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
-                perfilService.getViajes(currentUserId(userDetails)),
+                perfilService.getViajes(usuarioActual.id(userDetails)),
                 "Viajes"));
     }
 
@@ -83,7 +81,7 @@ public class PerfilController {
             @RequestBody RecordatorioViajeRequest req,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(
-                perfilService.addViaje(currentUserId(userDetails), req),
+                perfilService.addViaje(usuarioActual.id(userDetails), req),
                 "Viaje creado"));
     }
 
@@ -91,7 +89,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<Void>> deleteViaje(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        perfilService.deleteViaje(currentUserId(userDetails), id);
+        perfilService.deleteViaje(usuarioActual.id(userDetails), id);
         return ResponseEntity.ok(ApiResponse.success(null, "Viaje eliminado"));
     }
 
@@ -101,16 +99,7 @@ public class PerfilController {
     public ResponseEntity<ApiResponse<List<FeedItemResponse>>> getFeed(
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(ApiResponse.success(
-                perfilService.getFeed(currentUserId(userDetails)),
+                perfilService.getFeed(usuarioActual.id(userDetails)),
                 "Feed priorizado"));
-    }
-
-    private Integer currentUserId(UserDetails userDetails) {
-        if (userDetails == null || userDetails.getUsername() == null) {
-            throw new ResourceNotFoundException("No hay sesión activa");
-        }
-        Usuario u = usuarioRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        return u.getId();
     }
 }

@@ -3,6 +3,8 @@ package co.edu.unbosque.service;
 import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DataSeederService {
 
     private final RolRepository rolRepository;
@@ -43,6 +46,13 @@ public class DataSeederService {
     private final AficionadoRepository aficionadoRepository;
     private final AdministradorRepository administradorRepository;
     private final JdbcTemplate jdbcTemplate;
+
+    /** Cuentas y datos ficticios: solo en desarrollo (SEED_DEMO_DATA=true / perfil dev). */
+    @Value("${mundial26.seed.demo-data:false}")
+    private boolean seedDemoData;
+
+    /** Cuenta de aficionado con datos de demo completos (álbum, pollas, entradas…). */
+    private static final String MASTER_EMAIL = "aficionado.demo@mundial2026.com";
 
     private static final String[] SELECCIONES_FAVORITAS = {
         "Argentina", "Brasil", "Francia", "España", "Alemania",
@@ -89,11 +99,16 @@ public class DataSeederService {
 
     @Transactional
     public void seedDatabase() {
-        seedRoles();
+        // Catálogo: lo necesita cualquier entorno (los roles los crea DataSeeder)
+        seedLaminas();
+        if (!seedDemoData) {
+            log.info("Datos de demostración desactivados (SEED_DEMO_DATA=false)");
+            return;
+        }
+        // Datos ficticios con contraseñas conocidas: nunca en producción
         seedAllUsuarios();
         seedMasterAccounts();
         seedAliadosComerciales(rolRepository.findByNombre("ALIADO").orElse(null));
-        seedLaminas();
         seedAlbumes();
         seedPerfilPreferencias();
         seedPollas();
@@ -104,17 +119,7 @@ public class DataSeederService {
         seedReportesCompliance();
         seedReportesInteraccionAPI();
         seedIntercambiosLaminas();
-        System.out.println("✅ Seeding completado exitosamente");
-    }
-
-    private void seedRoles() {
-        String[] roleNames = {"AFICIONADO", "OPERADOR", "SOPORTE", "COMPLIANCE", "ADMIN", "ALIADO"};
-        for (String name : roleNames) {
-            if (rolRepository.findByNombre(name).isEmpty()) {
-                rolRepository.save(Rol.builder().nombre(name).build());
-            }
-        }
-        System.out.println("✓ Roles cargados");
+        log.info("✅ Seeding completado exitosamente");
     }
 
     private void seedAliadosComerciales(Rol rolAliado) {
@@ -152,7 +157,7 @@ public class DataSeederService {
                 a[4], usuario.getId()
             );
         }
-        System.out.println("✓ Aliados comerciales cargados (10 total)");
+        log.info("✓ Aliados comerciales cargados (10 total)");
     }
 
     // ── Usuarios ─────────────────────────────────────────────────────────────
@@ -173,7 +178,7 @@ public class DataSeederService {
         seedIncidentes(aficionados, agentes);
         seedNotificaciones(aficionados, admins);
 
-        System.out.println("✓ Usuarios completos cargados");
+        log.info("✓ Usuarios completos cargados");
     }
 
     private List<Usuario> seedAdmins(Rol rol) {
@@ -349,19 +354,19 @@ public class DataSeederService {
                     .usuario(u).superadmin(true)
                     .departamento("Dirección General").requiereMfa(false).build());
         }
-        System.out.println("✓ Super admin cargado: " + email);
+        log.info("✓ Super admin cargado: {}", email);
     }
 
     private void seedMasterAficionado() {
         Rol aficionadoRol = rolRepository.findByNombre("AFICIONADO").orElse(null);
         if (aficionadoRol == null) return;
-        String email = "juamepi90@gmail.com";
+        String email = MASTER_EMAIL;
         usuarioRepository.findByEmail(email).ifPresentOrElse(
             u -> { /* already exists */ },
             () -> {
                 Usuario u = usuarioRepository.save(Usuario.builder()
-                        .email(email).nombre("Juanita Masterclass")
-                        .passwordHash(passwordEncoder.encode("***REMOVED***"))
+                        .email(email).nombre("Aficionado Demo")
+                        .passwordHash(passwordEncoder.encode("Aficionado2026!"))
                         .rol(aficionadoRol).zonaHoraria("America/Bogota")
                         .seleccionFavorita("Colombia").build());
                 aficionadoRepository.save(Aficionado.builder()
@@ -369,7 +374,7 @@ public class DataSeederService {
                         .albumCompletitudPct(26.5625f).build());
             }
         );
-        System.out.println("✓ Master aficionado cargado: " + email);
+        log.info("✓ Master aficionado cargado: {}", email);
     }
 
     // ── Laminas (320 stickers) ────────────────────────────────────────────────
@@ -412,7 +417,7 @@ public class DataSeederService {
                     .rareza("EPICO").build());
         }
 
-        System.out.println("✓ Láminas cargadas (" + laminaRepository.count() + " total)");
+        log.info("✓ Láminas cargadas ({} total)", laminaRepository.count());
     }
 
     // ── Albums con láminas ─────────────────────────────────────────────────────
@@ -424,7 +429,7 @@ public class DataSeederService {
         if (todasLaminas.isEmpty()) return;
 
         // Album para el master aficionado con 85 pegadas + 30 repetidas
-        usuarioRepository.findByEmail("juamepi90@gmail.com").ifPresent(master -> {
+        usuarioRepository.findByEmail(MASTER_EMAIL).ifPresent(master -> {
             Album album = albumRepository.save(Album.builder()
                     .usuario(master).laminasPegadas(85)
                     .porcentajeCompletado(85f * 100f / todasLaminas.size()).build());
@@ -446,7 +451,7 @@ public class DataSeederService {
                 paqueteRepository.save(Paquete.builder()
                         .usuario(master).estado("ABIERTO").build());
             }
-            System.out.println("✓ Álbum master cargado: 85 láminas pegadas, 12 paquetes");
+            log.info("✓ Álbum master cargado: 85 láminas pegadas, 12 paquetes");
         });
 
         // Albums básicos para los primeros 10 aficionados seed (30% completado)
@@ -467,7 +472,7 @@ public class DataSeederService {
                 }
             });
         }
-        System.out.println("✓ Álbumes adicionales cargados");
+        log.info("✓ Álbumes adicionales cargados");
     }
 
     // ── Perfil preferencias ────────────────────────────────────────────────────
@@ -482,7 +487,7 @@ public class DataSeederService {
                               "Europe/Madrid","America/Lima"};
 
         // Preference for master user first
-        usuarioRepository.findByEmail("juamepi90@gmail.com").ifPresent(u ->
+        usuarioRepository.findByEmail(MASTER_EMAIL).ifPresent(u ->
             perfilPreferenciasRepository.save(PerfilPreferencias.builder()
                     .usuario(u).idioma("es").zonaHorariaPreferida("America/Bogota")
                     .seleccionesFavoritas("COL,ARG,BRA").estadiosFavoritos("MetLife Stadium,Estadio Azteca")
@@ -506,7 +511,7 @@ public class DataSeederService {
                 }
             });
         }
-        System.out.println("✓ Perfil preferencias cargado");
+        log.info("✓ Perfil preferencias cargado");
     }
 
     // ── Pollas ─────────────────────────────────────────────────────────────────
@@ -515,7 +520,7 @@ public class DataSeederService {
     public void seedPollas() {
         if (pollaRepository.count() > 0) return;
 
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         List<Usuario> aficionados = new ArrayList<>();
         for (String[] af : AFICIONADO_DATA) {
             usuarioRepository.findByEmail(af[0]).ifPresent(aficionados::add);
@@ -563,7 +568,7 @@ public class DataSeederService {
                 }
             }
         }
-        System.out.println("✓ Pollas, participantes y predicciones cargados");
+        log.info("✓ Pollas, participantes y predicciones cargados");
     }
 
     // ── Entradas ───────────────────────────────────────────────────────────────
@@ -571,7 +576,7 @@ public class DataSeederService {
     @Transactional
     public void seedEntradas() {
         if (entradaRepository.count() > 0) return;
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         List<Usuario> aficionados = new ArrayList<>();
         for (String[] af : AFICIONADO_DATA) {
             usuarioRepository.findByEmail(af[0]).ifPresent(aficionados::add);
@@ -624,7 +629,7 @@ public class DataSeederService {
                     .usuarioComprador(vendida ? comprador : null)
                     .build());
         }
-        System.out.println("✓ Entradas cargadas (15 total)");
+        log.info("✓ Entradas cargadas (15 total)");
     }
 
     // ── Agenda items ───────────────────────────────────────────────────────────
@@ -632,7 +637,7 @@ public class DataSeederService {
     @Transactional
     public void seedAgendaItems() {
         if (agendaItemRepository.count() > 0) return;
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         if (master == null) return;
 
         LocalDateTime base = LocalDateTime.of(2026, 6, 11, 15, 0);
@@ -651,7 +656,7 @@ public class DataSeederService {
                     .fechaInicio((LocalDateTime)item[4]).fechaFin((LocalDateTime)item[5])
                     .apiPartidoId((Long)item[6]).ubicacion((String)item[7]).build());
         }
-        System.out.println("✓ Agenda items cargados");
+        log.info("✓ Agenda items cargados");
     }
 
     // ── Recordatorios viaje ────────────────────────────────────────────────────
@@ -659,7 +664,7 @@ public class DataSeederService {
     @Transactional
     public void seedRecordatoriosViaje() {
         if (recordatorioViajeRepository.count() > 0) return;
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         if (master == null) return;
 
         Object[][] viajes = {
@@ -675,7 +680,7 @@ public class DataSeederService {
                     .fechaInicio((LocalDate)v[3]).fechaFin((LocalDate)v[4])
                     .estadioDestino((String)v[5]).notas((String)v[6]).build());
         }
-        System.out.println("✓ Recordatorios de viaje cargados");
+        log.info("✓ Recordatorios de viaje cargados");
     }
 
     // ── Logs transaccionales ───────────────────────────────────────────────────
@@ -684,7 +689,7 @@ public class DataSeederService {
     public void seedLogsTransaccionales() {
         if (logsTransaccionalRepository.count() > 0) return;
 
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         List<Usuario> aficionados = new ArrayList<>();
         for (String[] af : AFICIONADO_DATA) {
             usuarioRepository.findByEmail(af[0]).ifPresent(aficionados::add);
@@ -746,7 +751,7 @@ public class DataSeederService {
                         .usuario(af).build());
             }
         }
-        System.out.println("✓ Logs transaccionales cargados");
+        log.info("✓ Logs transaccionales cargados");
     }
 
     // ── Reportes compliance ────────────────────────────────────────────────────
@@ -773,7 +778,7 @@ public class DataSeederService {
                     .tipoReporte((String)r[0]).descripcion((String)r[1])
                     .rutaArchivo((String)r[2]).generador(gen).build());
         }
-        System.out.println("✓ Reportes de compliance cargados");
+        log.info("✓ Reportes de compliance cargados");
     }
 
     // ── Reportes interacción API ───────────────────────────────────────────────
@@ -799,7 +804,7 @@ public class DataSeederService {
                     .peticionesFallidas(i * 3 + 2)
                     .fechaCorte(fechaCorte).build());
         }
-        System.out.println("✓ Reportes interacción API cargados");
+        log.info("✓ Reportes interacción API cargados");
     }
 
     // ── Intercambios láminas ───────────────────────────────────────────────────
@@ -808,7 +813,7 @@ public class DataSeederService {
     public void seedIntercambiosLaminas() {
         if (intercambioLaminaRepository.count() > 0) return;
 
-        Usuario master = usuarioRepository.findByEmail("juamepi90@gmail.com").orElse(null);
+        Usuario master = usuarioRepository.findByEmail(MASTER_EMAIL).orElse(null);
         List<Usuario> aficionados = new ArrayList<>();
         for (String[] af : AFICIONADO_DATA) {
             usuarioRepository.findByEmail(af[0]).ifPresent(aficionados::add);
@@ -838,7 +843,7 @@ public class DataSeederService {
                     .laminaOfrecida(ofrecida).laminaSolicitada(solicitada)
                     .estado(estado).fechaResolucion(resolucion).build());
         }
-        System.out.println("✓ Intercambios de láminas cargados");
+        log.info("✓ Intercambios de láminas cargados");
     }
 
     // ── Incidentes y notificaciones (existing, unchanged) ─────────────────────
@@ -880,7 +885,7 @@ public class DataSeederService {
                     .reportador(reportador)
                     .agenteSoporte(asignado ? agente : null).build());
         }
-        System.out.println("✓ Incidentes de soporte cargados");
+        log.info("✓ Incidentes de soporte cargados");
     }
 
     private void seedNotificaciones(List<Usuario> aficionados, List<Usuario> admins) {
@@ -906,6 +911,6 @@ public class DataSeederService {
                     .destinatario(aficionados.get(i))
                     .emisor(admin).build());
         }
-        System.out.println("✓ Notificaciones cargadas");
+        log.info("✓ Notificaciones cargadas");
     }
 }

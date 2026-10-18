@@ -1,3 +1,4 @@
+import { lazy, Suspense, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthProvider } from './context/AuthContext';
@@ -15,26 +16,32 @@ import { PrivateRoute } from './components/PrivateRoute';
 import { RoleRoute } from './components/RoleRoute';
 import { Layout } from './components/layout/Layout';
 import { Navbar } from './components/layout/Navbar';
-import { Dashboard } from './pages/Dashboard';
-import { Matches } from './pages/Matches';
-import { Standings } from './pages/Standings';
-import { Stadiums } from './pages/Stadiums';
-import { Superpolla } from './pages/Superpolla';
-import { Album } from './pages/Album';
-import { Tickets } from './pages/Tickets';
-import { Teams } from './pages/Teams';
-import { PackOpening } from './pages/PackOpening';
-import { Admin } from './pages/Admin';
-import { Agentes } from './pages/Agentes';
-import { Login } from './pages/Login';
-import { Register } from './pages/Register';
-import { ForgotPassword } from './pages/ForgotPassword';
-import { Pollas } from './pages/Pollas';
-import { PollaDetalle } from './pages/PollaDetalle';
-import { Profile } from './pages/Profile';
-import { Backoffice } from './pages/backoffice';
-import { Soporte } from './pages/Soporte';
 import { useAuth } from './context/AuthContext';
+
+/** Cada página se descarga cuando se visita (three.js, Leaflet y Stripe no van en el bundle inicial). */
+function lazyPage<K extends string>(load: () => Promise<Record<K, ComponentType>>, name: K) {
+  return lazy(() => load().then((module) => ({ default: module[name] })));
+}
+
+const Dashboard = lazyPage(() => import('./pages/Dashboard'), 'Dashboard');
+const Matches = lazyPage(() => import('./pages/Matches'), 'Matches');
+const Standings = lazyPage(() => import('./pages/Standings'), 'Standings');
+const Stadiums = lazyPage(() => import('./pages/Stadiums'), 'Stadiums');
+const Superpolla = lazyPage(() => import('./pages/Superpolla'), 'Superpolla');
+const Album = lazyPage(() => import('./pages/Album'), 'Album');
+const Tickets = lazyPage(() => import('./pages/Tickets'), 'Tickets');
+const Teams = lazyPage(() => import('./pages/Teams'), 'Teams');
+const PackOpening = lazyPage(() => import('./pages/PackOpening'), 'PackOpening');
+const Admin = lazyPage(() => import('./pages/Admin'), 'Admin');
+const Agentes = lazyPage(() => import('./pages/Agentes'), 'Agentes');
+const Login = lazyPage(() => import('./pages/Login'), 'Login');
+const Register = lazyPage(() => import('./pages/Register'), 'Register');
+const ForgotPassword = lazyPage(() => import('./pages/ForgotPassword'), 'ForgotPassword');
+const Pollas = lazyPage(() => import('./pages/Pollas'), 'Pollas');
+const PollaDetalle = lazyPage(() => import('./pages/PollaDetalle'), 'PollaDetalle');
+const Profile = lazyPage(() => import('./pages/Profile'), 'Profile');
+const Backoffice = lazyPage(() => import('./pages/backoffice'), 'Backoffice');
+const Soporte = lazyPage(() => import('./pages/Soporte'), 'Soporte');
 
 function RequireLoginNotice({ children }: { children: React.ReactNode }) {
   const { token, loading } = useAuth();
@@ -86,129 +93,131 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <LanguageProvider>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Suspense fallback={<div className="min-h-screen" />}>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Admin/Compliance Backoffice - Separate Layout (No Navbar) */}
-            <Route
-              path="/backoffice/*"
-              element={
-                <PrivateRoute>
-                  <RoleRoute allowedRoles={['ADMIN', 'COMPLIANCE']}>
+              {/* Admin/Compliance Backoffice - Separate Layout (No Navbar) */}
+              <Route
+                path="/backoffice/*"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles={['ADMIN', 'COMPLIANCE']}>
+                      <Routes>
+                        <Route path="/" element={<Backoffice />} />
+                        <Route path="*" element={<Navigate to="/backoffice" replace />} />
+                      </Routes>
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Support Dashboard - Separate Layout (No Navbar) */}
+              <Route
+                path="/soporte/*"
+                element={
+                  <PrivateRoute>
+                    <RoleRoute allowedRoles={['ADMIN', 'SOPORTE']}>
+                      <Routes>
+                        <Route path="/" element={<Soporte />} />
+                        <Route path="*" element={<Navigate to="/soporte" replace />} />
+                      </Routes>
+                    </RoleRoute>
+                  </PrivateRoute>
+                }
+              />
+
+              {/* Regular User Routes - With Navbar */}
+              <Route
+                path="/*"
+                element={
+                  <Layout>
+                    <Navbar />
                     <Routes>
-                      <Route path="/" element={<Backoffice />} />
-                      <Route path="*" element={<Navigate to="/backoffice" replace />} />
+                      <Route path="/" element={<Dashboard />} />
+                      <Route
+                        path="/matches"
+                        element={
+                          <RequireLoginNotice>
+                            <Matches />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route path="/standings" element={<Standings />} />
+                      <Route
+                        path="/stadiums"
+                        element={
+                          <RequireLoginNotice>
+                            <Stadiums />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route path="/superpolla" element={<Superpolla />} />
+                      <Route path="/album" element={<Album />} />
+                      <Route
+                        path="/tickets"
+                        element={
+                          <RequireLoginNotice>
+                            <Tickets />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route path="/teams" element={<Teams />} />
+                      <Route path="/pack-opening" element={<PackOpening />} />
+                      <Route
+                        path="/pollas"
+                        element={
+                          <RequireLoginNotice>
+                            <Pollas />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route
+                        path="/pollas/:id"
+                        element={
+                          <RequireLoginNotice>
+                            <PollaDetalle />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route
+                        path="/profile"
+                        element={
+                          <RequireLoginNotice>
+                            <Profile />
+                          </RequireLoginNotice>
+                        }
+                      />
+                      <Route
+                        path="/admin"
+                        element={
+                          <PrivateRoute>
+                            <RoleRoute allowedRoles={['ADMIN']}>
+                              <Admin />
+                            </RoleRoute>
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        path="/agentes"
+                        element={
+                          <PrivateRoute>
+                            <RoleRoute allowedRoles={['ADMIN', 'SOPORTE', 'OPERADOR']}>
+                              <Agentes />
+                            </RoleRoute>
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
-                  </RoleRoute>
-                </PrivateRoute>
-              }
-            />
-
-            {/* Support Dashboard - Separate Layout (No Navbar) */}
-            <Route
-              path="/soporte/*"
-              element={
-                <PrivateRoute>
-                  <RoleRoute allowedRoles={['ADMIN', 'SOPORTE']}>
-                    <Routes>
-                      <Route path="/" element={<Soporte />} />
-                      <Route path="*" element={<Navigate to="/soporte" replace />} />
-                    </Routes>
-                  </RoleRoute>
-                </PrivateRoute>
-              }
-            />
-
-            {/* Regular User Routes - With Navbar */}
-            <Route
-              path="/*"
-              element={
-                <Layout>
-                  <Navbar />
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route
-                      path="/matches"
-                      element={
-                        <RequireLoginNotice>
-                          <Matches />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route path="/standings" element={<Standings />} />
-                    <Route
-                      path="/stadiums"
-                      element={
-                        <RequireLoginNotice>
-                          <Stadiums />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route path="/superpolla" element={<Superpolla />} />
-                    <Route path="/album" element={<Album />} />
-                    <Route
-                      path="/tickets"
-                      element={
-                        <RequireLoginNotice>
-                          <Tickets />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route path="/teams" element={<Teams />} />
-                    <Route path="/pack-opening" element={<PackOpening />} />
-                    <Route
-                      path="/pollas"
-                      element={
-                        <RequireLoginNotice>
-                          <Pollas />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route
-                      path="/pollas/:id"
-                      element={
-                        <RequireLoginNotice>
-                          <PollaDetalle />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route
-                      path="/profile"
-                      element={
-                        <RequireLoginNotice>
-                          <Profile />
-                        </RequireLoginNotice>
-                      }
-                    />
-                    <Route
-                      path="/admin"
-                      element={
-                        <PrivateRoute>
-                          <RoleRoute allowedRoles={['ADMIN']}>
-                            <Admin />
-                          </RoleRoute>
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path="/agentes"
-                      element={
-                        <PrivateRoute>
-                          <RoleRoute allowedRoles={['ADMIN', 'SOPORTE', 'OPERADOR']}>
-                            <Agentes />
-                          </RoleRoute>
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </Layout>
-              }
-            />
-          </Routes>
+                  </Layout>
+                }
+              />
+            </Routes>
+          </Suspense>
         </LanguageProvider>
       </AuthProvider>
     </BrowserRouter>

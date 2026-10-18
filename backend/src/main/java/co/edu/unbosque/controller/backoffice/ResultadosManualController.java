@@ -1,11 +1,9 @@
 package co.edu.unbosque.controller.backoffice;
 
+import co.edu.unbosque.security.UsuarioActual;
 import co.edu.unbosque.dto.ApiResponse;
 import co.edu.unbosque.dto.BackofficeDTOs.ResultadoManualRequest;
 import co.edu.unbosque.dto.BackofficeDTOs.ResultadoManualResponse;
-import co.edu.unbosque.entity.Usuario;
-import co.edu.unbosque.exception.ResourceNotFoundException;
-import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.service.backoffice.ResultadosManualService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,23 +18,16 @@ import org.springframework.web.bind.annotation.*;
 public class ResultadosManualController {
 
     private final ResultadosManualService resultadosService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioActual usuarioActual;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<ResultadoManualResponse>> cargar(
             @RequestBody ResultadoManualRequest req,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer adminId = currentUserId(userDetails);
+        Integer adminId = usuarioActual.id(userDetails);
         return ResponseEntity.ok(ApiResponse.success(
                 resultadosService.cargar(adminId, req),
                 "Resultado cargado y predicciones recalculadas"));
-    }
-
-    private Integer currentUserId(UserDetails userDetails) {
-        if (userDetails == null) throw new ResourceNotFoundException("No autenticado");
-        Usuario u = usuarioRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        return u.getId();
     }
 }

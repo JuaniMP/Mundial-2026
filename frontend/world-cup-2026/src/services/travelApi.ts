@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_BASE_URL } from './http';
 
-const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
+const BASE = API_BASE_URL;
 
 export interface HotelSuggestion {
   hotelId: string | null;

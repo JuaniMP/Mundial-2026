@@ -1,12 +1,7 @@
 import axios from 'axios';
+import { API_V1, authHeaders } from './http';
 
-const BASE = 'http://localhost:8082/api/v1/pollas';
-
-function authHeaders() {
-  const token = sessionStorage.getItem('token');
-  if (!token || token === 'null' || token === 'undefined' || !token.includes('.')) return {};
-  return { Authorization: `Bearer ${token}` };
-}
+const BASE = `${API_V1}/pollas`;
 
 export interface Polla {
   id: number;

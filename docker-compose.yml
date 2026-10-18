@@ -12,8 +12,8 @@ services:
     ports:
       - '3307:3306'
     volumes:
+      # Las tablas las crea el backend (Hibernate ddl-auto=update) al arrancar.
       - db_data:/var/lib/mysql
-      - ./basededatos/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
 volumes:
   db_data:

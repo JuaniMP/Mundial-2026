@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { LaminaAlbum } from './albumApi';
+import type { LaminaAlbum } from '../../services/albumApi';
 import { parseRareza } from './rarityUtils';
 import { getTeamForLamina, TEAMS } from './teamColors';
 import { scopedKey } from '../../utils/userScope';

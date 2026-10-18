@@ -12,8 +12,9 @@ import {
   Eye,
   EyeOff,
 } from 'lucide-react';
+import { API_V1 } from '../config';
 
-const API_BASE_URL = 'http://localhost:8082/api/v1';
+const API_BASE_URL = API_V1;
 
 export const ForgotPassword = () => {
   const [email, setEmail] = useState('');
