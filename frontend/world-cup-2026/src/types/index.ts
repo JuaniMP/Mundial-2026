@@ -76,14 +76,7 @@ export interface FdMatch {
   id: number;
   utcDate: string;
   status:
-    | 'TIMED'
-    | 'SCHEDULED'
-    | 'LIVE'
-    | 'IN_PLAY'
-    | 'PAUSED'
-    | 'FINISHED'
-    | 'POSTPONED'
-    | 'CANCELLED';
+    'TIMED' | 'SCHEDULED' | 'LIVE' | 'IN_PLAY' | 'PAUSED' | 'FINISHED' | 'POSTPONED' | 'CANCELLED';
   matchday: number;
   stage: string;
   group: string | null;

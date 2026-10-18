@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import axios from 'axios';
 import { registerFcmToken } from '../services/firebase';
+import { API_V1 } from '../config';
 
 interface User {
   id: string;
@@ -32,7 +33,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = 'http://localhost:8082/api/v1';
+const API_BASE_URL = API_V1;
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // NOTA: usamos sessionStorage (no localStorage) para que la sesión sea

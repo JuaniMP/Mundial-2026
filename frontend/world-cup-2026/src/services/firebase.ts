@@ -13,8 +13,9 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 import { getMessaging, getToken, type Messaging } from 'firebase/messaging';
 import axios from 'axios';
+import { API_BASE_URL } from './http';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
+const API_BASE = API_BASE_URL;
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY ?? '',

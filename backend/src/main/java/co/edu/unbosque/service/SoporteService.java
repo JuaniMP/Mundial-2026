@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true) // las lecturas mapean relaciones LAZY (open-in-view=false)
 public class SoporteService {
 
     private final IncidenteSoporteRepository incidenteRepository;

@@ -3,9 +3,12 @@ package co.edu.unbosque.exception;
 import co.edu.unbosque.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -73,6 +76,27 @@ public class GlobalExceptionHandler {
         error.put("timestamp", LocalDateTime.now().toString());
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(error, "NOT_FOUND"));
+    }
+
+    /** Parámetros ausentes o con tipo inválido son errores del cliente (400), no del servidor. */
+    @ExceptionHandler({MissingServletRequestParameterException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleBadParameter(Exception ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex instanceof MissingServletRequestParameterException missing
+                ? "Falta el parámetro '" + missing.getParameterName() + "'"
+                : "Parámetro con formato inválido: '" + ((MethodArgumentTypeMismatchException) ex).getName() + "'");
+        error.put("timestamp", LocalDateTime.now().toString());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ApiResponse.error(error, "BAD_REQUEST"));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<Map<String, String>>> handleAccessDenied(AccessDeniedException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", "No tienes permisos para esta acción");
+        error.put("timestamp", LocalDateTime.now().toString());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(ApiResponse.error(error, "FORBIDDEN"));
     }
 
     @ExceptionHandler(Exception.class)

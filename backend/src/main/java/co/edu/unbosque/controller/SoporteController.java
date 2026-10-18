@@ -55,6 +55,7 @@ public class SoporteController {
     }
 
     @PostMapping("/logs")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
     public ResponseEntity<ApiResponse<LogResponse>> crearLog(
             @RequestBody LogRequest request,
             @RequestParam Integer usuarioId) {
@@ -63,17 +64,20 @@ public class SoporteController {
     }
 
     @GetMapping("/logs/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
     public ResponseEntity<ApiResponse<List<LogResponse>>> getLogs(@PathVariable Integer usuarioId) {
         return ResponseEntity.ok(ApiResponse.success(soporteService.getLogsByUsuario(usuarioId), "Logs"));
     }
 
     @PostMapping("/notificaciones")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
     public ResponseEntity<ApiResponse<NotificacionResponse>> crearNotificacion(@RequestBody NotificacionRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(soporteService.crearNotificacion(request), "Notificación enviada"));
     }
 
     @GetMapping("/notificaciones/{usuarioId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SOPORTE')")
     public ResponseEntity<ApiResponse<List<NotificacionResponse>>> getNotificaciones(@PathVariable Integer usuarioId) {
         return ResponseEntity.ok(ApiResponse.success(soporteService.getNotificacionesByUsuario(usuarioId), "Notificaciones"));
     }
