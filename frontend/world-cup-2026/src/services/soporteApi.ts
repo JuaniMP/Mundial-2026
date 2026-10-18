@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { API_V1 } from './http';
 
-const API = 'http://localhost:8082/api/v1/soporte';
+const API = `${API_V1}/soporte`;
 
 export interface EntradaResumen {
   entradaId: number;

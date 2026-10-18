@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Bell } from 'lucide-react';
 import axios from 'axios';
+import { API_BASE_URL } from '../../config';
 
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8082';
+const API_BASE = API_BASE_URL;
 const POLL_MS = 30_000; // refrescar cada 30 s
 const STORAGE_KEY_LAST_SEEN = 'notif_last_seen_id';
 

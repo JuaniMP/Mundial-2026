@@ -12,8 +12,7 @@ Puerto: `8082` · Context path: `/` · Swagger: `http://localhost:8082/swagger-u
 
 - Java 17 (Eclipse Adoptium recomendado)
 - Maven 3.9+
-- MySQL 8 accesible (VM remota vía Tailscale en `100.87.26.105:3306`)
-- Tailscale activo y conectado
+- MySQL 8 (local por defecto; otro servidor con `DB_URL`, `DB_USER`, `DB_PASSWORD`)
 
 ### Arranque (desarrollo local)
 
@@ -159,8 +158,8 @@ GET /actuator/metrics   Métricas básicas
 
 ## Base de datos
 
-- **Host:** `100.87.26.105:3306` (VM remota vía Tailscale)
-- **Schema:** `MundialHUB2026`
+- **Host:** `DB_URL` (por defecto `localhost:3306`)
+- **Schema:** `mundial_2026_hub`
 - **DDL:** `spring.jpa.hibernate.ddl-auto=update` (Hibernate gestiona el schema)
 
 Tablas principales: `usuarios`, `partidos`, `estadios`, `entradas`, `notificaciones`,

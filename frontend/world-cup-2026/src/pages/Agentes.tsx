@@ -10,8 +10,9 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { API_V1 } from '../config';
 
-const API = 'http://localhost:8082/api/v1';
+const API = API_V1;
 
 interface IncidenteItem {
   id: number;
