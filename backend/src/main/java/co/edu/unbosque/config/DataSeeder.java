@@ -4,10 +4,12 @@ import co.edu.unbosque.entity.*;
 import co.edu.unbosque.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  * NO existen tablas locales para esos datos.
  */
 @Component
+@Order(1)
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements ApplicationRunner {
@@ -33,6 +36,13 @@ public class DataSeeder implements ApplicationRunner {
     private final AdministradorRepository administradorRepository;
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbcTemplate;
+
+    @Value("${mundial26.admin.email}")
+    private String adminEmail;
+
+    /** Vacío = no se crea el admin por defecto (definir ADMIN_PASSWORD). */
+    @Value("${mundial26.admin.password:}")
+    private String adminPassword;
 
     @Override
     @Transactional
@@ -103,13 +113,15 @@ public class DataSeeder implements ApplicationRunner {
     // ─────────────────────────────────────────────────────────────────────────
 
     private void seedAdminUser() {
-        if (!usuarioRepository.existsByEmail("admin@mundial2026.com")) {
+        if (adminPassword.isBlank()) {
+            log.warn("ADMIN_PASSWORD no está definido: no se crea el administrador inicial");
+        } else if (!usuarioRepository.existsByEmail(adminEmail)) {
             Rol adminRol = rolRepository.findByNombre("ADMIN")
                     .orElseThrow(() -> new RuntimeException("Rol ADMIN no encontrado"));
             Usuario admin = usuarioRepository.save(Usuario.builder()
                     .nombre("Administrador")
-                    .email("admin@mundial2026.com")
-                    .passwordHash(passwordEncoder.encode("Admin2026!"))
+                    .email(adminEmail)
+                    .passwordHash(passwordEncoder.encode(adminPassword))
                     .rol(adminRol)
                     .zonaHoraria("America/Bogota")
                     .build());
@@ -119,16 +131,16 @@ public class DataSeeder implements ApplicationRunner {
                     .departamento("Sistemas")
                     .requiereMfa(false)
                     .build());
-            log.info("✅ Admin creado: admin@mundial2026.com / Admin2026!");
+            log.info("✅ Admin creado: {}", adminEmail);
         } else {
             // Reparar: si existe el usuario pero no el registro en administradores
-            usuarioRepository.findByEmail("admin@mundial2026.com").ifPresent(u -> {
+            usuarioRepository.findByEmail(adminEmail).ifPresent(u -> {
                 if (!administradorRepository.existsById(u.getId())) {
                     administradorRepository.save(Administrador.builder()
                             .usuario(u).superadmin(true)
                             .departamento("Sistemas").requiereMfa(false)
                             .build());
-                    log.info("✅ Registro administradores reparado para admin@mundial2026.com");
+                    log.info("✅ Registro administradores reparado para {}", adminEmail);
                 }
             });
         }

@@ -9,9 +9,9 @@ import type {
   Confederation,
 } from '../types';
 
-const API_BASE = 'http://localhost:8082/api/v1/football';
-const ESTADIOS_BASE = 'http://localhost:8082/api/v1/estadios';
-const BACKEND_BASE = 'http://localhost:8082/api/v1';
+const API_BASE = `${API_V1}/football`;
+const ESTADIOS_BASE = `${API_V1}/estadios`;
+const BACKEND_BASE = API_V1;
 
 // ── RNF-20: Retry helper ─────────────────────────────────────────────────────
 
@@ -29,16 +29,11 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2, delay = 800): Pro
 
 // ── helper ───────────────────────────────────────────────────────────────────
 
-function getAuthHeaders() {
-  const token = sessionStorage.getItem('token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
 // ── Matches ───────────────────────────────────────────────────────────────────
 
 export async function fetchAllMatches(): Promise<FdMatch[]> {
   return withRetry(async () => {
-    const { data } = await axios.get(`${API_BASE}/matches`, { headers: getAuthHeaders() });
+    const { data } = await axios.get(`${API_BASE}/matches`, { headers: authHeaders() });
     return data?.data?.matches ?? [];
   });
 }
@@ -47,7 +42,7 @@ export async function fetchMatchesByStage(stage: string): Promise<FdMatch[]> {
   return withRetry(async () => {
     const { data } = await axios.get(`${API_BASE}/matches`, {
       params: { stage },
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return data?.data?.matches ?? [];
   });
@@ -57,7 +52,7 @@ export async function fetchMatchesByMatchday(matchday: number): Promise<FdMatch[
   return withRetry(async () => {
     const { data } = await axios.get(`${API_BASE}/matches`, {
       params: { matchday },
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return data?.data?.matches ?? [];
   });
@@ -67,7 +62,7 @@ export async function fetchMatchesByMatchday(matchday: number): Promise<FdMatch[
 
 export async function fetchStandings(): Promise<FdStandingsGroup[]> {
   return withRetry(async () => {
-    const { data } = await axios.get(`${API_BASE}/standings`, { headers: getAuthHeaders() });
+    const { data } = await axios.get(`${API_BASE}/standings`, { headers: authHeaders() });
     return data?.data?.standings ?? [];
   });
 }
@@ -103,7 +98,7 @@ export interface ApiTeamDetail extends ApiTeam {
 
 export async function fetchTeams(): Promise<ApiTeam[]> {
   return withRetry(async () => {
-    const { data } = await axios.get(`${API_BASE}/teams`, { headers: getAuthHeaders() });
+    const { data } = await axios.get(`${API_BASE}/teams`, { headers: authHeaders() });
     return data?.data?.teams ?? [];
   });
 }
@@ -111,7 +106,7 @@ export async function fetchTeams(): Promise<ApiTeam[]> {
 export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | null> {
   try {
     const { data } = await axios.get(`${API_BASE}/teams/${teamId}`, {
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return data?.data ?? null;
   } catch {
@@ -124,6 +119,7 @@ export async function fetchTeamSquad(teamId: number): Promise<ApiTeamDetail | nu
 // Tries backend first; falls back to embedded dataset with full details + photos.
 
 import { WORLD_CUP_2026_STADIUMS } from '../data/worldCup2026Stadiums';
+import { API_V1, authHeaders } from './http';
 
 export async function fetchEstadios(): Promise<EstadioApi[]> {
   try {
@@ -177,7 +173,7 @@ export async function fetchEstadios(): Promise<EstadioApi[]> {
 export async function fetchSelecciones(): Promise<SeleccionResponse[]> {
   return withRetry(async () => {
     const { data } = await axios.get(`${BACKEND_BASE}/selecciones`, {
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return (data?.data as SeleccionResponse[]) ?? [];
   });
@@ -186,7 +182,7 @@ export async function fetchSelecciones(): Promise<SeleccionResponse[]> {
 export async function fetchSeleccionByCode(code: string): Promise<SeleccionResponse | null> {
   try {
     const { data } = await axios.get(`${BACKEND_BASE}/selecciones/codigo/${code}`, {
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return (data?.data as SeleccionResponse) ?? null;
   } catch {
@@ -197,7 +193,7 @@ export async function fetchSeleccionByCode(code: string): Promise<SeleccionRespo
 export async function fetchJugadoresBySeleccion(id: number): Promise<JugadorResponse[]> {
   return withRetry(async () => {
     const { data } = await axios.get(`${BACKEND_BASE}/selecciones/${id}/jugadores`, {
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return (data?.data as JugadorResponse[]) ?? [];
   });
@@ -213,7 +209,7 @@ export async function fetchQualifierMatches(
     if (confederation) params.confederation = confederation;
     const { data } = await axios.get(`${API_BASE}/qualifiers/matches`, {
       params,
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return data?.data?.matches ?? [];
   });
@@ -225,7 +221,7 @@ export async function fetchQualifierStandings(
   return withRetry(async () => {
     const { data } = await axios.get(`${API_BASE}/qualifiers/standings`, {
       params: { confederation },
-      headers: getAuthHeaders(),
+      headers: authHeaders(),
     });
     return data?.data ?? [];
   });

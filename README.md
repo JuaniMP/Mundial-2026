@@ -1,313 +1,348 @@
-# Mundial 2026 — Un Mundial para Todos
+<div align="center">
 
-> Plataforma digital de fan-engagement para el **FIFA World Cup 2026** (México 🇲🇽 · EE.UU. 🇺🇸 · Canadá 🇨🇦).
->
-> Stack: **Vite + React 18 + TypeScript + Tailwind** (frontend) · **Spring Boot 3 + MySQL 8** (backend API) · **Firebase FCM** (push notifications) · **Stripe** (pagos sandbox) · **Tailscale** (acceso VM remota).
+# 🏆 Mundial 2026 — Un Mundial para Todos
+
+**Plataforma de fan‑engagement para la Copa Mundial de la FIFA 2026** (México 🇲🇽 · Estados Unidos 🇺🇸 · Canadá 🇨🇦).
+Álbum digital de láminas, pollas con amigos, mapa de estadios, compra de entradas y paneles de administración, soporte y backoffice.
 
 [![CI](https://github.com/JuaniMP/Mundial-2026/actions/workflows/ci.yml/badge.svg)](https://github.com/JuaniMP/Mundial-2026/actions)
-[![Status](https://img.shields.io/badge/status-active-brightgreen)]()
-[![Sprint](https://img.shields.io/badge/sprint-4%20completado-blue)]()
+![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.2-6DB33F?logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?logo=typescript&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8+-4479A1?logo=mysql&logoColor=white)
+![License](https://img.shields.io/badge/licencia-MIT-blue)
+
+<img src="docs/screenshots/03-inicio.png" alt="Portada de Mundial 2026" width="900">
+
+</div>
 
 ---
 
-## Índice
+## 📑 Contenido
 
-- [Características implementadas](#características-implementadas)
-- [Arquitectura](#arquitectura)
-- [Estructura del repositorio](#estructura-del-repositorio)
-- [Quickstart](#quickstart)
-- [Variables de entorno](#variables-de-entorno)
-- [Stack y decisiones](#stack-y-decisiones)
-- [API — Endpoints principales](#api--endpoints-principales)
-- [Roadmap / Sprints](#roadmap--sprints)
-- [Documentación](#documentación)
-- [Cómo contribuir](#cómo-contribuir)
-
----
-
-## Características implementadas
-
-| Módulo                          | Descripción                                                                                                         | Sprint |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ |
-| 🔐 **Auth JWT**                 | Registro, login, recuperación de contraseña por email (Gmail SMTP)                                                  | 1      |
-| 🌍 **Partidos & API FIFA**      | Integración con football-data.org v4, caché Caffeine 5 min                                                          | 1–2    |
-| 🏟️ **Mapa de Estadios**         | 16 sedes con coordenadas, estadísticas e integración Leaflet                                                        | 2      |
-| 📊 **Tabla de Posiciones**      | Tabla general (API en vivo) + grupos A–L estáticos FIFA WC 2026                                                     | 2–4    |
-| 🎟️ **Entradas (Stripe)**        | Compra de tickets por categoría (VIP / General / Premium), webhooks Stripe sandbox                                  | 3      |
-| 🎴 **Álbum Digital**            | Colección de stickers por jugador, apertura de packs, progreso                                                      | 1–2    |
-| 🏆 **Superpolla**               | Predicciones de resultados, leaderboard global                                                                      | 1–2    |
-| 🔔 **Push Notifications (FCM)** | Firebase Cloud Messaging: notificación al comprar entrada y al registrarse resultado, broadcast al topic "partidos" | 4      |
-| 📧 **Notificaciones in-app**    | Historial de notificaciones por usuario en BD                                                                       | 4      |
+- [Qué hace](#-qué-hace)
+- [Capturas](#-capturas)
+- [Arquitectura](#-arquitectura)
+- [Patrones de diseño](#-patrones-de-diseño)
+- [Tecnologías](#-tecnologías)
+- [Estructura del proyecto](#-estructura-del-proyecto)
+- [Cómo ejecutarlo en local](#-cómo-ejecutarlo-en-local)
+- [Cómo probarlo](#-cómo-probarlo)
+- [Variables de entorno](#-variables-de-entorno)
+- [API REST](#-api-rest)
+- [Roadmap](#-roadmap)
+- [Documentación](#-documentación)
 
 ---
 
-## Arquitectura
+## ✨ Qué hace
+
+| Módulo | Descripción |
+|---|---|
+| 🔐 **Cuentas y roles** | Registro, login con JWT, recuperación de contraseña por correo y 6 roles: aficionado, admin, operador, soporte, compliance y aliado comercial. |
+| 🎴 **Álbum digital** | 320 láminas de 16 selecciones, apertura de sobres, láminas repetidas, intercambios y misiones. |
+| 🏆 **Pollas** | Grupos privados con código de invitación para predecir marcadores: 5 puntos por acertar el ganador, 10 por el marcador exacto. |
+| 🏟️ **Estadios** | Las 16 sedes en un mapa interactivo (Leaflet + OpenStreetMap) con capacidad y ubicación. |
+| 📊 **Posiciones** | Grupos A–L del Mundial 2026 y tabla general en vivo desde football-data.org. |
+| ⚽ **Partidos y selecciones** | Calendario, resultados y plantillas desde football-data.org (caché de 5 minutos). |
+| 🎟️ **Entradas** | Compra por categoría con Stripe Checkout (sandbox) y webhooks de confirmación. |
+| ✈️ **Agentes de viaje** | Sugerencias de lugares cerca de cada sede (OpenTripMap / Overpass). |
+| 🔔 **Notificaciones** | Push con Firebase Cloud Messaging e historial dentro de la app. |
+| 🛠️ **Soporte** | Buscador de aficionados con línea de tiempo de actividad, gestión de incidentes y acciones correctivas (reenviar confirmación, reembolso…). |
+| 🗂️ **Backoffice** | Alertas antifraude, auditoría de logs, gestión de cuentas, resultados manuales y comunicados masivos. |
+| 🌐 **Idiomas** | Español, inglés y francés (i18next). |
+
+---
+
+## 📸 Capturas
+
+> Tomadas con el proyecto corriendo en local con el perfil `dev`. Las pantallas de partidos, selecciones y entradas necesitan una clave de [football-data.org](https://www.football-data.org/) y por eso no aparecen aquí.
+
+### Aficionado
+
+| Inicio de sesión | Registro |
+|---|---|
+| ![Login](docs/screenshots/01-login.png) | ![Registro](docs/screenshots/02-registro.png) |
+
+| Álbum digital | Pollas |
+|---|---|
+| ![Álbum](docs/screenshots/08-album.png) | ![Pollas](docs/screenshots/09-pollas.png) |
+
+| Mapa de estadios | Tabla de posiciones (grupos A–L) |
+|---|---|
+| ![Estadios](docs/screenshots/06-estadios.png) | ![Posiciones](docs/screenshots/05-posiciones.png) |
+
+| Perfil |
+|---|
+| ![Perfil](docs/screenshots/11-perfil.png) |
+
+### Administración y soporte
+
+| Panel de administración | Backoffice |
+|---|---|
+| ![Admin](docs/screenshots/13-admin.png) | ![Backoffice](docs/screenshots/14-backoffice.png) |
+
+| Centro de atención al aficionado | Gestión de incidentes |
+|---|---|
+| ![Soporte](docs/screenshots/15-soporte.png) | ![Incidentes](docs/screenshots/12-incidentes.png) |
+
+---
+
+## 🏗 Arquitectura
+
+```mermaid
+flowchart LR
+    subgraph Cliente
+        SPA["React 19 + Vite + Tailwind<br/>i18n · Leaflet · three.js"]
+    end
+    subgraph API["Spring Boot 3 · :8082"]
+        F["Filtros<br/>CorrelationId → RateLimit → JWT"]
+        C["Controllers /api/v1/*<br/>+ backoffice"]
+        S["Services"]
+        R["Repositories JPA"]
+        K["Caché Caffeine<br/>5 min"]
+    end
+    DB[("MySQL 8")]
+    FD["football-data.org<br/>API-Football"]
+    ST["Stripe"]
+    FB["Firebase FCM"]
+    ML["SMTP"]
+    OT["OpenTripMap"]
+
+    SPA -- "HTTP + JWT" --> F --> C --> S --> R --> DB
+    S --> K --> FD
+    S --> ST
+    S --> FB
+    S --> ML
+    S --> OT
+    ST -. "webhook" .-> C
+```
+
+Cada petición recibe un `correlationId` que aparece en todos los logs; `RateLimitFilter` (Bucket4j) limita peticiones por IP; `JwtAuthFilter` valida el token y los endpoints sensibles exigen rol con `@PreAuthorize`. Los datos del torneo vienen de APIs externas y se cachean para respetar sus límites gratuitos.
+
+---
+
+## 🧩 Patrones de diseño
+
+| Patrón | Dónde se aplica | Para qué |
+|---|---|---|
+| **Arquitectura en capas** | `controller/` → `service/` → `repository/` (y su espejo en `backoffice/`) | Separar HTTP, reglas de negocio y datos. |
+| **Repository** | `repository/*Repository.java` (Spring Data JPA) | Acceso a datos sin SQL repetido. |
+| **DTO** | `dto/` y `dto/football/` | Contratos de API independientes de las entidades. |
+| **Envelope / Wrapper** | `ApiResponse<T>` con `success()` y `error()` | Todas las respuestas tienen la misma forma `{ success, message, data }`. |
+| **Builder** | `@Builder` de Lombok en 59 clases | Crear entidades y DTO legibles sin constructores enormes. |
+| **Adapter** | `FootballDataService`, `ApiFootballService` | Traducen las APIs externas a los DTO propios. |
+| **Cache‑Aside** | `@Cacheable` en `FootballDataService` (Caffeine, 5 min) | No agotar los límites gratuitos de football-data.org. |
+| **Token Bucket** | `RateLimitFilter` con Bucket4j | Limitar peticiones por IP. |
+| **Chain of Responsibility** | `CorrelationIdFilter` → `RateLimitFilter` → `JwtAuthFilter` | Cada filtro procesa o corta la petición. |
+| **Singleton** | `FirebaseService` (una sola `FirebaseApp`) | Inicializar Firebase una vez aunque se recargue el contexto. |
+| **Principal del token** | `security/UsuarioActual` + `@AuthenticationPrincipal` | El usuario sale del JWT, nunca de la URL. |
+| **Provider / Context** (React) | `AuthContext`, `LanguageContext` | Sesión e idioma globales. |
+| **Route Guard** | `PrivateRoute`, `RoleRoute` | Proteger pantallas por sesión y por rol. |
+| **Componentes de presentación** | `components/ui/` (`Button`, `StatCard`, `Badge`…) | Piezas visuales reutilizables. |
+| **Service layer** (frontend) | `services/*Api.ts` sobre `services/http.ts` | Una sola URL base y una sola forma de autenticar las peticiones. |
+| **Lazy loading** | `lazyPage()` en `App.tsx` | Bundle inicial de 1,1 MB → 390 KB. |
+
+---
+
+## 🛠 Tecnologías
+
+| Capa | Tecnologías |
+|---|---|
+| **Frontend** | React 19, TypeScript, Vite 8, Tailwind CSS 4, React Router 7, i18next, Leaflet, three.js / React Three Fiber, Stripe.js, Firebase |
+| **Backend** | Java 17, Spring Boot 3.2 (Web, Security, Data JPA, Validation, Mail, Cache, Actuator), JJWT, Bucket4j, Caffeine, Stripe Java, Firebase Admin, springdoc (Swagger) |
+| **Base de datos** | MySQL 8 (esquema gestionado por Hibernate) |
+| **Calidad** | GitHub Actions (build, lint, typecheck, Prettier), JUnit 5 + Mockito |
+| **Despliegue** | Backend en Fly.io, frontend en Vercel |
+
+---
+
+## 📂 Estructura del proyecto
 
 ```
-                      ┌─────────────────────────────┐
-                      │   Browser / PWA              │
-                      │   React 18 + Vite + TS       │
-                      │   Tailwind · React Router    │
-                      └────────────┬────────────────-┘
-                                   │ HTTP + JWT
-                      ┌────────────▼────────────────-┐
-                      │   Spring Boot 3.2 (API)       │
-                      │   :8082 · JWT · Caffeine      │
-                      │   JPA/Hibernate               │
-                      └──────┬──────────┬────────────-┘
-                             │          │
-              ┌──────────────▼──┐  ┌────▼──────────────┐
-              │ MySQL 8         │  │  Servicios externos│
-              │ VM via Tailscale│  │  ├ football-data.org│
-              │ 100.87.26.105   │  │  ├ Stripe (sandbox) │
-              └─────────────────┘  │  ├ Gmail SMTP       │
-                                   │  └ Firebase FCM     │
-                                   └────────────────────-┘
-```
-
----
-
-## Estructura del repositorio
-
-```text
 Mundial-2026/
-├── backend/                        # Spring Boot 3 API
-│   ├── src/main/java/co/edu/unbosque/
-│   │   ├── config/                 # SecurityConfig, CorsConfig, FirebaseConfig
-│   │   ├── controller/             # REST controllers (Auth, Partido, Estadio,
-│   │   │                           #   Entrada, Notification, Superpolla, Album…)
-│   │   ├── dto/                    # Request/Response DTOs
-│   │   ├── entity/                 # JPA entities (Usuario, Partido, Entrada…)
-│   │   ├── repository/             # Spring Data JPA repositories
-│   │   ├── service/                # Lógica de negocio (Stripe, FCM, Football…)
-│   │   └── security/               # JwtAuthFilter, JwtService
-│   ├── src/main/resources/
-│   │   └── application.properties  # Configuración (ver Variables de entorno)
-│   ├── start-dev.bat               # Script de arranque local con env vars
-│   └── pom.xml
-│
-├── frontend/world-cup-2026/        # React + Vite frontend
-│   ├── public/
-│   │   └── firebase-messaging-sw.js # Service Worker para push en background
-│   ├── src/
-│   │   ├── pages/                  # Login, Dashboard, Partidos, Standings,
-│   │   │                           #   Estadios, Entradas, Superpolla, Album
-│   │   ├── components/             # Navbar, layout, shared components
-│   │   ├── hooks/                  # useFcm, useAuth, useMatches…
-│   │   ├── types/                  # TypeScript interfaces compartidas
-│   │   ├── firebase.ts             # Firebase app + messaging singleton
-│   │   └── App.tsx                 # Router principal
-│   ├── .env.example                # Variables de entorno requeridas
-│   └── package.json
-│
-├── docs/                           # Documentación técnica y de producto
-│   ├── architecture/               # ARCHITECTURE.md, ADRs, diagramas C4
-│   ├── design-system/              # DESIGN.md (Diplomatic Gallery), tokens
-│   ├── product/                    # spec.md, user stories, checklists
-│   └── runbooks/                   # Operaciones en producción
-│
-├── basededatos/                    # Scripts SQL de referencia
-├── .github/
-│   ├── workflows/ci.yml            # CI: lint + typecheck + build
-│   └── pull_request_template.md
-└── README.md                       # estás aquí
+├── backend/                         API REST (Spring Boot + Maven)
+│   └── src/main/java/co/edu/unbosque/
+│       ├── config/                  seguridad, CORS, filtros, seeders
+│       ├── controller/              API pública  ·  controller/backoffice/  API interna
+│       ├── service/                 reglas de negocio  ·  service/backoffice/
+│       ├── security/                JWT y usuario autenticado
+│       ├── entity/  repository/     modelo y acceso a datos
+│       ├── dto/  dto/football/      contratos de entrada/salida
+│       └── exception/               manejo global de errores
+├── frontend/world-cup-2026/         SPA (React + Vite)
+│   └── src/
+│       ├── pages/                   una pantalla por archivo (+ backoffice/)
+│       ├── components/              ui/, features/, album/, layout/…
+│       ├── services/                clientes de la API (http.ts compartido)
+│       ├── context/  i18n/          sesión, idioma y traducciones (es/en/fr)
+│       └── config.ts                URL del backend
+├── basededatos/                     cómo se crea y siembra la base de datos
+├── docs/                            arquitectura (ADRs, C4), diseño, producto, runbooks, capturas
+├── docker-compose.yml               MySQL 8 para desarrollo
+└── .github/workflows/ci.yml         integración continua
 ```
 
 ---
 
-## Quickstart
+## 🚀 Cómo ejecutarlo en local
 
-### Prerrequisitos
+### Requisitos
 
-| Herramienta | Versión mínima | Notas                        |
-| ----------- | -------------- | ---------------------------- |
-| Node.js     | 20 LTS         | Ver `.nvmrc`                 |
-| Java (JDK)  | 17             | Eclipse Adoptium recomendado |
-| Maven       | 3.9+           | O usa el wrapper `mvnw`      |
-| MySQL       | 8.x            | En VM remota vía Tailscale   |
-| Tailscale   | cualquiera     | Para conectar a la VM MySQL  |
+| Herramienta | Versión |
+|---|---|
+| Java (JDK) | 17+ |
+| Maven | 3.9+ |
+| Node.js | **20.19+** (lo exige Vite 8; ver `.nvmrc`) |
+| MySQL | 8.x o superior (probado con 9.7) — o Docker |
+| [Mailpit](https://mailpit.axllent.org/) | opcional: atrapa los correos de recuperación de contraseña |
 
-### Backend
+### 1. Clonar e instalar
+
+```bash
+git clone https://github.com/JuaniMP/Mundial-2026.git
+cd Mundial-2026
+npm install
+```
+
+### 2. Base de datos
+
+Cualquiera de las dos:
+
+- **MySQL local** en el puerto 3306 con usuario `root` sin contraseña: no hay que configurar nada más.
+- **Docker:** `npm run db:start` y define `DB_URL`, `DB_USER` y `DB_PASSWORD` como se explica en [`basededatos/README.md`](basededatos/README.md).
+
+Las tablas se crean solas al arrancar el backend.
+
+### 3. Backend
 
 ```bash
 cd backend
-
-# Opción A — script de desarrollo (Windows, incluye env vars)
-start-dev.bat
-
-# Opción B — Maven directo con env vars
-set FIREBASE_ENABLED=true
-set FIREBASE_SERVICE_ACCOUNT_FILE=C:\ruta\al\service-account.json
-set STRIPE_SECRET_KEY=sk_test_...
-mvn spring-boot:run
-
-# → API disponible en http://localhost:8082
-# → Swagger UI en http://localhost:8082/swagger-ui.html
+SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run
 ```
 
-> **Importante:** la base de datos MySQL está en una VM remota (Tailscale).
-> Asegúrate de que Tailscale esté activo y la VM encendida antes de arrancar.
+El perfil `dev` (`application-dev.properties`) activa un secreto JWT de desarrollo, el correo con Mailpit (`localhost:1025`) y los **datos de demostración**.
+API en `http://localhost:8082` · Swagger en `http://localhost:8082/swagger-ui.html`.
+
+Para ver partidos, selecciones y la tabla general en vivo, añade tu clave gratuita: `FOOTBALL_DATA_KEY=tu_clave`.
+
+### 4. Frontend
+
+```bash
+cp frontend/world-cup-2026/.env.example frontend/world-cup-2026/.env.local   # Stripe y Firebase (opcional)
+npm run dev
+```
+
+Abre `http://localhost:5173`.
+
+### Cuentas de demostración (solo perfil `dev`)
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@mundial2026.com` | `Admin2026!` |
+| Soporte | `agente1@mundial26.com` | `Soporte2026!` |
+| Aficionado | `aficionado.demo@mundial2026.com` | `Aficionado2026!` |
+
+> En producción no se crea ninguna de estas cuentas: el administrador inicial solo existe si defines `ADMIN_PASSWORD`, y los datos de demostración requieren `SEED_DEMO_DATA=true`.
+
+---
+
+## 🧪 Cómo probarlo
+
+```bash
+cd backend && mvn verify                     # compila y ejecuta las pruebas del backend
+npm run lint && npm run typecheck && npm run build   # frontend
+```
+
+**Recorrido sugerido:**
+
+1. Regístrate como aficionado y entra a **Mi colección**: crea tu álbum, abre un sobre y pega una lámina.
+2. Ve a **Fan Zone → Pollas**, crea una polla y comparte el código.
+3. Reinicia el backend: tu álbum y tu agenda siguen ahí.
+4. Entra como `admin@mundial2026.com`: revisa **Admin** (usuarios e incidentes) y **Backoffice**.
+5. En **Soporte**, busca tu correo y verás tu línea de tiempo de actividad.
+
+---
+
+## 🔑 Variables de entorno
+
+Ninguna clave real vive en el código: todo se lee del entorno. Plantillas: [`backend/.env.local.example`](backend/.env.local.example) y [`frontend/world-cup-2026/.env.example`](frontend/world-cup-2026/.env.example).
+
+### Backend
+
+| Variable | Descripción | Por defecto |
+|---|---|---|
+| `DB_URL` / `DB_USER` / `DB_PASSWORD` | Conexión MySQL | `localhost:3306`, `root`, vacío |
+| `JWT_SECRET` | Secreto Base64 (≥ 256 bits) para firmar JWT | **obligatorio** fuera de `dev` |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | Administrador inicial | sin contraseña no se crea |
+| `SEED_DEMO_DATA` | Cuentas y datos ficticios | `false` (`true` en `dev`) |
+| `SQL_INIT_MODE` | `always` ejecuta `pre-init.sql`, que **borra** tablas | `never` |
+| `MAIL_HOST` / `MAIL_USERNAME` / `MAIL_PASSWORD` | SMTP | Gmail sin credenciales |
+| `FOOTBALL_DATA_KEY` | football-data.org | vacío |
+| `APIFOOTBALL_KEY` | API-Football (eliminatorias) | vacío |
+| `OPENTRIPMAP_KEY` | Agentes de viaje | vacío |
+| `STRIPE_SECRET_KEY` / `STRIPE_PUBLISHABLE_KEY` / `STRIPE_WEBHOOK_SECRET` | Pagos (sandbox) | placeholders |
+| `FIREBASE_ENABLED` / `FIREBASE_SERVICE_ACCOUNT_FILE` | Notificaciones push | `false` |
+| `CORS_ORIGINS` | Orígenes permitidos | `localhost:5173…` |
 
 ### Frontend
 
-```bash
-cd frontend/world-cup-2026
-
-# 1) Copia y rellena el archivo de entorno
-cp .env.example .env.local
-# → edita .env.local con tus claves Stripe y Firebase
-
-# 2) Instala dependencias
-npm install
-
-# 3) Arranca Vite
-npx vite --port 5173
-# → http://localhost:5173
-```
+| Variable | Descripción |
+|---|---|
+| `VITE_API_URL` | URL del backend sin `/api/v1` (por defecto `localhost:8082` en desarrollo y Fly.io en el build) |
+| `VITE_STRIPE_PK` | Clave publicable de Stripe |
+| `VITE_FIREBASE_*` | Configuración de Firebase y clave VAPID |
 
 ---
 
-## Variables de entorno
+## 🔌 API REST
 
-### Backend — `application.properties` / env vars
+Todas las rutas están bajo `/api/v1`. Documentación interactiva completa en **Swagger UI**.
 
-| Variable                        | Descripción                                      | Requerida                     |
-| ------------------------------- | ------------------------------------------------ | ----------------------------- |
-| `DB_USER`                       | Usuario MySQL                                    | No (default: `juanita_mh`)    |
-| `DB_PASSWORD`                   | Contraseña MySQL                                 | No (default en props)         |
-| `JWT_SECRET`                    | Secreto Base64 para firmar JWT (≥256 bits)       | No (default en props)         |
-| `STRIPE_SECRET_KEY`             | Clave secreta Stripe (`sk_test_...`)             | Sí para pagos                 |
-| `STRIPE_PUBLISHABLE_KEY`        | Clave publicable Stripe (`pk_test_...`)          | Sí para pagos                 |
-| `STRIPE_WEBHOOK_SECRET`         | Secreto webhook Stripe (`whsec_...`)             | Sí para webhooks              |
-| `FIREBASE_ENABLED`              | `true` para activar FCM                          | No (default: `false`)         |
-| `FIREBASE_SERVICE_ACCOUNT_FILE` | Ruta al JSON de servicio de Firebase             | Solo si FCM habilitado        |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | JSON de servicio inline (alternativa al archivo) | Solo si FCM habilitado        |
-| `MAIL_USERNAME`                 | Cuenta Gmail para envío de correos               | No (default en props)         |
-| `MAIL_PASSWORD`                 | App password de Gmail                            | No (default en props)         |
-| `FOOTBALL_DATA_KEY`             | API key de football-data.org                     | No (default en props)         |
-| `CORS_ORIGINS`                  | Origins permitidos (lista separada por comas)    | No (default: localhost:5173…) |
-
-### Frontend — `.env.local`
-
-| Variable                            | Descripción                                                                      |
-| ----------------------------------- | -------------------------------------------------------------------------------- |
-| `VITE_STRIPE_PK`                    | Clave publicable Stripe (`pk_test_...`)                                          |
-| `VITE_FIREBASE_API_KEY`             | API key del proyecto Firebase                                                    |
-| `VITE_FIREBASE_AUTH_DOMAIN`         | `<proyecto>.firebaseapp.com`                                                     |
-| `VITE_FIREBASE_PROJECT_ID`          | ID del proyecto Firebase                                                         |
-| `VITE_FIREBASE_STORAGE_BUCKET`      | `<proyecto>.firebasestorage.app`                                                 |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Número del proyecto Firebase                                                     |
-| `VITE_FIREBASE_APP_ID`              | App ID de la web app registrada en Firebase                                      |
-| `VITE_FIREBASE_VAPID_KEY`           | Clave pública VAPID (Firebase Console → Cloud Messaging → Certificados push web) |
-
-> Copia `frontend/world-cup-2026/.env.example` como punto de partida.
+| Recurso | Endpoints principales |
+|---|---|
+| Auth | `POST /auth/register` · `POST /auth/login` · `POST /auth/forgot-password` · `POST /auth/reset-password` |
+| Álbum (usuario del token) | `GET /album` · `POST /album/crear` · `POST /album/abrir-paquete` · `GET /album/laminas` · `GET /album/todas` · `POST /album/pegar/{laminaId}` |
+| Pollas | `GET/POST /pollas` · `GET /pollas/mis-pollas` · `POST /pollas/unirse/{codigo}` · `GET /pollas/{id}/ranking` · `POST /pollas/predicciones` |
+| Perfil | `GET/PUT /perfil/preferencias` · `GET/POST /perfil/agenda` |
+| Fútbol | `GET /football/matches` · `GET /football/standings` · `GET /football/teams` · `GET /estadios` |
+| Entradas | `GET /entradas/precios` · `POST /entradas/checkout` · `POST /entradas/webhook` · `GET /entradas/mis-entradas` |
+| Notificaciones | `POST /notifications/fcm-token` · `GET /notifications/mis-notificaciones` |
+| Soporte *(ADMIN, SOPORTE)* | `GET /soporte/buscar?q=` · `GET /soporte/timeline/{id}` · `GET /soporte/incidentes` · `POST /soporte/acciones/reembolso/{entradaId}` |
+| Backoffice *(ADMIN, COMPLIANCE)* | `/backoffice/alertas` · `/backoffice/logs` · `/backoffice/usuarios` · `/backoffice/resultados-manual` · `/backoffice/comunicados` |
 
 ---
 
-## Stack y decisiones
+## 🗺 Roadmap
 
-| Capa                   | Tecnología                                                         | Notas                      |
-| ---------------------- | ------------------------------------------------------------------ | -------------------------- |
-| **Frontend**           | Vite 6 + React 18 + TypeScript 5 + Tailwind 3                      | SPA con React Router v6    |
-| **Backend**            | Spring Boot 3.2 + Java 17                                          | REST API, JPA/Hibernate    |
-| **Base de datos**      | MySQL 8 en VM remota (Tailscale)                                   | DDL auto: `update`         |
-| **Autenticación**      | JWT (jjwt 0.12) + Spring Security 6                                | Tokens con expiración 1h   |
-| **Pagos**              | Stripe Java SDK 25.x                                               | Sandbox, webhooks          |
-| **Push Notifications** | Firebase Admin SDK 9.2 (backend) + Firebase JS SDK 11.x (frontend) | FCM v1 API, VAPID          |
-| **API FIFA**           | football-data.org v4                                               | Caché Caffeine 5 min       |
-| **Email**              | Spring Mail + Gmail SMTP                                           | Recuperación de contraseña |
-| **CI**                 | GitHub Actions                                                     | Lint + typecheck + build   |
+| Sprint | Entregables | Estado |
+|---|---|---|
+| **1 — Foundations** | Auth JWT, entidades base, correo, football-data | ✅ |
+| **2 — Core** | Estadios, partidos, álbum, pollas, posiciones | ✅ |
+| **3 — Pagos** | Stripe Checkout, webhooks, historial | ✅ |
+| **4 — Notificaciones** | Firebase FCM, grupos A–L | ✅ |
+| **5 — Hardening** | Seguridad (secretos fuera del código, control de acceso), pruebas, rendimiento | 🔄 En curso |
+| **6 — Deploy** | Dominio, CI/CD completo | ⏳ |
 
 ---
 
-## API — Endpoints principales
+## 📚 Documentación
 
-### Auth
-
-| Método | Ruta                           | Descripción                   |
-| ------ | ------------------------------ | ----------------------------- |
-| `POST` | `/api/v1/auth/register`        | Registro de usuario           |
-| `POST` | `/api/v1/auth/login`           | Login → devuelve JWT          |
-| `POST` | `/api/v1/auth/forgot-password` | Solicitar reset de contraseña |
-| `POST` | `/api/v1/auth/reset-password`  | Confirmar reset con token     |
-
-### Partidos & Standings
-
-| Método | Ruta                         | Descripción                 |
-| ------ | ---------------------------- | --------------------------- |
-| `GET`  | `/api/v1/partidos`           | Lista de partidos WC 2026   |
-| `GET`  | `/api/v1/football/standings` | Tabla general de posiciones |
-| `GET`  | `/api/v1/estadios`           | 16 sedes con coordenadas    |
-
-### Entradas (Stripe)
-
-| Método | Ruta                            | Descripción                      |
-| ------ | ------------------------------- | -------------------------------- |
-| `POST` | `/api/v1/entradas/checkout`     | Crear sesión Stripe Checkout     |
-| `POST` | `/api/v1/entradas/webhook`      | Webhook Stripe (pago exitoso)    |
-| `GET`  | `/api/v1/entradas/mis-entradas` | Entradas del usuario autenticado |
-
-### Notificaciones (FCM)
-
-| Método   | Ruta                                       | Descripción                             |
-| -------- | ------------------------------------------ | --------------------------------------- |
-| `POST`   | `/api/v1/notifications/token`              | Registrar token FCM del dispositivo     |
-| `DELETE` | `/api/v1/notifications/token`              | Eliminar token (desactivar push)        |
-| `GET`    | `/api/v1/notifications/has-token`          | Verificar si hay token registrado       |
-| `POST`   | `/api/v1/notifications/test`               | Enviar push de prueba al propio usuario |
-| `GET`    | `/api/v1/notifications/mis-notificaciones` | Historial de notificaciones             |
-
-> Swagger UI completo en `http://localhost:8082/swagger-ui.html` (con el backend activo).
+| Documento | Contenido |
+|---|---|
+| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | Diagramas C4 y flujos de datos |
+| [`docs/architecture/adrs/`](docs/architecture/adrs/) | Decisiones de arquitectura |
+| [`docs/design-system/DESIGN.md`](docs/design-system/DESIGN.md) | Sistema de diseño *Diplomatic Gallery* |
+| [`docs/product/spec.md`](docs/product/spec.md) | Especificación funcional e historias de usuario |
+| [`docs/runbooks/`](docs/runbooks/) | Procedimientos operativos |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Ramas, commits y pull requests |
 
 ---
 
-## Roadmap / Sprints
+<div align="center">
 
-| Sprint                     | Entregables                                                                                               | Estado       |
-| -------------------------- | --------------------------------------------------------------------------------------------------------- | ------------ |
-| **1 — Foundations**        | Auth JWT, estructura Spring Boot, entidades base, email, football-data API                                | ✅ Completo  |
-| **2 — Core Features**      | Mapa de estadios (Leaflet), partidos en vivo, álbum digital, superpolla, tabla posiciones                 | ✅ Completo  |
-| **3 — Pagos Stripe**       | Flujo completo de compra de entradas, Stripe Checkout, webhooks, historial                                | ✅ Completo  |
-| **4 — Push Notifications** | Firebase FCM (backend Admin SDK + frontend Messaging SDK), VAPID, Service Worker, grupos A–L en Standings | ✅ Completo  |
-| **5 — Hardening**          | Tests e2e (Playwright), observabilidad, perf budget, accesibilidad WCAG 2.1                               | ⏳ Pendiente |
-| **6 — Deploy**             | Vercel (frontend) + hosting backend, dominio, CI/CD completo                                              | ⏳ Pendiente |
+Hecho por **[Juanita Mejía](https://github.com/JuaniMP)** y contribuidores · Licencia [MIT](LICENSE)
 
----
-
-## Documentación
-
-| Documento                                                                | Descripción                                                      |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------- |
-| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | Visión big-picture, diagramas C4, flujos de datos                |
-| [`docs/architecture/adrs/`](docs/architecture/adrs/)                     | Architecture Decision Records (por qué elegimos cada tecnología) |
-| [`docs/design-system/DESIGN.md`](docs/design-system/DESIGN.md)           | Sistema de diseño _Diplomatic Gallery_                           |
-| [`docs/product/spec.md`](docs/product/spec.md)                           | Spec funcional con user stories                                  |
-| [`backend/README.md`](backend/README.md)                                 | Guía del backend: setup, env vars, endpoints                     |
-| [`frontend/world-cup-2026/README.md`](frontend/world-cup-2026/README.md) | Guía del frontend: setup, páginas, Firebase/Stripe               |
-| [`docs/runbooks/`](docs/runbooks/)                                       | Procedimientos operativos                                        |
-
----
-
-## Cómo contribuir
-
-Lee [CONTRIBUTING.md](CONTRIBUTING.md). Resumen:
-
-```bash
-# 1) Crea tu rama
-git checkout -b feat/mi-feature   # o fix/, docs/, chore/
-
-# 2) Haz tus cambios y asegura que pasa CI
-cd frontend/world-cup-2026 && npm run lint && npm run typecheck && npm run build
-
-# 3) Commit con Conventional Commits
-git commit -m "feat(notifications): add in-app notification badge"
-
-# 4) Abre PR contra main — usa el template de PR
-git push origin feat/mi-feature
-```
-
----
-
-## Licencia
-
-[MIT](LICENSE) © 2026 — Juanita Mejia y contribuidores.
+</div>

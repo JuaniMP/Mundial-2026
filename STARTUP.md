@@ -57,11 +57,8 @@ start-backend.bat
 
 ## 🗄️ Base de datos
 
-Asegúrate de que la VM remota de MySQL sea accesible en `100.87.26.105:3306` con:
-
-- Usuario: `juanita_mh`
-- Contraseña: la configurada en `backend/src/main/resources/application.properties`
-- Base de datos: `mundial_2026_hub`
+Por defecto el backend usa un MySQL local (`localhost:3306`, usuario `root` sin contraseña) y crea la base `mundial_2026_hub` y sus tablas al arrancar.
+Para otro servidor define `DB_URL`, `DB_USER` y `DB_PASSWORD` (ver `backend/.env.local.example` y `basededatos/README.md`).
 
 ---
 
@@ -79,8 +76,8 @@ C:\Users\juame\.maven\maven-3.9.15(1)\bin\mvn -version
 
 ### ❌ Backend no se conecta a la BD
 
-1. Verifica que Tailscale esté conectado y que la VM responda en `100.87.26.105:3306`
-2. Revisa credenciales en `backend/src/main/resources/application.properties`
+1. Verifica que MySQL esté encendido y accesible en la URL de `DB_URL` (por defecto `localhost:3306`)
+2. Revisa `DB_USER` y `DB_PASSWORD` en tus variables de entorno
 3. Revisa los logs del backend en la terminal donde lo arrancaste
 
 ### ❌ Frontend no abre en navegador

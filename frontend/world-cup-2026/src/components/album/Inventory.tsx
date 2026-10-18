@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { StickerCard } from './StickerCard';
-import type { LaminaAlbum } from './albumApi';
+import type { LaminaAlbum } from '../../services/albumApi';
 import { parseRareza, RARITY } from './rarityUtils';
 import { getTeamForLamina, TEAMS } from './teamColors';
 

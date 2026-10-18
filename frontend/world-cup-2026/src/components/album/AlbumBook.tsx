@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { StickerCard } from './StickerCard';
 import { TEAMS, type Team, getTeamBySeleccion } from './teamColors';
-import type { LaminaAlbum } from './albumApi';
+import type { LaminaAlbum } from '../../services/albumApi';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SLOTS_PER_TEAM = 14;

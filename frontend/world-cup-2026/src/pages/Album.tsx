@@ -12,7 +12,7 @@ import {
   pegarLamina,
   abrirPaquete,
   type LaminaAlbum,
-} from '../components/album/albumApi';
+} from '../services/albumApi';
 import { scopedKey } from '../utils/userScope';
 import { clearOldPhotoCache } from '../services/imageApi';
 

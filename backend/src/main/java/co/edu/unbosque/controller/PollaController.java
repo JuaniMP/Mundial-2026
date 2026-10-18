@@ -1,9 +1,7 @@
 package co.edu.unbosque.controller;
 
+import co.edu.unbosque.security.UsuarioActual;
 import co.edu.unbosque.dto.*;
-import co.edu.unbosque.entity.Usuario;
-import co.edu.unbosque.exception.ResourceNotFoundException;
-import co.edu.unbosque.repository.UsuarioRepository;
 import co.edu.unbosque.service.PollaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,7 +19,7 @@ import java.util.Map;
 public class PollaController {
 
     private final PollaService pollaService;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioActual usuarioActual;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<PollaResponse>>> getAllPollas() {
@@ -31,7 +29,7 @@ public class PollaController {
     @GetMapping("/mis-pollas")
     public ResponseEntity<ApiResponse<List<PollaResumenResponse>>> getMisPollas(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer usuarioId = currentUserId(userDetails);
+        Integer usuarioId = usuarioActual.id(userDetails);
         return ResponseEntity.ok(ApiResponse.success(pollaService.getMisPollas(usuarioId), "Mis pollas"));
     }
 
@@ -54,7 +52,7 @@ public class PollaController {
     public ResponseEntity<ApiResponse<PollaResponse>> createPolla(
             @RequestBody PollaRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer usuarioId = currentUserId(userDetails);
+        Integer usuarioId = usuarioActual.id(userDetails);
         PollaResponse polla = pollaService.createPolla(request, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(polla, "Polla creada"));
@@ -64,7 +62,7 @@ public class PollaController {
     public ResponseEntity<ApiResponse<PollaResponse>> joinPolla(
             @PathVariable String codigo,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer usuarioId = currentUserId(userDetails);
+        Integer usuarioId = usuarioActual.id(userDetails);
         PollaResponse polla = pollaService.joinPolla(codigo, usuarioId);
         return ResponseEntity.ok(ApiResponse.success(polla, "Te uniste a la polla"));
     }
@@ -78,7 +76,7 @@ public class PollaController {
     public ResponseEntity<ApiResponse<List<PrediccionResponse>>> getMisPredicciones(
             @PathVariable Integer id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer usuarioId = currentUserId(userDetails);
+        Integer usuarioId = usuarioActual.id(userDetails);
         return ResponseEntity.ok(ApiResponse.success(pollaService.getMisPredicciones(id, usuarioId), "Mis predicciones"));
     }
 
@@ -86,7 +84,7 @@ public class PollaController {
     public ResponseEntity<ApiResponse<PrediccionResponse>> createPrediccion(
             @RequestBody PrediccionRequest request,
             @AuthenticationPrincipal UserDetails userDetails) {
-        Integer usuarioId = currentUserId(userDetails);
+        Integer usuarioId = usuarioActual.id(userDetails);
         PrediccionResponse prediccion = pollaService.createPrediccion(request, usuarioId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(prediccion, "Predicción guardada"));
@@ -105,14 +103,5 @@ public class PollaController {
         Integer marcadorVisitante = Integer.valueOf(body.get("marcadorVisitante").toString());
         pollaService.evaluarPredicciones(id, apiPartidoId, marcadorLocal, marcadorVisitante);
         return ResponseEntity.ok(ApiResponse.success(null, "Predicciones evaluadas"));
-    }
-
-    private Integer currentUserId(UserDetails userDetails) {
-        if (userDetails == null || userDetails.getUsername() == null) {
-            throw new ResourceNotFoundException("No hay sesión activa");
-        }
-        Usuario u = usuarioRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
-        return u.getId();
     }
 }

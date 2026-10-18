@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import type { LaminaAlbumResponse } from '../../services/albumApi';
+import type { LaminaAlbum } from '../../services/albumApi';
 import { SFX } from './sfx';
 
 const RARITY_COLOR: Record<string, string> = {
@@ -17,7 +17,7 @@ const RARITY_LABEL: Record<string, string> = {
 };
 
 interface Props {
-  lamina: LaminaAlbumResponse;
+  lamina: LaminaAlbum;
   size?: 'sm' | 'md' | 'lg';
   onPegar?: (id: number) => void;
 }
@@ -111,9 +111,9 @@ export function StickerCardFlip({ lamina, size = 'md', onPegar }: Props) {
               >
                 {lamina.nombreJugador}
               </span>
-              {size !== 'sm' && lamina.seleccion && (
+              {size !== 'sm' && lamina.seleccionNombre && (
                 <span className="text-text-muted" style={{ fontSize: '0.65rem' }}>
-                  {lamina.seleccion}
+                  {lamina.seleccionNombre}
                 </span>
               )}
             </div>
@@ -156,14 +156,6 @@ export function StickerCardFlip({ lamina, size = 'md', onPegar }: Props) {
             <span className="text-white font-bold text-center" style={{ fontSize: '0.7rem' }}>
               {lamina.nombreJugador}
             </span>
-            {lamina.posicion && (
-              <span className="text-primary-light" style={{ fontSize: '0.65rem' }}>
-                {lamina.posicion}
-              </span>
-            )}
-            {lamina.dorsal != null && (
-              <span className="text-white/70 text-2xl font-black">#{lamina.dorsal}</span>
-            )}
             <div
               className="px-2 py-0.5 rounded-full text-white font-semibold"
               style={{ background: rarityColor, fontSize: '0.6rem' }}
@@ -190,7 +182,7 @@ export function StickerCardFlip({ lamina, size = 'md', onPegar }: Props) {
   );
 }
 
-export function StickerMini({ lamina }: { lamina: LaminaAlbumResponse }) {
+export function StickerMini({ lamina }: { lamina: LaminaAlbum }) {
   const rarityColor = RARITY_COLOR[lamina.rareza] ?? '#64748b';
   return (
     <div

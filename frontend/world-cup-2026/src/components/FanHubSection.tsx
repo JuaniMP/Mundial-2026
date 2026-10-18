@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronRight, TrendingUp, Trophy } from 'lucide-react';
-import { getMyLaminas } from '../services/albumApi';
+import { fetchLaminas } from '../services/albumApi';
 
 const TOTAL_LAMINAS = 320;
 
@@ -10,9 +10,8 @@ export function FanHubSection() {
   const [pegadas, setPegadas] = useState(0);
 
   useEffect(() => {
-    const token = sessionStorage.getItem('token');
-    if (!token) return;
-    getMyLaminas(token)
+    if (!sessionStorage.getItem('token')) return;
+    fetchLaminas()
       .then((laminas) => {
         setOwned(laminas.length);
         setPegadas(laminas.filter((l) => l.estaPegada).length);
